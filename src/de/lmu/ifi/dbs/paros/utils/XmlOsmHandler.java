@@ -29,11 +29,11 @@ import org.xml.sax.helpers.DefaultHandler;
 public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends DefaultHandler {
 
     private static final Logger log = Logger.getLogger(XmlOsmGraphReader.class.getName());
-    private HashMap<Integer, OSMNode> hm_nodes = new HashMap<Integer, OSMNode>();
-    private List<OSMNode> list_nodes = new ArrayList<OSMNode>();
+    private HashMap<Integer, OSMNode> hm_nodes = new HashMap<>();
+    private List<OSMNode> list_nodes = new ArrayList<>();
     private LinkedList<String> list_nodeIDatWay = null;
     private LinkedList<String[]> list_wayAttribs = null;
-    private List<OSMLink<OSMNode>> list_links = new ArrayList<OSMLink<OSMNode>>();
+    private List<OSMLink<OSMNode>> list_links = new ArrayList<>();
     private OSMNode n = null;
     private boolean open_node = false; // indicates that a <node> is currently processed
     private boolean open_way = false;// indicates that a <way> is currently processed
@@ -137,109 +137,118 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
     @Override
     public void endElement(String uri, String localName, String qName) {
         try {
-            if (qName.equals("way")) {
-                OSMLink<OSMNode> link = null;
-                open_way = false;
-
-                OSMNode src = null;
-                OSMNode dst = null;
-                String first = list_nodeIDatWay.peekFirst();
-                String last = list_nodeIDatWay.peekLast();
-                if (first != null) {
-                    src = hm_nodes.get(Integer.parseInt(first));
-                }
-                if (last != null) {
-                    dst = hm_nodes.get(Integer.parseInt(last));
-                }
-
-                boolean highway = false;
-                boolean oneway = false;
-                boolean reverse = false;
-                if (src != null && dst != null) {
-                    // is it a one way street?
-                    for (String[] pair : list_wayAttribs) {
-                        if (pair[0].equals("oneway")) {
-                            if (pair[1].equals("yes") || pair[1].equals("true") || pair[1].equals("1")) {
+            switch (qName) {
+                case "way":
+                    OSMLink<OSMNode> link = null;
+                    open_way = false;
+                    OSMNode src = null;
+                    OSMNode dst = null;
+                    String first = list_nodeIDatWay.peekFirst();
+                    String last = list_nodeIDatWay.peekLast();
+                    if (first != null) {
+                        src = hm_nodes.get(Integer.parseInt(first));
+                    }
+                    if (last != null) {
+                        dst = hm_nodes.get(Integer.parseInt(last));
+                    }
+                    boolean highway = false;
+                    boolean oneway = false;
+                    boolean reverse = false;
+                    if (src != null && dst != null) {
+                        // is it a one way street?
+                        for (String[] pair : list_wayAttribs) {
+                            if (pair[0].equals("oneway")) {
+                        switch (pair[1]) {
+                            case "yes":
+                            case "true":
+                            case "1":
                                 oneway = true;
-                            } else if (pair[1].equals("-1")) {  // oneway:-1
+                                break;
+                            case "-1":
+                                // oneway:-1
                                 oneway = true;
                                 reverse = true;
+                                break;
+                        }
+                            }
+                            if (pair[0].equals("highway")) {
+                                highway = true;
                             }
                         }
-                        if (pair[0].equals("highway")) {
-                            highway = true;
-                        }
                     }
-                }
-                if (highway) {
-                    if (!reverse) {
-                        link = new OSMLink(src, dst, oneway);
-                    } else {
-                        link = new OSMLink(dst, src, oneway);
-                    }
-                    link.setId(Integer.parseInt(way_ID));
-
-                    // add intermediate nodes to the link incl. start/end node
-                    while (!list_nodeIDatWay.isEmpty()) {
-                        OSMNode worky = null;
-                        String nodeID = "";
+                    if (highway) {
                         if (!reverse) {
-                            nodeID = list_nodeIDatWay.pollFirst();
+                            link = new OSMLink(src, dst, oneway);
                         } else {
-                            nodeID = list_nodeIDatWay.pollLast();
+                            link = new OSMLink(dst, src, oneway);
                         }
-                        if (nodeID != null) {
-                            worky = hm_nodes.get(Integer.parseInt(nodeID));
-                            if (worky != null) {
-                                link.addNodes(worky);
+                        link.setId(Integer.parseInt(way_ID));
+
+                        // add intermediate nodes to the link incl. start/end node
+                        while (!list_nodeIDatWay.isEmpty()) {
+                            OSMNode worky = null;
+                            String nodeID = "";
+                            if (!reverse) {
+                                nodeID = list_nodeIDatWay.pollFirst();
+                            } else {
+                                nodeID = list_nodeIDatWay.pollLast();
+                            }
+                            if (nodeID != null) {
+                                worky = hm_nodes.get(Integer.parseInt(nodeID));
+                                if (worky != null) {
+                                    link.addNodes(worky);
+                                }
                             }
                         }
-                    }
-                    // add attributes
-                    for (String[] pair : list_wayAttribs) {
-                        if (pair[0].equals("ascend")) {
+                        // add attributes
+                        for (String[] pair : list_wayAttribs) {
+                    switch (pair[0]) {
+                        case "ascend":
                             link.setAscend(Double.parseDouble(pair[1]));
-                        } else if (pair[0].equals("descend")) {
+                            break;
+                        case "descend":
                             link.setDescend(Double.parseDouble(pair[1]));
-                        } else if (pair[0].equals("incline")) { // Steigung/Gefälle
+                            break;
+                        case "incline":
+                            // Steigung/Gefälle
                             // remove all non digits (like "%")
                             pair[1] = pair[1].replaceAll("[^\\d]", "");
                             link.setAttr(pair[0], pair[1]);
-                        } else {
+                            break;
+                        default:
                             link.setAttr(pair[0], pair[1]);
+                            break;
+                    }
+                        }
+                        //FIXME: not needed here.
+                        //will be done again at graph.beautifyGraph();
+    //                        link.setDistance(OSMUtils.dist(link));
+                        if (link.getAscend() == 0 && link.getDescend() == 0 && link.getSource().getHeight() != link.getTarget().getHeight()) {
+                            double height = link.getTarget().getHeight() - link.getSource().getHeight();
+                            if (height < 0) {
+                                link.setDescend(-height);
+                            } else {
+                                link.setAscend(height);
+                            }
+                        }
+                        list_links.add(link);
+                        if (!list_links.isEmpty() && list_links.size() % 10000 == 0) {
+                            log.log(Level.FINE, "links: {0}", list_links.size());
                         }
                     }
-                    //FIXME: not needed here.
-                    //will be done again at graph.beautifyGraph();
-//                        link.setDistance(OSMUtils.dist(link));
-                    if (link.getAscend() == 0 && link.getDescend() == 0 && link.getSource().getHeight() != link.getTarget().getHeight()) {
-                        double height = link.getTarget().getHeight() - link.getSource().getHeight();
-                        if (height < 0) {
-                            link.setDescend(-height);
-                        } else {
-                            link.setAscend(height);
-                        }
+                    way_ID = null;
+                    list_nodeIDatWay = null;
+                    list_wayAttribs = null;
+                    break;
+                case "node":
+                    open_node = false;
+                    list_nodes.add(n);
+                    hm_nodes.put(n.getName(), n);
+                    n = null;
+                    if (!list_nodes.isEmpty() && list_nodes.size() % 100000 == 0) {
+                        log.log(Level.FINE, "nodes: {0}", list_nodes.size());
                     }
-                    list_links.add(link);
-                    if (!list_links.isEmpty() && list_links.size() % 10000 == 0) {
-                        log.log(Level.FINE, "links: {0}", list_links.size());
-                    }
-                }
-
-                way_ID = null;
-                list_nodeIDatWay = null;
-                list_wayAttribs = null;
-
-
-            } else if (qName.equals("node")) {
-                open_node = false;
-                list_nodes.add(n);
-                hm_nodes.put(n.getName(), n);
-                n = null;
-
-                if (!list_nodes.isEmpty() && list_nodes.size() % 100000 == 0) {
-                    log.log(Level.FINE, "nodes: {0}", list_nodes.size());
-                }
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();

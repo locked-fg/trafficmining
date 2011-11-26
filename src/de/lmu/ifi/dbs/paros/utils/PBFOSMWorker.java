@@ -4,16 +4,12 @@
  */
 package de.lmu.ifi.dbs.paros.utils;
 
-import crosby.binary.file.BlockOutputStream;
 import crosby.binary.osmosis.OsmosisReader;
-import crosby.binary.osmosis.OsmosisSerializer;
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;

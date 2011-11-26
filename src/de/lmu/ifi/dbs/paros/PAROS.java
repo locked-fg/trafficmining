@@ -361,6 +361,7 @@ public class PAROS extends javax.swing.JFrame {
     //TODO: CLUSTERING END
     private void restoreLastMapPosition() {
 //        Integer zoom = properties.getInteger(ParosProperties.map_last_zoom);
+        try {
         Double lat = properties.getDouble(ParosProperties.map_last_center_latitude);
         Double lon = properties.getDouble(ParosProperties.map_last_center_longitude);
 
@@ -368,6 +369,9 @@ public class PAROS extends javax.swing.JFrame {
         if (lat != null && lon != null) {
             map.setCenterPosition(new GeoPosition(lat, lon));
 //            map.setZoom(zoom);
+        }
+        } catch (NumberFormatException nfe) {
+            
         }
     }
 
@@ -1475,8 +1479,11 @@ private void aboutmenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JCheckBoxMenuItem visitedNodesItem;
     // End of variables declaration//GEN-END:variables
 
+    /*
+     * @fixme NPE @ logmanager. resource as stream
+     */
     public static void main(String args[]) throws Exception {
-        LogManager.getLogManager().readConfiguration(PAROS.class.getResourceAsStream("./logging.properties"));
+        //LogManager.getLogManager().readConfiguration(PAROS.class.getResourceAsStream("./logging.properties"));
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         java.awt.EventQueue.invokeLater(new Runnable() {

@@ -26,8 +26,7 @@ public class XmlOsmGraphReader<N extends OSMNode<L>, L extends OSMLink<N>> {
     private OSMGraph<N, L> graph;
     private XmlOsmHandler xoh;
 
-    public XmlOsmGraphReader() {
-    }
+    public XmlOsmGraphReader() {}
 
     public void parseOSMxml(File osmXML) {
         try {
@@ -36,17 +35,13 @@ public class XmlOsmGraphReader<N extends OSMNode<L>, L extends OSMLink<N>> {
             if (filesize <= 0) {
                 out = (osmXML.length() / 1024) + " kb";
             }
-            log.info("parsing XML: " + osmXML.getAbsolutePath() + "; filesize: " + out);
+            log.log(Level.INFO, "parsing XML: {0}; filesize: {1}", new Object[]{osmXML.getAbsolutePath(), out});
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
             factory.setValidating(true);
             SAXParser parser = factory.newSAXParser();
             parser.parse(osmXML, xoh);
-        } catch (IOException ex) {
-            Logger.getLogger(XmlOsmGraphReader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ParserConfigurationException ex) {
-            Logger.getLogger(XmlOsmGraphReader.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SAXException ex) {
+        } catch (IOException | ParserConfigurationException | SAXException ex) {
             Logger.getLogger(XmlOsmGraphReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -61,7 +56,7 @@ public class XmlOsmGraphReader<N extends OSMNode<L>, L extends OSMLink<N>> {
 
     OSMGraph<N, L> getGraph(File osmXML) {
         try {
-            graph = new OSMGraph<N, L>();
+            graph = new OSMGraph<>();
             xoh = new XmlOsmHandler();
             parseOSMxml(osmXML);
             Thread.sleep(1);
