@@ -36,12 +36,28 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
             throw new NullPointerException("no null nodes allowed");
         }
         if (ns == null) {
-            ns = new ArrayList<N>(3);
+            ns = new ArrayList<>(3);
         }
-        if (ns.size() == 0 && (!n.equals(getSource()) && !n.equals(getTarget()))) {
+        if (ns.isEmpty() && (!n.equals(getSource()) && !n.equals(getTarget()))) {
             log.info("initializing sublist with a node which is neither start nor target node");
         }
         ns.add(n);
+    }
+    
+    public void delNodes(int i) {
+        if (i >= ns.size() || i < 0) {
+            throw new NullPointerException("node index wrong");
+        } else {
+            ns.remove(i);
+        }
+    }
+    
+    public void delNodes(N node) {
+        ns.remove(node);
+    }
+    
+    public void clearNodes() {
+        ns.clear();
     }
 
     /**

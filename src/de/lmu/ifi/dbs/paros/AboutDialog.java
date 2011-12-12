@@ -51,10 +51,11 @@ public class AboutDialog extends javax.swing.JDialog {
         southPanel.add(closeButton);
 
         title.setFont(new java.awt.Font("Tahoma", 1, 18));
-        title.setText("PAROS");
+        title.setText("MARiO v2");
 
         textPanel.setBorder(null);
-        textPanel.setText("Software created by:\n\nFranz Graf\nLudwig-Maximilians-Universität München\nInstitut für Informatik\nLehrstuhl für Datenbanksysteme\nÖttingenstraße 67, München\nGermany\n\nProject website: http://www.dbs.ifi.lmu.de/cms/Project_Paros\n\nSpecial thanks to:\nRobert Greil\nFang Zeng");
+        textPanel.setContentType("text/html");
+        textPanel.setText("<html>\n  <head>\n    <b>Software created by</b>:\n  </head>\n  <body>\n    <p style=\"margin-top: 0\">\n      Franz Graf<br>\n      Ludwig-Maximilians-Universität München<br>\n      Institut für Informatik<br>\n      Lehrstuhl für Datenbanksysteme<br>\n      Öttingenstraße 67, München<br>\n      Germany<br>\n      <br>\n      Project Website: http://code.google.com/p/trafficmining<br>\n     <br>\n      <b>Special thanks to</b>:<br>\n      Robert Greil<br>\n      Fang Zeng<br>\n    </p>\n  </body>\n</html>");
         textPanel.setOpaque(false);
         scrollPanel.setViewportView(textPanel);
 
@@ -65,8 +66,8 @@ public class AboutDialog extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(scrollPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
-                    .addComponent(southPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 381, Short.MAX_VALUE)
+                    .addComponent(scrollPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
+                    .addComponent(southPanel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 382, Short.MAX_VALUE)
                     .addComponent(title, javax.swing.GroupLayout.Alignment.LEADING))
                 .addContainerGap())
         );
@@ -76,7 +77,7 @@ public class AboutDialog extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(title)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE)
+                .addComponent(scrollPanel, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(southPanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );

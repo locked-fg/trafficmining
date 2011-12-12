@@ -30,6 +30,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -69,9 +70,10 @@ import org.jdesktop.swingx.mapviewer.WaypointPainter;
 import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.Painter;
 
-public class PAROS extends javax.swing.JFrame {
 
-    private static final Logger log = Logger.getLogger(PAROS.class.getName());
+public class TrafficminingGUI extends javax.swing.JFrame {
+
+    private static final Logger log = Logger.getLogger(TrafficminingGUI.class.getName());
     private final ParosProperties properties;
     // map result type -> layout name
     private final Map<Class, String> resultToLayoutName; // cardlayout
@@ -100,20 +102,22 @@ public class PAROS extends javax.swing.JFrame {
     private TileServer tileServer;
     private JXMapViewer map;
 
-    public PAROS() throws IOException {
+    public TrafficminingGUI() throws IOException {
         log.info("start");
         initComponents();
         map = jXMapKit.getMainMap();
 
         properties = new ParosProperties();
-        List<String> srtm = new ArrayList<String>();
-        for (String s : properties.getKeys()) {
-            if (s.startsWith("srtm.src.url.")) {
-                srtm.add(properties.getString(s));
-            }
-        }
+//        List<String> srtm = new ArrayList<String>();
+//        for (String s : properties.getKeys()) {
+//            if (s.startsWith("srtm.src.url.")) {
+//                srtm.add(properties.getString(s));
+//            }
+//        }
+//        pbf_o.setSRTMServers(srtm);
+        
         pbf_o = new PBFtoOSMFrame();
-        pbf_o.setSRTMServers(srtm);
+        
 
         loadAlgorithmComboBox();
 
@@ -201,7 +205,7 @@ public class PAROS extends javax.swing.JFrame {
      * 
      */
     private void createTileServer() {
-        
+
         //TODO implement, but read FAQ...
 //        http://code.google.com/intl/de-DE/apis/maps/documentation/staticmaps/
 //        http://maps.google.com/maps/api/staticmap?zoom=1&size=512x512&maptype=roadmap&sensor=false
@@ -362,16 +366,15 @@ public class PAROS extends javax.swing.JFrame {
     private void restoreLastMapPosition() {
 //        Integer zoom = properties.getInteger(ParosProperties.map_last_zoom);
         try {
-        Double lat = properties.getDouble(ParosProperties.map_last_center_latitude);
-        Double lon = properties.getDouble(ParosProperties.map_last_center_longitude);
+            Double lat = properties.getDouble(ParosProperties.map_last_center_latitude);
+            Double lon = properties.getDouble(ParosProperties.map_last_center_longitude);
 
 //        if (zoom != null && lat != null && lon != null) {
-        if (lat != null && lon != null) {
-            map.setCenterPosition(new GeoPosition(lat, lon));
+            if (lat != null && lon != null) {
+                map.setCenterPosition(new GeoPosition(lat, lon));
 //            map.setZoom(zoom);
-        }
+            }
         } catch (NumberFormatException nfe) {
-            
         }
     }
 
@@ -460,7 +463,7 @@ public class PAROS extends javax.swing.JFrame {
         statusbarLabel.setText(statusText);
         graphPainter.setGraph(graph);
         Collection<OSMNode<OSMLink>> nodes = graph.getNodes();
-        Set<GeoPosition> geo_set = new HashSet<GeoPosition>();
+        Set<GeoPosition> geo_set = new HashSet<>();
         for (OSMNode<OSMLink> oSMNode : nodes) {
             geo_set.add(oSMNode.getGeoPosition());
         }
@@ -563,7 +566,7 @@ public class PAROS extends javax.swing.JFrame {
     }
 
     private void refreshPainters() {
-        List<Painter> list = new ArrayList<Painter>();
+        List<Painter> list = new ArrayList<>();
         if (paintGraphMenuItem.isSelected()) {
             list.add(graphPainter);
         }
@@ -579,7 +582,7 @@ public class PAROS extends javax.swing.JFrame {
             return;
         }
 
-        List<SimplexResultEntry> items = new ArrayList<SimplexResultEntry>();
+        List<SimplexResultEntry> items = new ArrayList<>();
         for (int rowID : rowIDs) {
             rowID = resultTable.convertRowIndexToModel(rowID);
             Integer id = (Integer) resultTableModel.getValueAt(rowID, 0);
@@ -592,11 +595,11 @@ public class PAROS extends javax.swing.JFrame {
         Class resultClass = results.values().iterator().next().getResult().getClass();
         SimplexControl simplexControl = resultToSimplexControl.get(resultClass);
         assert simplexControl != null;
-        List<PointSource> list = new ArrayList<PointSource>();
+        List<PointSource> list = new ArrayList<>();
         if (items.isEmpty()) {
             pathPainter.clear();
         } else {
-            List<Path<?, ? extends OSMNode, ?>> pathList = new ArrayList<Path<?, ? extends OSMNode, ?>>();
+            List<Path<?, ? extends OSMNode, ?>> pathList = new ArrayList<>();
             for (SimplexResultEntry resultEntry : items) {
                 pathList.add(resultEntry.getPath());
                 list.add(resultEntry);
@@ -875,7 +878,12 @@ public class PAROS extends javax.swing.JFrame {
         public void mouseClicked(MouseEvent e) {
             GeoPosition pos = map.convertPointToGeoPosition(e.getPoint());
             OSMNode node = OSMUtils.getNearestNode(pos, graph);
-            model_wp.addElement(node);
+            if (model_wp.contains(node)) {
+                model_wp.removeElement(node);
+            } else {
+                model_wp.addElement(node);
+            }
+
             paintWaypoints(model_wp.getWaypoints());
         }
     }
@@ -952,7 +960,7 @@ public class PAROS extends javax.swing.JFrame {
     }
 
     private void paintWaypoints(List<Waypoint> wp) {
-        startEndPainter.setWaypoints(new HashSet<Waypoint>(wp));
+        startEndPainter.setWaypoints(new HashSet<>(wp));
         refreshPainters();
     }
 
@@ -1436,10 +1444,10 @@ private void jMenuItem_loadPBFActionPerformed(java.awt.event.ActionEvent evt) {/
 }//GEN-LAST:event_jMenuItem_loadPBFActionPerformed
 
 private void aboutmenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutmenuItemActionPerformed
-// TODO add your handling code here:
-//    AboutDialog ad = new AboutDialog(this, true);
-//    ad.setLocationRelativeTo(null);
-//    ad.setVisible(true);
+
+    AboutDialog ad = new AboutDialog(this, true);
+    ad.setLocationRelativeTo(null);
+    ad.setVisible(true);
 }//GEN-LAST:event_aboutmenuItemActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.DefaultComboBoxModel algorithmBoxModel;
@@ -1483,7 +1491,13 @@ private void aboutmenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
      * @fixme NPE @ logmanager. resource as stream
      */
     public static void main(String args[]) throws Exception {
-        //LogManager.getLogManager().readConfiguration(PAROS.class.getResourceAsStream("./logging.properties"));
+        try (InputStream is = TrafficminingGUI.class.getResourceAsStream("/logging.properties")) {
+            if (is != null) {
+                LogManager.getLogManager().readConfiguration(is);
+                is.close();
+            }
+        } catch (IOException ex) {
+        }
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -1491,16 +1505,15 @@ private void aboutmenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
             @Override
             public void run() {
                 try {
-                    PAROS d = new PAROS();
+                    TrafficminingGUI d = new TrafficminingGUI();
                     d.setVisible(true);
                 } catch (IOException ex) {
-                    Logger.getLogger(PAROS.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
     }
 }
-
 class ComboboxLoader {
 
     private final static Logger logger = Logger.getLogger(ComboboxLoader.class.getName());

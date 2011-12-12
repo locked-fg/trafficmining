@@ -4,7 +4,7 @@
  */
 package de.lmu.ifi.dbs.paros.utils;
 
-import de.lmu.ifi.dbs.paros.PAROS;
+import de.lmu.ifi.dbs.paros.TrafficminingGUI;
 import de.lmu.ifi.dbs.paros.graph.OSMLink;
 import de.lmu.ifi.dbs.paros.graph.OSMNode;
 import java.io.BufferedReader;
@@ -39,7 +39,7 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
     private boolean open_way = false;// indicates that a <way> is currently processed
     private String way_ID = "";
     private List<String> whitelist = null;
-    private boolean wl_activated = PAROS.getWhitelistStatus();
+    private boolean wl_activated = TrafficminingGUI.getWhitelistStatus();
 
     public XmlOsmHandler() {
         if (wl_activated) {
@@ -49,7 +49,7 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
                 File f = new File("whitelist-tags.properties");
                 prop.load(new BufferedReader(new FileReader(f)));
                 String[] tags = prop.getProperty("tags").split(";");
-                whitelist = new ArrayList<String>();
+                whitelist = new ArrayList<>();
                 log.log(Level.INFO, "Using whitelist for tags: {0}", f.getAbsolutePath());
                 log.log(Level.FINE, "Tags whitelisted: {0}", tags.length);
                 for (String s : tags) {
@@ -76,41 +76,51 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
         try {
-            if (qName.equals("node")) { //NODE
-                open_node = true;
-                String id = attributes.getValue("id");
-                String lat = attributes.getValue("lat");
-                String lon = attributes.getValue("lon");
-                n = new OSMNode(Integer.parseInt(id));
-                n.setLat(Double.parseDouble(lat));
-                n.setLon(Double.parseDouble(lon));
-            } else if (qName.equals("way")) { //WAY
-                open_way = true;
-                String wayID = attributes.getValue("id");
-                way_ID = wayID;
-                list_nodeIDatWay = new LinkedList<String>();
-                list_wayAttribs = new LinkedList<String[]>();
-            } else if (qName.equals("nd")) {  //NODE AT WAY
-                String nodeID = attributes.getValue("ref");
-                list_nodeIDatWay.add(nodeID);
-            } else if (qName.equals("tag")) {  //TAG
-                String k = attributes.getValue("k");
-                if (allowTag(k)) {
-                    String v = clean(attributes.getValue("v"));
-                    if (open_way) {
-                        list_wayAttribs.add(new String[]{k, v});
-                    } else if (open_node) {
-                        if (k.equalsIgnoreCase("height")) {
-                            try {
-                                double height = Double.parseDouble(v);
-                                n.setHeight(height);
-                            } catch (NumberFormatException nfe) {
+            switch (qName) {
+                case "node":
+                    //NODE
+                    open_node = true;
+                    String id = attributes.getValue("id").intern();
+                    String lat = attributes.getValue("lat");
+                    String lon = attributes.getValue("lon");
+                    n = new OSMNode(Integer.parseInt(id));
+                    n.setLat(Double.parseDouble(lat));
+                    n.setLon(Double.parseDouble(lon));
+                    break;
+                case "way":
+                    //WAY
+                    open_way = true;
+                    String wayID = attributes.getValue("id");
+                    way_ID = wayID;
+                    list_nodeIDatWay = new LinkedList<>();
+                    list_wayAttribs = new LinkedList<>();
+                    break;
+                case "nd":
+                    //NODE AT WAY
+                    String nodeID = attributes.getValue("ref").intern();
+                    list_nodeIDatWay.add(nodeID);
+                    break;
+                case "tag":
+                    //TAG
+                    String k = attributes.getValue("k").intern();
+                    if (allowTag(k)) {
+//                    if (allowTag(k, attributes)) {
+                        String v = clean(attributes.getValue("v").intern());
+                        if (open_way) {
+                            list_wayAttribs.add(new String[]{k, v});
+                        } else if (open_node) {
+                            if (k.equalsIgnoreCase("height")) {
+                                try {
+                                    double height = Double.parseDouble(v);
+                                    n.setHeight(height);
+                                } catch (NumberFormatException nfe) {
+                                }
+                            } else {
+                                n.setAttr(k, v);
                             }
-                        } else {
-                            n.setAttr(k, v);
                         }
                     }
-                }
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -134,6 +144,20 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
         return false;
     }
 
+    private boolean allowTag(String s, Attributes attributes) {
+        if (!wl_activated) {
+            return true;
+        } else {
+            if (whitelist.contains(s.toLowerCase())) {
+                String v = attributes.getValue("v");
+                if (v.startsWith("primar")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public void endElement(String uri, String localName, String qName) {
         try {
@@ -143,8 +167,8 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
                     open_way = false;
                     OSMNode src = null;
                     OSMNode dst = null;
-                    String first = list_nodeIDatWay.peekFirst();
-                    String last = list_nodeIDatWay.peekLast();
+                    String first = list_nodeIDatWay.peekFirst().intern();
+                    String last = list_nodeIDatWay.peekLast().intern();
                     if (first != null) {
                         src = hm_nodes.get(Integer.parseInt(first));
                     }
@@ -158,18 +182,18 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
                         // is it a one way street?
                         for (String[] pair : list_wayAttribs) {
                             if (pair[0].equals("oneway")) {
-                        switch (pair[1]) {
-                            case "yes":
-                            case "true":
-                            case "1":
-                                oneway = true;
-                                break;
-                            case "-1":
-                                // oneway:-1
-                                oneway = true;
-                                reverse = true;
-                                break;
-                        }
+                                switch (pair[1]) {
+                                    case "yes":
+                                    case "true":
+                                    case "1":
+                                        oneway = true;
+                                        break;
+                                    case "-1":
+                                        // oneway:-1
+                                        oneway = true;
+                                        reverse = true;
+                                        break;
+                                }
                             }
                             if (pair[0].equals("highway")) {
                                 highway = true;
@@ -184,14 +208,14 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
                         }
                         link.setId(Integer.parseInt(way_ID));
 
-                        // add intermediate nodes to the link incl. start/end node
+//                         add intermediate nodes to the link incl. start/end node
                         while (!list_nodeIDatWay.isEmpty()) {
                             OSMNode worky = null;
                             String nodeID = "";
                             if (!reverse) {
-                                nodeID = list_nodeIDatWay.pollFirst();
+                                nodeID = list_nodeIDatWay.pollFirst().intern();
                             } else {
-                                nodeID = list_nodeIDatWay.pollLast();
+                                nodeID = list_nodeIDatWay.pollLast().intern();
                             }
                             if (nodeID != null) {
                                 worky = hm_nodes.get(Integer.parseInt(nodeID));
@@ -200,29 +224,27 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
                                 }
                             }
                         }
+
                         // add attributes
                         for (String[] pair : list_wayAttribs) {
-                    switch (pair[0]) {
-                        case "ascend":
-                            link.setAscend(Double.parseDouble(pair[1]));
-                            break;
-                        case "descend":
-                            link.setDescend(Double.parseDouble(pair[1]));
-                            break;
-                        case "incline":
-                            // Steigung/Gefälle
-                            // remove all non digits (like "%")
-                            pair[1] = pair[1].replaceAll("[^\\d]", "");
-                            link.setAttr(pair[0], pair[1]);
-                            break;
-                        default:
-                            link.setAttr(pair[0], pair[1]);
-                            break;
-                    }
+                            switch (pair[0]) {
+                                case "ascend":
+                                    link.setAscend(Double.parseDouble(pair[1]));
+                                    break;
+                                case "descend":
+                                    link.setDescend(Double.parseDouble(pair[1]));
+                                    break;
+                                case "incline":
+                                    // Steigung/Gefälle
+                                    // remove all non digits (like "%")
+                                    pair[1] = pair[1].replaceAll("[^\\d]", "");
+                                    link.setAttr(pair[0], pair[1]);
+                                    break;
+                                default:
+                                    link.setAttr(pair[0], pair[1]);
+                                    break;
+                            }
                         }
-                        //FIXME: not needed here.
-                        //will be done again at graph.beautifyGraph();
-    //                        link.setDistance(OSMUtils.dist(link));
                         if (link.getAscend() == 0 && link.getDescend() == 0 && link.getSource().getHeight() != link.getTarget().getHeight()) {
                             double height = link.getTarget().getHeight() - link.getSource().getHeight();
                             if (height < 0) {
@@ -268,7 +290,6 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
     public List<OSMLink<OSMNode>> getListLinks() {
         return list_links;
     }
-
 //    public void setBlackList(List<String> bl) {
 //        whitelist = bl;
 //        wl_activated = true;

@@ -1,8 +1,10 @@
 package de.lmu.ifi.dbs.paros.simplex;
 
-import de.lmu.ifi.dbs.paros.PAROS;
+import de.lmu.ifi.dbs.paros.TrafficminingGUI;
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -128,7 +130,15 @@ public class SimplexTest extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) throws Exception {
-        LogManager.getLogManager().readConfiguration(PAROS.class.getResourceAsStream("./logging.properties"));
+        try (InputStream is = SimplexTest.class.getResourceAsStream("/logging.properties")) {
+            if (is != null) {
+                LogManager.getLogManager().readConfiguration(is);
+                is.close();
+            }
+        } catch (IOException ex) {
+        }
+        
+        
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
         java.awt.EventQueue.invokeLater(new Runnable() {

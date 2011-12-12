@@ -4,7 +4,7 @@
  */
 package de.lmu.ifi.dbs.paros.utils;
 
-import de.lmu.ifi.dbs.paros.PAROS;
+import de.lmu.ifi.dbs.paros.TrafficminingGUI;
 import java.text.NumberFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;

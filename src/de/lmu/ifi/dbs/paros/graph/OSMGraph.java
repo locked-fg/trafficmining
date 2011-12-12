@@ -1,5 +1,6 @@
 package de.lmu.ifi.dbs.paros.graph;
 
+import de.lmu.ifi.dbs.paros.utils.GraphFactory;
 import de.lmu.ifi.dbs.paros.utils.OSMUtils;
 import java.io.BufferedReader;
 import java.io.File;
@@ -9,10 +10,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,9 +27,9 @@ import java.util.logging.Logger;
 public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> {
 
     private static final Logger log = Logger.getLogger(OSMGraph.class.getName());
-    protected List<OSMLink<OSMNode>> linkList = new ArrayList<OSMLink<OSMNode>>();
-    protected HashMap<String, Integer> speed = new HashMap<String, Integer>();
-    private final String[] blacklist = new String[]{"height", "name"};
+    protected List<OSMLink<OSMNode>> linkList = new ArrayList<>();
+    protected HashMap<String, Integer> speed = new HashMap<>();
+    private final String[] blacklist = new String[]{"height", "name", "note"};
     private final String speedsConfig = "speeds.properties";
 
     public OSMGraph() {
@@ -109,7 +110,40 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     public void beautifyGraph() {
         splitNodeWithAttribsToNewLinks();
         connect();
+        //cleanIntermediateNodes();
         cleanNodeList();
+        
+    }
+    
+    public void cleanIntermediateNodes() {
+        List<OSMLink<OSMNode>> linkList_cleaned = new ArrayList<>();
+        for (int o = 0; o < linkList.size(); o++) {
+            //specified link
+            OSMLink<OSMNode> link = linkList.get(o);
+//            System.out.println("list_nodes: "+list_nodes.toString());
+//            for (int i = 0; i < list_nodes.size(); i++) {
+//                System.out.println("OSMNode ["+i+"]: "+list_nodes.get(i).getName());              
+//            }
+//            System.out.print("Link ["+link.getId()+"] before: "+link.getNodes().size());
+            if (link.getNodes().size() == 2) {
+//                System.out.println(" UNMODIFIED!");
+                linkList_cleaned.add(link);
+                continue;
+            }
+            
+            OSMNode first = link.getNodes().get(0);
+            OSMNode last = link.getNodes().get(link.getNodes().size()-1);
+            link.clearNodes();
+            link.addNodes(first);
+            link.addNodes(last);
+            
+            linkList_cleaned.add(link);
+//            System.out.println(" REDUCED: "+link.getNodes().size());
+        }
+//        System.out.println("LINKS BEFORE: "+linkList.size());
+        linkList.clear();
+        linkList.addAll(linkList_cleaned);
+//        System.out.println("LINKS AFTER: "+linkList.size());
     }
 
     public Node getNode(Double lat, Double lon) {
@@ -129,8 +163,8 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
      */
     private void splitNodeWithAttribsToNewLinks() {
         int s = linkList.size();
-        log.log(Level.FINE, "creating new links for nodes with attribs. Links: {0}", s);
-        List<OSMLink<OSMNode>> newLinkList = new ArrayList<OSMLink<OSMNode>>(s);
+        log.log(Level.INFO, "creating new links for nodes with attribs. Links: {0}", s);
+        List<OSMLink<OSMNode>> newLinkList = new ArrayList<>(s);
         int id_counter = -1;
 
         // list with all active links
@@ -143,7 +177,7 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
             List<OSMNode> list_nodes = link_org.getNodes();
 
             //list with new nodes for new link
-            List<OSMNode> act_nodes = new ArrayList<OSMNode>();
+            List<OSMNode> act_nodes = new ArrayList<>();
             boolean link_splitted = false;
 
             for (int l = 0; l < list_nodes.size(); l++) {
@@ -196,14 +230,14 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
             linkList.add(oSMLink);
             OSMUtils.setSpeed(this, oSMLink);
         }
-        linkList = newLinkList;
+//        linkList = newLinkList;
 //        for (OSMLink<OSMNode> oSMLink : newLinkList) {
 //            System.out.println("oSMLink: "+oSMLink+" speed: "+oSMLink.getSpeed()+" | distance: "+oSMLink.getDistance()+" | oneway: "+oSMLink.isOneway());
 //            for (OSMNode oSMNode : oSMLink.getNodes()) {
 //                System.out.println(oSMNode.getName()+" : "+oSMNode);
 //            }
 //        }
-        log.log(Level.FINE, "Done. Added {0} links. Links now: {1}", new Object[]{linkList.size() - s, linkList.size()});
+        log.log(Level.INFO, "Done. Added {0} links. Links now: {1}", new Object[]{linkList.size() - s, linkList.size()});
     }
 
     private OSMLink<OSMNode> newLinker(List<OSMNode> nodes, int id, OSMLink<OSMNode> link_org) {
@@ -233,8 +267,8 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
 
     private void cleanNodeList() {
         int counter = 0;
-        log.log(Level.FINE, "removing nodes without links. Nodes: {0}", getNodes().size());
-        List<N> list = new ArrayList<N>(getNodes());
+        log.log(Level.INFO, "removing nodes without links. Nodes: {0}", getNodes().size());
+        List<N> list = new ArrayList<>(getNodes());
         for (N n : list) {
             if (Thread.interrupted()) {
                 return;
@@ -244,7 +278,7 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
                 counter++;
             }
         }
-        log.log(Level.FINE, "remaining nodes: {0}, links: {1}. Removed {2} nodes.", new Object[]{getNodes().size(), getLinkList().size(), counter});
+        log.log(Level.INFO, "remaining nodes: {0}, links: {1}. Removed {2} nodes.", new Object[]{getNodes().size(), getLinkList().size(), counter});
     }
 
     /**
@@ -258,9 +292,9 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
      *    D
      */
     private void connect() {
-        log.info("connecting ways for routing");
+        log.log(Level.INFO, "connecting ways for routing");
         int linkCountA = linkList.size();
-        List<OSMNode> nodes = new ArrayList<OSMNode>(1000);
+        List<OSMNode> nodes = new ArrayList<>(1000);
         for (OSMNode n : getNodes()) {
             if (n.getLinks().size() > 0) {
                 nodes.add(n);

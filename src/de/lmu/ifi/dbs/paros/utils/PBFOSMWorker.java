@@ -20,6 +20,9 @@ import org.openstreetmap.osmosis.areafilter.v0_6.BoundingBoxFilter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Bound;
 import org.openstreetmap.osmosis.core.filter.common.IdTrackerType;
 import org.openstreetmap.osmosis.xml.v0_6.XmlWriter;
+import org.srtmplugin.osm.osmosis.SrtmPlugin_factory;
+import org.srtmplugin.osm.osmosis.SrtmPlugin_loader;
+import org.srtmplugin.osm.osmosis.SrtmPlugin_task;
 
 /**
  *
@@ -33,18 +36,20 @@ public class PBFOSMWorker extends SwingWorker {
     private BufferedWriter buff_outWriter;
     private OsmosisReader pbf_reader;
     private XmlWriter xml_writer;
-    private SrtmWorker srtm;
+//    private SrtmWorker srtm_old;
+    private SrtmPlugin_task srtm;
     private BoundingBoxFilter bounding_box;
     private OSMEntityWorker oec;
-    private List<String> srtm_urls;
+//    private List<String> srtm_urls;
     public final static String EVT_STAT = "STATUS";
     public static PBFOSMWorker active = null;
 
-    public PBFOSMWorker(File in_pbf, File out_osm, File dir_srtm, List<String> srtm_urls) {
+    public PBFOSMWorker(File in_pbf, File out_osm, File dir_srtm) {
+//    public PBFOSMWorker(File in_pbf, File out_osm, File dir_srtm, List<String> srtm_urls) {
         this.in_pbf = in_pbf;
         this.out_osm = out_osm;
         this.dir_srtm = dir_srtm;
-        this.srtm_urls = srtm_urls;
+//        this.srtm_urls = srtm_urls;
         this.active = this;
     }
 
@@ -92,11 +97,20 @@ public class PBFOSMWorker extends SwingWorker {
         pbf_reader = new OsmosisReader(buff_inpStream);
         xml_writer = new XmlWriter(buff_outWriter);
 //        OsmosisSerializer pbf_out = new OsmosisSerializer(new BlockOutputStream(buff_outpStream));
+            
         if (srtm_enabled) {
-            srtm = new SrtmWorker(dir_srtm, srtm_urls);
-        } else {
-            srtm = new SrtmWorker();
+//            srtm_old = new SrtmWorker(dir_srtm, srtm_urls);
+            srtm = new SrtmPlugin_task(
+                    null, 
+                    null, 
+                    dir_srtm, 
+                    false, 
+                    false, 
+                    true);
         }
+//        else {
+//            //srtm_old = new SrtmWorker();
+//        }
         oec = new OSMEntityWorker();
         if (box == null) {
             bounding_box = new BoundingBoxFilter(IdTrackerType.BitSet, 0, 0, 0, 0, true, true, true, true);

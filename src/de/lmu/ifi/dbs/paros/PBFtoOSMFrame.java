@@ -43,7 +43,7 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
     private PBFOSMWorker pbf_w = null;
     private CompoundPainter cp = new CompoundPainter();
     private static double[] bounds = null;
-    private List<String> srtm_urls;
+//    private List<String> srtm_urls;
     private boolean pbf = false;
     private boolean osm = false;
     private boolean srtm = false;
@@ -479,9 +479,9 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
         map.setHorizontalWrapped(false);
     }
 
-    public void setSRTMServers(List<String> srtm) {
-        srtm_urls = srtm;
-    }
+//    public void setSRTMServers(List<String> srtm) {
+//        srtm_urls = srtm;
+//    }
 
     private boolean chooser(final String end, final String desc, final boolean file, javax.swing.JFormattedTextField t, int i) {
         jfc = new JFileChooser(lrd);
@@ -643,7 +643,8 @@ private void jButton_dir_srtmActionPerformed(java.awt.event.ActionEvent evt) {//
 
 private void jButton_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_loadActionPerformed
 // TODO add your handling code here:
-    pbf_w = new PBFOSMWorker(files[0], files[1], files[2], srtm_urls);
+//    pbf_w = new PBFOSMWorker(files[0], files[1], files[2], srtm_urls);
+    pbf_w = new PBFOSMWorker(files[0], files[1], files[2]);
     pbf_w.init();
     pbf_w.config(null, jCheckBox_srtm.isSelected());
     pbf_w.execute();
@@ -701,7 +702,8 @@ private void jButton_workActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     if (pbf_w != null) {
         pbf_w.kill();
     } else {
-        pbf_w = new PBFOSMWorker(files[0], files[1], files[2], srtm_urls);
+//        pbf_w = new PBFOSMWorker(files[0], files[1], files[2], srtm_urls);
+        pbf_w = new PBFOSMWorker(files[0], files[1], files[2]);
         pbf_w.addPropertyChangeListener(new PropertyChangeListener() {
 
             @Override

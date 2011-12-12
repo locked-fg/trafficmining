@@ -135,7 +135,7 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
 
         // init result
         s1 = new Simplex1Result();
-        visited = new HashMap<N, WeightedPath>();
+        visited = new HashMap<>();
 
         List<N> nodes = getNodes();
         WeightedPath path = simpleShortestPath(nodes.get(0), nodes.get(nodes.size() - 1));
