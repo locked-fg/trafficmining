@@ -82,7 +82,7 @@
         <mkdir dir="${dist.dir}/plugins" />
         <jar compress="${jar.compress}" jarfile="${dist.dir}/plugins/Default.jar">
             <fileset dir="${build.dir}/classes">
-                <include name="/de/lmu/ifi/dbs/paros/algorithms/"/>
+                <include name="/de/lmu/ifi/dbs/trafficmining/algorithms/"/>
             </fileset>
         </jar>
     </target>
