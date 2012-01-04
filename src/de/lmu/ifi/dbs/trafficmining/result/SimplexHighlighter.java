@@ -4,7 +4,6 @@
  */
 package de.lmu.ifi.dbs.trafficmining.result;
 
-import de.lmu.ifi.dbs.trafficmining.result.SimplexResultEntry;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl;

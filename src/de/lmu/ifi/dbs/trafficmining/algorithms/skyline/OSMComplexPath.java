@@ -1,9 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms.skyline;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.utilities.Arrays2;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Path;
+import de.lmu.ifi.dbs.utilities.Arrays2;
 import java.util.ArrayList;
 import java.util.List;
 

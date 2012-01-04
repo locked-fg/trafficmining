@@ -1,10 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 public class OSMNode<L extends OSMLink> extends Node<L> {

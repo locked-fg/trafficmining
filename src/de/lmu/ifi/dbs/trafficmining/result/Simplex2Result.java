@@ -1,6 +1,5 @@
 package de.lmu.ifi.dbs.trafficmining.result;
 
-import de.lmu.ifi.dbs.trafficmining.result.AbstractResult;
 import java.util.Arrays;
 
 

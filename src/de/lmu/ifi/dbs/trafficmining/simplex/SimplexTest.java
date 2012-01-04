@@ -1,6 +1,5 @@
 package de.lmu.ifi.dbs.trafficmining.simplex;
 
-import de.lmu.ifi.dbs.trafficmining.TrafficminingGUI;
 import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.io.IOException;

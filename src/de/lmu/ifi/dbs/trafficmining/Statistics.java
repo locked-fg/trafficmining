@@ -1,15 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining;
 
+import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**

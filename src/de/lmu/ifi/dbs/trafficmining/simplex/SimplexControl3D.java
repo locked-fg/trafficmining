@@ -1,24 +1,14 @@
 package de.lmu.ifi.dbs.trafficmining.simplex;
 
+import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import de.lmu.ifi.dbs.utilities.Math2;
 import de.lmu.ifi.dbs.utilities.Vectors;
-import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Polygon;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.Painter;

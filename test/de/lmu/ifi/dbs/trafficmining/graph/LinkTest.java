@@ -1,11 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Node;
-import de.lmu.ifi.dbs.trafficmining.graph.Link;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * @author graf

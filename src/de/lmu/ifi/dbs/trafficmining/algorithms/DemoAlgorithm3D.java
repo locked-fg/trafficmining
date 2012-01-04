@@ -1,10 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Graph;
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
-//import de.lmu.ifi.dbs.paros.result.Simplex3Result;
 import de.lmu.ifi.dbs.trafficmining.Statistics;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.result.Simplex3Result;
 import java.util.List;
 

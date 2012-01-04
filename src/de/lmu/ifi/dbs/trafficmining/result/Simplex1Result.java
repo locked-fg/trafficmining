@@ -1,9 +1,7 @@
 package de.lmu.ifi.dbs.trafficmining.result;
 
-import de.lmu.ifi.dbs.trafficmining.result.AbstractResult;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import java.util.Arrays;
-import java.util.List;
 
 public class Simplex1Result extends AbstractResult {
 

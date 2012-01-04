@@ -2,7 +2,6 @@ package de.lmu.ifi.dbs.beansUI;
 
 import java.beans.PropertyEditorSupport;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**

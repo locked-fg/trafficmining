@@ -5,7 +5,6 @@ import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.utils.GraphFactory;
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 

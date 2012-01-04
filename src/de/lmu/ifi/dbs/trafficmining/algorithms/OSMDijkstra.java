@@ -1,17 +1,16 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.utilities.MutablePriorityObject;
-import java.util.HashMap;
-import java.util.List;
-
-import de.lmu.ifi.dbs.utilities.UpdatablePriorityQueue;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
-import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
+import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.result.Result;
 import de.lmu.ifi.dbs.trafficmining.result.Simplex1Result;
+import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
+import de.lmu.ifi.dbs.utilities.MutablePriorityObject;
+import de.lmu.ifi.dbs.utilities.UpdatablePriorityQueue;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>

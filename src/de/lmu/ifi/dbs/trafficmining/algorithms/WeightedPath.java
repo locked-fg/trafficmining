@@ -1,8 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Path;
 
 public class WeightedPath<N extends OSMNode<L>, L extends OSMLink<N>>
         extends Path<WeightedPath, N, L> {

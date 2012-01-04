@@ -1,14 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining.result;
 
-import de.lmu.ifi.dbs.trafficmining.result.Result;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.utilities.Arrays2;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 public abstract class AbstractResult implements Result {

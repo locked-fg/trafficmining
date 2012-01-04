@@ -1,8 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining.graphpainter;
 
-import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Path;
+import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
