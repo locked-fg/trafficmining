@@ -1,6 +1,5 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
-import de.lmu.ifi.dbs.trafficmining.utils.GraphFactory;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
 import java.io.BufferedReader;
 import java.io.File;
@@ -11,8 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * <p/>
- * <p/>
  * @author graf
  * @param <N>
  * @param <L>
@@ -26,117 +23,30 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     private final String speedsConfig = "speeds.properties";
 
     public OSMGraph() {
+        speed.clear();
+        setDefaultSpeeds();
         try {
-            File f = new File(speedsConfig);
-            Properties prop = new Properties();
-            prop.load(new BufferedReader(new FileReader(f)));
-            log.log(Level.INFO, "Using speeds config: {0}", f.getAbsolutePath());
-            log.log(Level.FINE, "Speeds found: {0}", prop.keySet().size());
-            for (Map.Entry<Object, Object> entry : prop.entrySet()) {
-                Integer speed_int = Integer.parseInt((String)entry.getValue());
-                speed.put((String)entry.getKey(), speed_int);
-                log.log(Level.FINE, "{0} -> {1}", new Object[]{entry.getKey(), speed_int});
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            log.info("A error occured due parsing speeds config, using hardcoded defaults");
-            speed.clear();
-            // http://wiki.openstreetmap.org/wiki/DE:Map_Features
-            speed.put("default", 50); // myown definition
-            //
-            speed.put("DE:zone30", 30);
-            speed.put("motorway", 130);
-            speed.put("motorway_link", 60);
-            speed.put("trunk", 100);
-            speed.put("trunk_link", 60);
-            speed.put("primary", 100);
-            speed.put("primary_link", 60);
-            speed.put("secondary", 100);
-            speed.put("secondary_link", 60);
-            speed.put("tertiary", 100);
-            speed.put("tertiary_link", 100);
-            speed.put("unclassified", 50); // meist kleiner als tertiary
-            speed.put("road", 50);
-            speed.put("residential", 50);
-            speed.put("living_street", 6); // spielstraße 4-7 km/h
-            speed.put("service", 30);
-            speed.put("track", 30);
-            speed.put("pedestrian", 10);
-            speed.put("raceway", 250);
-            speed.put("services", 60);
-            speed.put("bus_guideway", 60);
-            speed.put("construction", 3);
-            // Paths
-            speed.put("path", 4);
-            speed.put("cycleway", 15);
-            speed.put("footway", 5);
-            speed.put("bridleway", 5);
-            speed.put("byway", 15);
-            speed.put("steps", 3);
+            loadSpeedMap();
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, "Error loading speedmap. Defaults remain.", ex);
         }
-    }
-
-    /**
-     * @deprecated use {@link GraphFactory#readGraph(java.io.File, java.io.File)}
-     * @param nodeFile
-     * @param linkFile
-     * @throws IOException
-     */
-    public OSMGraph(File nodeFile, File linkFile) throws IOException {
-        throw new UnsupportedOperationException("use GraphFactory.readGraph(File, File) instead");
     }
 
     public int getLinkCount() {
         return linkList.size();
     }
 
-    @Deprecated
-    public int getNodesWithoutLinksCount() {
-        return 0;
-    }
-
-    @Deprecated
-    public List<N> getNodesWithoutLinks() {
-        return new ArrayList<N>(0);
-    }
-
     public void beautifyGraph() {
-        splitNodeWithAttribsToNewLinks();
-        connect();
-        //cleanIntermediateNodes();
-        cleanNodeList();
-        
-    }
-    
-    public void cleanIntermediateNodes() {
-        List<OSMLink<OSMNode>> linkList_cleaned = new ArrayList<>();
-        for (int o = 0; o < linkList.size(); o++) {
-            //specified link
-            OSMLink<OSMNode> link = linkList.get(o);
-//            System.out.println("list_nodes: "+list_nodes.toString());
-//            for (int i = 0; i < list_nodes.size(); i++) {
-//                System.out.println("OSMNode ["+i+"]: "+list_nodes.get(i).getName());              
-//            }
-//            System.out.print("Link ["+link.getId()+"] before: "+link.getNodes().size());
-            if (link.getNodes().size() == 2) {
-//                System.out.println(" UNMODIFIED!");
-                linkList_cleaned.add(link);
-                continue;
-            }
-            
-            OSMNode first = link.getNodes().get(0);
-            OSMNode last = link.getNodes().get(link.getNodes().size()-1);
-            link.clearNodes();
-            link.addNodes(first);
-            link.addNodes(last);
-            
-            linkList_cleaned.add(link);
-//            System.out.println(" REDUCED: "+link.getNodes().size());
+        if (!Thread.interrupted()) {
+            splitNodeWithAttribsToNewLinks();
         }
-//        System.out.println("LINKS BEFORE: "+linkList.size());
-        linkList.clear();
-        linkList.addAll(linkList_cleaned);
-//        System.out.println("LINKS AFTER: "+linkList.size());
+        if (!Thread.interrupted()) {
+            connect();
+        }
+        if (!Thread.interrupted()) {
+            cleanNodeList();
+        }
+
     }
 
     public Node getNode(Double lat, Double lon) {
@@ -150,9 +60,8 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     }
 
     /**
-     * if a node has an additional attribute and is an intermediate node
-     * split the link to two new links and set the node as start or end
-     * for a new link
+     * if a node has an additional attribute and is an intermediate node split
+     * the link to two new links and set the node as start or end for a new link
      */
     private void splitNodeWithAttribsToNewLinks() {
         int s = linkList.size();
@@ -277,12 +186,9 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     /**
      * @fixme this should be done MUCH more intelligent
      *
-     * AC and BD are links, but not AB, BC.
-     * So split AC into AB,BC.
+     * AC and BD are links, but not AB, BC. So split AC into AB,BC.
      *
-     * A--B--C
-     *    |
-     *    D
+     * A--B--C | D
      */
     private void connect() {
         log.log(Level.INFO, "connecting ways for routing");
@@ -324,8 +230,8 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     }
 
     /**
-     * returns an instance of the link list. Keep in mind that changing the list
-     * DOES NOT AFFECT the graph directly if you do not remove/add the link from 
+     * Returns an instance of the link list. Keep in mind that changing the list
+     * DOES NOT AFFECT the graph directly if you do not remove/add the link from
      * the according nodes!
      *
      * @return list of links
@@ -342,11 +248,52 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
         return speed;
     }
 
-	public OSMNode getRandomNOde(OSMGraph<OSMNode, OSMLink> g) {
-		ArrayList<OSMNode> sL = new ArrayList(g.getNodes());
-		Collections.shuffle(sL);		
-		return sL.get(0);
-	}
+    private void setDefaultSpeeds() {
+        // http://wiki.openstreetmap.org/wiki/DE:Map_Features
+        speed.put("default", 50); // myown definition
+        //
+        speed.put("DE:zone30", 30);
+        speed.put("motorway", 130);
+        speed.put("motorway_link", 60);
+        speed.put("trunk", 100);
+        speed.put("trunk_link", 60);
+        speed.put("primary", 100);
+        speed.put("primary_link", 60);
+        speed.put("secondary", 100);
+        speed.put("secondary_link", 60);
+        speed.put("tertiary", 100);
+        speed.put("tertiary_link", 100);
+        speed.put("unclassified", 50); // meist kleiner als tertiary
+        speed.put("road", 50);
+        speed.put("residential", 50);
+        speed.put("living_street", 6); // spielstraße 4-7 km/h
+        speed.put("service", 30);
+        speed.put("track", 30);
+        speed.put("pedestrian", 10);
+        speed.put("raceway", 250);
+        speed.put("services", 60);
+        speed.put("bus_guideway", 60);
+        speed.put("construction", 3);
+        // Paths
+        speed.put("path", 4);
+        speed.put("cycleway", 15);
+        speed.put("footway", 5);
+        speed.put("bridleway", 5);
+        speed.put("byway", 15);
+        speed.put("steps", 3);
+    }
 
+    private void loadSpeedMap() throws IOException {
+        File f = new File(speedsConfig);
+        Properties prop = new Properties();
+        prop.load(new BufferedReader(new FileReader(f)));
+        log.log(Level.INFO, "Using speeds config: {0}", f.getAbsolutePath());
+        log.log(Level.FINE, "Speeds found: {0}", prop.keySet().size());
 
+        for (Map.Entry<Object, Object> entry : prop.entrySet()) {
+            Integer speed_int = Integer.parseInt((String) entry.getValue());
+            speed.put((String) entry.getKey(), speed_int);
+            log.log(Level.FINE, "{0} -> {1}", new Object[]{entry.getKey(), speed_int});
+        }
+    }
 }
