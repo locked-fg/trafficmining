@@ -9,18 +9,18 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
 
     private double lat;
     private double lon;
-    private double height;
+    private double height = Double.NaN;
     private String name = null;
     private HashMap<String, String> attr = null;
 
     public OSMNode(int id) {
         super(id);
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public void setLat(double lat) {
         this.lat = lat;
     }
@@ -41,6 +41,12 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
         return lon;
     }
 
+    /**
+     * Returns the elevation data of this node. If no explicit elevation data
+     * was set, Double.NAN is returned.
+     *
+     * @return elevation in meters or Double.NaN if no elevation was set.
+     */
     public double getHeight() {
         return height;
     }
@@ -50,9 +56,9 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
     }
 
     /**
-     * returns the link to the target node or null if no such link exists.
-     * If dst.equals(this), also null is returned
-     * 
+     * returns the link to the target node or null if no such link exists. If
+     * dst.equals(this), also null is returned
+     *
      * @param dst
      * @return
      */
@@ -69,9 +75,8 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
     }
 
     /**
-     * Set's a certain attribute key/value pair.
-     * For both key and value, the intern representation is used to (hopefully)
-     * save memory.
+     * Set's a certain attribute key/value pair. For both key and value, the
+     * intern representation is used to (hopefully) save memory.
      *
      * @param key
      * @param value
@@ -85,7 +90,9 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
     }
 
     /**
-     * returns the map of attributes. The map is immutable if it is the empty map.
+     * returns the map of attributes. The map is immutable if it is the empty
+     * map.
+     *
      * @return
      */
     public Map<String, String> getAttr() {
@@ -98,13 +105,13 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
     public String getAttr(String key) {
         return attr != null ? attr.get(key) : null;
     }
-    
+
     @Override
     public String toString() {
         if (name == null) {
-        return super.toString();
+            return super.toString();
         } else {
-            return super.toString()+", "+name;
+            return super.toString() + ", " + name;
         }
     }
 }
