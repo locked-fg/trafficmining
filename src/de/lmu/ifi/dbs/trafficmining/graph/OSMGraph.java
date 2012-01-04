@@ -144,10 +144,10 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
 
     private OSMLink<OSMNode> newLinker(List<OSMNode> nodes, int id, OSMLink<OSMNode> link_org) {
         if (nodes.size() < 2) {
-            // must never happen
             log.log(Level.SEVERE, "{0}.newLinker: nodes.size() < 2: {1}", new Object[]{this.getClass().getName(), nodes.size()});
-            System.exit(1);
+            throw new IllegalStateException("linking less than 2 nodes does not work");
         }
+
         OSMLink<OSMNode> ret = new OSMLink(nodes.get(0), nodes.get(nodes.size() - 1), link_org.isOneway());
         for (OSMNode oSMNode : nodes) {
             oSMNode.removeLink(link_org);  // reset the node<>link memory
@@ -157,13 +157,10 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
         ret.setId(id);
         ret.setAscend(link_org.getAscend());
         ret.setDescend(link_org.getDescend());
-//        ret.setSpeed(link_org.getSpeed());
         for (Map.Entry<String, String> entry : link_org.getAttr().entrySet()) {
             ret.setAttr(entry.getKey(), entry.getValue());
         }
         ret.setDistance(OSMUtils.dist(ret));
-
-
         return ret;
     }
 
