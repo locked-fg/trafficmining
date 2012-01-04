@@ -43,7 +43,7 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
         }
         ns.add(n);
     }
-    
+
     public void delNodes(int i) {
         if (i >= ns.size() || i < 0) {
             throw new NullPointerException("node index wrong");
@@ -51,27 +51,26 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
             ns.remove(i);
         }
     }
-    
+
     public void delNodes(N node) {
         ns.remove(node);
     }
-    
+
     public void clearNodes() {
         ns.clear();
     }
 
     /**
-     * Set's a certain attribute key/value pair.
-     * For both key and value, the intern representation is used to (hopefully)
-     * save memory.
+     * Set's a certain attribute key/value pair. For both key and value, the
+     * intern representation is used to (hopefully) save memory.
      *
      * @param key
      * @param value
-     * @see String#intern() 
+     * @see String#intern()
      */
     public void setAttr(String key, String value) {
         if (attr == null) {
-            attr = new HashMap<String, String>(1);
+            attr = new HashMap<>(1);
         }
         this.attr.put(key.intern(), value.intern());
     }
@@ -93,23 +92,18 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
     }
 
     /**
-     * Returns list of detailed nodes. The list is immutable!
-     * @todo check performance impact (ns == null)?
+     * Returns an immutable list of detailed nodes.
+     * 
      * @return
      */
     public List<N> getNodes() {
-//        if (ns == null) {
-//            ArrayList<N> ret = new ArrayList<N>(2);
-//            ret.add(this.getSource());
-//            ret.add(this.getTarget());
-//            System.out.println("OSMLink - ID: "+id+" --> getNodes: "+count++);
-//            return ret;
-//        }
         return Collections.unmodifiableList(ns);
     }
 
     /**
-     * returns the map of attributes. The map is immutable if it is the empty map.
+     * returns the map of attributes. The map is immutable if it is the empty
+     * map.
+     *
      * @return
      */
     public Map<String, String> getAttr() {
