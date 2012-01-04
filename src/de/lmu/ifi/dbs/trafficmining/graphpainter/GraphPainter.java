@@ -10,10 +10,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.WeakHashMap;
+import java.util.*;
 import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.TileFactory;
 import org.jdesktop.swingx.painter.AbstractPainter;
@@ -23,6 +20,8 @@ import org.jdesktop.swingx.painter.AbstractPainter;
  */
 public class GraphPainter extends AbstractPainter<JXMapViewer> {
 
+    private static final String LINK_PAINT_ATTRIBUTE = "highway";
+    private HashMap<Integer, List<String>> zoomToLinkWhitelist = new HashMap<>();
     private final Color color = Color.red;
     private final Color colorOneWay = new Color(0, 100, 0);
     private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
@@ -59,29 +58,67 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
 
         List<OSMNode> nodes = new ArrayList<>(graph.getNodes().size() / 10);
         HashSet processedLinks = new HashSet(1000);
-        Point2D point = null;
+        Point2D point;
         for (OSMNode<OSMLink> node : graph.getNodes()) {
             point = toPixel(node, tf, zoom);
             if (vp2.contains(point)) {
-                // paint node as little dot IF the neighbourhood is unpainted
-                int x = (int) (point.getX() - vp2.getX());
-                int y = (int) (point.getY() - vp2.getY());
-                if (!pixels[x >> 1][y >> 1]) {
-                    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
-                    g.drawRect(x - 1, y - 1, 2, 2);
-                    pixels[x >> 1][y >> 1] = true;
-                }
-
-
-                // paint links
+                // paint links?
+                boolean painted = false;
                 for (OSMLink<OSMNode> link : node.getLinks()) {
-                    if (processedLinks.add(link)) {
+                    if (processedLinks.add(link) && isPaintable(link, zoom)) {
+                        painted = true;
                         g.setColor(link.isOneway() ? colorOneWay : color);
                         paintLink(nodes, link, g, tf, zoom, vp2);
                     }
                 }
+
+                // only paint the nodes if at least one link has been painted above
+                if (painted) {
+                    // paint node as little dot IF the neighbourhood is unpainted
+                    int x = (int) (point.getX() - vp2.getX());
+                    int y = (int) (point.getY() - vp2.getY());
+                    if (!pixels[x >> 1][y >> 1]) {
+                        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
+                        g.drawRect(x - 1, y - 1, 2, 2);
+                        pixels[x >> 1][y >> 1] = true;
+                    }
+                }
             }
         }
+    }
+
+    /**
+     * Check if this link should be painted on the according zoom level.
+     *
+     * @param link
+     * @param zoom
+     * @return true if it should be painted, false otherwise
+     */
+    private boolean isPaintable(OSMLink<OSMNode> link, Integer zoom) {
+        String highway = link.getAttr(LINK_PAINT_ATTRIBUTE);
+
+        // don't paint the link if it is not even a highway
+        if (highway == null) {
+            return false;
+        }
+
+        // just paint if no whitelist is defined
+        if (zoomToLinkWhitelist.isEmpty()){
+            return true;
+        }
+        
+        // invalid zoomlevel or end of recursion
+        if (zoom <= 0) {
+            return false;
+        }
+
+        // now check the whitelist
+        List<String> whitelist = zoomToLinkWhitelist.get(zoom);
+        if (whitelist == null) { // no list for this zoomlevel, try previous level
+            return isPaintable(link, zoom - 1);
+        }
+
+        return whitelist.contains(highway);
     }
 
     private void paintLink(List<OSMNode> nodes, OSMLink<OSMNode> link, Graphics2D g, TileFactory tf, int zoom, Rectangle2D vp2) {
@@ -103,7 +140,7 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         Point2D dst;
         Point2D src = toPixel(nodes.get(0), tf, zoom);
         int x1, y1, x2, y2;
-        double delta = -1;
+        double delta;
         for (int i = 1; i < nodes.size(); i++) {
             dst = toPixel(nodes.get(i), tf, zoom);
             delta = src.distance(dst);
