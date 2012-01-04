@@ -16,54 +16,57 @@ import org.xml.sax.SAXException;
 /**
  * Class for reading OSM XML files
  * <p/>
- * @author graf
- * @modified greil
+ * @author graf @modified greil
  */
 public class XmlOsmGraphReader<N extends OSMNode<L>, L extends OSMLink<N>> {
 
     private static final Logger log = Logger.getLogger(XmlOsmGraphReader.class.getName());
-    private OSMGraph<N, L> graph;
-    private XmlOsmHandler xoh;
+    private OSMGraph<N, L> graph = new OSMGraph<>();
+    private XmlOsmHandler xmlHandler = new XmlOsmHandler();
 
-    public XmlOsmGraphReader() {}
+    public XmlOsmGraphReader() {
+    }
 
-    public void parseOSMxml(File osmXML) {
+    private void parseOSMxml(File osmXML) {
         try {
-            long filesize = (osmXML.length() / 1024 / 1024);
-            String out = filesize + " mb";
-            if (filesize <= 0) {
-                out = (osmXML.length() / 1024) + " kb";
+            if (log.isLoggable(Level.INFO)) {
+                long filesize = (osmXML.length() / 1024 / 1024);
+                String out = filesize + " mb";
+                if (filesize < 1) {
+                    out = (osmXML.length() / 1024) + " kb";
+                }
+                log.log(Level.INFO, "parsing XML: {0}; filesize: {1}", new Object[]{osmXML.getAbsolutePath(), out});
             }
-            log.log(Level.INFO, "parsing XML: {0}; filesize: {1}", new Object[]{osmXML.getAbsolutePath(), out});
+            if (Thread.interrupted()) {
+                return;
+            }
+
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
             factory.setValidating(true);
             SAXParser parser = factory.newSAXParser();
-            parser.parse(osmXML, xoh);
+            parser.parse(osmXML, xmlHandler);
         } catch (IOException | ParserConfigurationException | SAXException ex) {
             Logger.getLogger(XmlOsmGraphReader.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    public void doGraph() {
-        List<N> nodes = xoh.getListNodes();
-        List<OSMLink<OSMNode>> links = xoh.getListLinks();
+    private void initGraph() {
+        if (Thread.interrupted()) {
+            return;
+        }
+
+        List<N> nodes = xmlHandler.getListNodes();
+        List<OSMLink<OSMNode>> links = xmlHandler.getListLinks();
         graph.addNodeList(nodes);
         graph.setLinkList(links);
 
     }
 
     OSMGraph<N, L> getGraph(File osmXML) {
-        try {
-            graph = new OSMGraph<>();
-            xoh = new XmlOsmHandler();
-            parseOSMxml(osmXML);
-            Thread.sleep(1);
-            doGraph();
-            Thread.sleep(1);
-            graph.beautifyGraph();
-        } catch (InterruptedException ex) {
-        }
+        parseOSMxml(osmXML);
+        initGraph();
+        graph.beautifyGraph();
         return graph;
     }
 }
