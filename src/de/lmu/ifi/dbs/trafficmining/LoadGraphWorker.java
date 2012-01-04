@@ -3,8 +3,9 @@ package de.lmu.ifi.dbs.trafficmining;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
-import de.lmu.ifi.dbs.trafficmining.utils.GraphFactory;
+import de.lmu.ifi.dbs.trafficmining.utils.XmlOsmGraphReader;
 import java.io.File;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
 
@@ -16,54 +17,35 @@ import javax.swing.SwingWorker;
 public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
 
     private static final Logger log = Logger.getLogger(LoadGraphWorker.class.getName());
-//    private final File[] files;
-    private final File file;
-    private File osmXml = null;
+    private final File osmXml;
 
-    public LoadGraphWorker(File file) {
-//        this.files = file;
-        this.file = file;
-    }
-
-    public void init() {
-//        for (File f : files) {
-        File f = this.file;
+    public LoadGraphWorker(File f) {
         if (!f.exists() || !f.canRead()) {
             throw new IllegalArgumentException(f.getName() + " doesn't exist or is not readable!");
         }
-        if (f.getName().toLowerCase().endsWith(".osm")) {
-            osmXml = f;
-        }
-//        }
-        if (osmXml == null) {
+        if (!f.getName().toLowerCase().endsWith(".osm")) {
             throw new NullPointerException("*.osm file must not be null");
         }
-
+        osmXml = f;
     }
 
     @Override
     protected OSMGraph doInBackground() throws Exception {
-        init();
-        OSMGraph<OSMNode, OSMLink> graph = null;
-        try {
-            log.fine("reading graph from " + osmXml.getName());
-            long a = System.currentTimeMillis();
-            graph = GraphFactory.readOsmGraphXML(osmXml);
-            Thread.sleep(1);
-            long b = System.currentTimeMillis();
-            log.fine("read graph in " + (b - a) + "ms");
+        log.log(Level.FINE, "reading graph from {0}", osmXml.getName());
+        long a = System.currentTimeMillis();
 
-            // Loading the Graph might have caused quite some overhead and a 
-            // lot of now obsolete objects. Thus we request a System.gc to 
-            // cleanup at once.
-            // Keep in mind, that we only ASK the JVM to do a cleanup. this is not a "force gc"!
-            System.gc();
-            System.gc();
-            System.gc();
-        } catch (InterruptedException ex) {
-        } catch (Exception e) {
-            log.severe("could not read graph!");
-        }
+        OSMGraph<OSMNode, OSMLink> graph = new XmlOsmGraphReader().getGraph(osmXml);
+
+        long b = System.currentTimeMillis();
+        log.log(Level.FINE, "read graph in {0}ms", (b - a));
+
+        // Loading the Graph might have caused quite some overhead and a 
+        // lot of now obsolete objects. Thus we request a System.gc to 
+        // cleanup at once.
+        // Keep in mind, that we only ASK the JVM to do a cleanup. this is not a "force gc"!
+        System.gc();
+        System.gc();
+        System.gc();
         return graph;
     }
 }
