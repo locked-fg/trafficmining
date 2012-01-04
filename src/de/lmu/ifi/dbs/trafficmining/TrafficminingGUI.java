@@ -139,7 +139,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
                 log.fine("starting load graph worker");
                 loadGraphWorker = new LoadGraphWorker(osmXml);
-                loadGraphWorker.init();
                 loadGraphWorker.addPropertyChangeListener(loadAction);
                 loadGraphWorker.execute();
             } catch (Exception e) {
@@ -811,7 +810,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                     log.fine("starting worker");
                     busyLabel.setBusy(true);
                     loadGraphWorker = new LoadGraphWorker(chooser.getSelectedFile());
-                    loadGraphWorker.init();
                     loadGraphWorker.addPropertyChangeListener(this);
                     loadGraphWorker.execute();
                 } catch (Throwable t) {

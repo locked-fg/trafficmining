@@ -63,7 +63,7 @@ public class XmlOsmGraphReader<N extends OSMNode<L>, L extends OSMLink<N>> {
 
     }
 
-    OSMGraph<N, L> getGraph(File osmXML) {
+    public OSMGraph<N, L> getGraph(File osmXML) {
         parseOSMxml(osmXML);
         initGraph();
         graph.beautifyGraph();
