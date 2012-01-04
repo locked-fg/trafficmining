@@ -1,15 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.trafficmining.graph.Node;
-import de.lmu.ifi.dbs.trafficmining.graph.Link;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 public class PathTest {
 

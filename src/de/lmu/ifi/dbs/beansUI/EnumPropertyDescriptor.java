@@ -4,7 +4,6 @@ import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
 import org.jdesktop.swingx.editors.EnumPropertyEditor;
-import de.lmu.ifi.dbs.beansUI.test.MyTestBean;
 
 /**
  * @author graf

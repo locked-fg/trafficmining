@@ -5,14 +5,7 @@
 package de.lmu.ifi.dbs.trafficmining.utils;
 
 import crosby.binary.osmosis.OsmosisReader;
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
+import java.io.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingWorker;
@@ -20,8 +13,6 @@ import org.openstreetmap.osmosis.areafilter.v0_6.BoundingBoxFilter;
 import org.openstreetmap.osmosis.core.domain.v0_6.Bound;
 import org.openstreetmap.osmosis.core.filter.common.IdTrackerType;
 import org.openstreetmap.osmosis.xml.v0_6.XmlWriter;
-import org.srtmplugin.osm.osmosis.SrtmPlugin_factory;
-import org.srtmplugin.osm.osmosis.SrtmPlugin_loader;
 import org.srtmplugin.osm.osmosis.SrtmPlugin_task;
 
 /**

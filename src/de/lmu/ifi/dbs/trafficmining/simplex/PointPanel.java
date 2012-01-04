@@ -1,20 +1,10 @@
 package de.lmu.ifi.dbs.trafficmining.simplex;
 
 import de.lmu.ifi.dbs.utilities.Math2;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Point;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Point2D;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Logger;
 import org.jdesktop.swingx.JXPanel;

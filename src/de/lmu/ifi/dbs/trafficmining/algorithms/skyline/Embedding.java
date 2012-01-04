@@ -1,16 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms.skyline;
 
-import de.lmu.ifi.dbs.utilities.Arrays2;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import de.lmu.ifi.dbs.utilities.Arrays2;
+import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;

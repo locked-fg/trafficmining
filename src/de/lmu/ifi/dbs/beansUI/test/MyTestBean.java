@@ -3,7 +3,6 @@ package de.lmu.ifi.dbs.beansUI.test;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 public class MyTestBean {

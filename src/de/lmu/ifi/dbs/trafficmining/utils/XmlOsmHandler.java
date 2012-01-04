@@ -10,15 +10,10 @@ import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Level;
-import org.xml.sax.Attributes;
 import java.util.logging.Logger;
+import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 

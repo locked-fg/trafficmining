@@ -1,9 +1,9 @@
 package de.lmu.ifi.dbs.beansUI;
 
+import de.lmu.ifi.dbs.beansUI.test.MyTestBean;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.beans.PropertyEditor;
-import de.lmu.ifi.dbs.beansUI.test.MyTestBean;
 
 /**
  * @author graf

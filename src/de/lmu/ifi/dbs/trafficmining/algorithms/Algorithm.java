@@ -1,10 +1,10 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
+import de.lmu.ifi.dbs.trafficmining.Statistics;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.result.Result;
-import de.lmu.ifi.dbs.trafficmining.Statistics;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

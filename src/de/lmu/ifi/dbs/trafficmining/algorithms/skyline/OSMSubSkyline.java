@@ -3,7 +3,6 @@ package de.lmu.ifi.dbs.trafficmining.algorithms.skyline;
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 

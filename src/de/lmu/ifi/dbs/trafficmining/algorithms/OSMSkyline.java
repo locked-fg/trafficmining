@@ -1,28 +1,18 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.utilities.Arrays2;
-import de.lmu.ifi.dbs.utilities.UpdatablePriorityQueue;
+import de.lmu.ifi.dbs.trafficmining.algorithms.skyline.*;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
-import de.lmu.ifi.dbs.trafficmining.result.AbstractResult;
-import de.lmu.ifi.dbs.trafficmining.algorithms.skyline.*;
+import de.lmu.ifi.dbs.trafficmining.graph.Path;
+import de.lmu.ifi.dbs.trafficmining.result.*;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
-import de.lmu.ifi.dbs.trafficmining.result.Result;
-import de.lmu.ifi.dbs.trafficmining.result.Simplex1Result;
-import de.lmu.ifi.dbs.trafficmining.result.Simplex2Result;
-import de.lmu.ifi.dbs.trafficmining.result.Simplex3Result;
+import de.lmu.ifi.dbs.utilities.Arrays2;
+import de.lmu.ifi.dbs.utilities.UpdatablePriorityQueue;
 import java.io.File;
 import java.io.IOException;
 import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

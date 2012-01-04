@@ -3,7 +3,6 @@ package de.lmu.ifi.dbs.trafficmining.simplex;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import org.jdesktop.swingx.JXPanel;
 
