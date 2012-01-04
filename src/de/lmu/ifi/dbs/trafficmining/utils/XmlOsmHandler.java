@@ -40,7 +40,6 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
         if (wl_activated) {
             Properties prop = new Properties();
             try {
-//                File f = new File("blacklist-tags.properties");
                 File f = new File("whitelist-tags.properties");
                 prop.load(new BufferedReader(new FileReader(f)));
                 String[] tags = prop.getProperty("tags").split(";");
@@ -52,10 +51,6 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
                     whitelist.add(tag);
                     log.log(Level.FINE, "tag: {0}", tag);
                 }
-//                log.info("Using blacklist for tags: " + f.getAbsolutePath());
-//                log.fine("Tags blacklisted: " + blacklist.size());
-
-
             } catch (Exception e) {
                 e.printStackTrace();
                 wl_activated = false;
@@ -69,56 +64,52 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
     }
 
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-        try {
-            switch (qName) {
-                case "node":
-                    //NODE
-                    open_node = true;
-                    String id = attributes.getValue("id").intern();
-                    String lat = attributes.getValue("lat");
-                    String lon = attributes.getValue("lon");
-                    n = new OSMNode(Integer.parseInt(id));
-                    n.setLat(Double.parseDouble(lat));
-                    n.setLon(Double.parseDouble(lon));
-                    break;
-                case "way":
-                    //WAY
-                    open_way = true;
-                    String wayID = attributes.getValue("id");
-                    way_ID = wayID;
-                    list_nodeIDatWay = new LinkedList<>();
-                    list_wayAttribs = new LinkedList<>();
-                    break;
-                case "nd":
-                    //NODE AT WAY
-                    String nodeID = attributes.getValue("ref").intern();
-                    list_nodeIDatWay.add(nodeID);
-                    break;
-                case "tag":
-                    //TAG
-                    String k = attributes.getValue("k").intern();
-                    if (allowTag(k)) {
-                        String v = clean(attributes.getValue("v").intern());
-                        if (open_way) {
-                            list_wayAttribs.add(new String[]{k, v});
-                        } else if (open_node) {
-                            if (k.equalsIgnoreCase("height")) {
-                                try {
-                                    double height = Double.parseDouble(v);
-                                    n.setHeight(height);
-                                } catch (NumberFormatException nfe) {
-                                }
-                            } else {
-                                n.setAttr(k, v);
+    public void startElement(String uri, String localName, String qName, Attributes attributes)
+            throws SAXException {
+        switch (qName) {
+            case "node":
+                //NODE
+                open_node = true;
+                String id = attributes.getValue("id").intern();
+                String lat = attributes.getValue("lat");
+                String lon = attributes.getValue("lon");
+                n = new OSMNode(Integer.parseInt(id));
+                n.setLat(Double.parseDouble(lat));
+                n.setLon(Double.parseDouble(lon));
+                break;
+            case "way":
+                //WAY
+                open_way = true;
+                String wayID = attributes.getValue("id");
+                way_ID = wayID;
+                list_nodeIDatWay = new LinkedList<>();
+                list_wayAttribs = new LinkedList<>();
+                break;
+            case "nd":
+                //NODE AT WAY
+                String nodeID = attributes.getValue("ref").intern();
+                list_nodeIDatWay.add(nodeID);
+                break;
+            case "tag":
+                //TAG
+                String k = attributes.getValue("k").intern();
+                if (allowTag(k)) {
+                    String v = clean(attributes.getValue("v").intern());
+                    if (open_way) {
+                        list_wayAttribs.add(new String[]{k, v});
+                    } else if (open_node) {
+                        if (k.equalsIgnoreCase("height")) {
+                            try {
+                                double height = Double.parseDouble(v);
+                                n.setHeight(height);
+                            } catch (NumberFormatException nfe) {
                             }
+                        } else {
+                            n.setAttr(k, v);
                         }
                     }
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(1);
+                }
+                break;
         }
     }
 
@@ -143,7 +134,7 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
         try {
             switch (qName) {
                 case "way":
-                    OSMLink<OSMNode> link = null;
+                    OSMLink<OSMNode> link;
                     open_way = false;
                     OSMNode src = null;
                     OSMNode dst = null;
@@ -227,10 +218,12 @@ public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends D
                         }
                         if (link.getAscend() == 0 && link.getDescend() == 0 && link.getSource().getHeight() != link.getTarget().getHeight()) {
                             double height = link.getTarget().getHeight() - link.getSource().getHeight();
-                            if (height < 0) {
-                                link.setDescend(-height);
-                            } else {
-                                link.setAscend(height);
+                            if (!Double.isNaN(height)) {
+                                if (height < 0) {
+                                    link.setDescend(-height);
+                                } else {
+                                    link.setAscend(height);
+                                }
                             }
                         }
                         list_links.add(link);
