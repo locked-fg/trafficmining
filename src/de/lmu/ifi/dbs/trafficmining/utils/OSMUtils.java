@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.geom.Rectangle2D;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
@@ -16,20 +17,24 @@ public class OSMUtils {
     // TODO provide a nice toString or s.th.
     public static enum PATH_ATTRIBUTES {
 
-        /** nodes with degreee > 2 */
+        /**
+         * nodes with degreee > 2
+         */
         NODES_DEG_GT2,
-        /** Traffic signals highway=traffic_signals */
+        /**
+         * Traffic signals highway=traffic_signals
+         */
         TRAFFIC_SIGNALS
     }
 
     public static OSMNode getNearestNode(GeoPosition pos, OSMGraph g) {
-        Collection<OSMNode> nodes = g.getNodes();
+        OSMNode nearest = null;
+        GeoDistance distance = new NNDistance();
 
         double minDist = Double.MAX_VALUE;
-        OSMNode nearest = null;
-
-        for (OSMNode node : nodes) {
-            double dist = dist(pos.getLatitude(), pos.getLongitude(), node);
+        double dist;
+        for (OSMNode node : (Collection<OSMNode>) g.getNodes()) {
+            dist = distance.distance(pos.getLatitude(), pos.getLongitude(), node.getLat(), node.getLon());
             if (dist < minDist) {
                 minDist = dist;
                 nearest = node;
@@ -40,60 +45,21 @@ public class OSMUtils {
     }
 
     /**
-     * use only for nearest neightbour tests - does NOT reflect real distance
-     * @param lat
-     * @param lon
-     * @param n
-     * @return
-     */
-    private static double dist(double lat, double lon, OSMNode n) {
-        double y = lat - n.getLat();
-        double x = lon - n.getLon();
-        return Math.sqrt(x * x + y * y);
-    }
-
-    public static double dist(OSMLink<OSMNode> link) {
-        double dist = 0;
-        List<OSMNode> nodes = link.getNodes();
-        for (int i = 0; i < nodes.size() - 1; i++) {
-            OSMNode a = nodes.get(i);
-            OSMNode b = nodes.get(i + 1);
-            dist += dist(a, b);
-        }
-        return dist;
-    }
-
-    /**
+     * Returns the length of a link in km
      *
-     * @param a
-     * @param b
-     * @return distance in km
+     * @param link
+     * @return length of a link in km
+     *
+     * @deprecated since 01.04.2012
+     * @see GeoDistance
+     * @see
+     * GreatcircleDistance#length(de.lmu.ifi.dbs.trafficmining.graph.OSMLink)
      */
-    public static double dist(OSMNode a, OSMNode b) {
-        double lat1 = a.getLat();
-        double lon1 = a.getLon();
-        double lat2 = b.getLat();
-        double lon2 = b.getLon();
-
-        double r = 6371.009; // earth radius
-        double lat = (lat1 - lat2) * 3.1416 / 180;
-        double lon = (lon1 - lon2) * 3.1416 / 180;
-        double latm = (lat1 + lat2) / 2;
-        double d = r * Math.sqrt(Math.pow(lat, 2) + Math.pow(lon * Math.cos(latm), 2));
-
-        // now integrate elevation
-        double heightDiff = a.getHeight() - b.getHeight();
-        heightDiff /= 1000; // m -> km
-        d = Math.sqrt(d * d + heightDiff * heightDiff);
-
-        return d;
+    public static double dist(OSMLink<OSMNode> link) {
+        return new GreatcircleDistance().length(link) / 1000;
     }
 
     public static List<OSMLink<OSMNode>> split(final OSMLink<OSMNode> l, final OSMNode n) {
-//        if (log.isLoggable(Level.FINE)) {
-//            log.fine("splitting link " + l + ", node: " + n);
-//        }
-
         List<OSMNode> nodes = getOrderedNodes(l);
         int index = nodes.indexOf(n);
         if (index < 0) {
@@ -110,16 +76,18 @@ public class OSMUtils {
         l.getTarget().removeLink(l);
 
         // create 2 new Links from the old one
-        List<OSMLink<OSMNode>> result = new ArrayList<OSMLink<OSMNode>>(2);
+        List<OSMLink<OSMNode>> result = new ArrayList<>(2);
         result.add(listToLink(newListA, l));
         result.add(listToLink(newListB, l));
         return result;
     }
 
     public static OSMLink<OSMNode> listToLink(List<OSMNode> list, OSMLink<OSMNode> l) {
+        final GreatcircleDistance distance = new GreatcircleDistance();
+
         assert list.size() > 1 : "list size 1?";
         Map<String, String> attributes = l.getAttr();
-        OSMLink<OSMNode> link = new OSMLink<OSMNode>(list.get(0), list.get(list.size() - 1), l.isOneway());
+        OSMLink<OSMNode> link = new OSMLink<>(list.get(0), list.get(list.size() - 1), l.isOneway());
         link.setId(l.getId());
         double dist = 0;
         double asc = 0;
@@ -129,12 +97,14 @@ public class OSMUtils {
             OSMNode a = list.get(i);
             OSMNode b = list.get(i + 1);
 
-            dist += dist(a, b);
+            dist += distance.distance(a, b);
             double diff = b.getHeight() - a.getHeight();
-            if (diff > 0) {
-                asc += diff;
-            } else if (diff < 0) {
-                dsc -= diff;
+            if (!Double.isNaN(diff)) {
+                if (diff > 0) {
+                    asc += diff;
+                } else if (diff < 0) {
+                    dsc -= diff;
+                }
             }
         }
 
@@ -152,9 +122,9 @@ public class OSMUtils {
     }
 
     public static List<OSMNode> getOrderedNodes(OSMLink<OSMNode> link) {
-        List<OSMNode> nodes = new ArrayList<OSMNode>();
+        List<OSMNode> nodes = new ArrayList<>();
         nodes.addAll(link.getNodes());
-        if (nodes.size() == 0) {
+        if (nodes.isEmpty()) {
             nodes.add(link.getSource());
             nodes.add(link.getTarget());
             return nodes;
@@ -167,7 +137,7 @@ public class OSMUtils {
     }
 
     public static List<OSMNode> orderedNodesBetween(OSMNode srcNode, OSMNode dstNode) {
-        List<OSMNode> nodes = new ArrayList<OSMNode>();
+        List<OSMNode> nodes = new ArrayList<>();
         OSMLink<OSMNode> link = srcNode.getLinkTo(dstNode);
         if (link == null) {
             nodes.add(srcNode);
@@ -176,7 +146,7 @@ public class OSMUtils {
         }
 
         nodes.addAll(link.getNodes());
-        if (nodes.size() == 0) {
+        if (nodes.isEmpty()) {
             nodes.add(srcNode);
             nodes.add(dstNode);
             return nodes;
@@ -233,14 +203,15 @@ public class OSMUtils {
     }
 
     /**
-     * Rough check if a and b are overlapping in 1 endpoint.
-     * True is returned, if a and b share ONE of their endpoints and no other
-     * endpoint is contained in the opponents path. So s.th like
-     * A1--B1--A2B2 will not be connectable
+     * Rough check if a and b are overlapping in 1 endpoint. True is returned,
+     * if a and b share ONE of their endpoints and no other endpoint is
+     * contained in the opponents path. So s.th like A1--B1--A2B2 will not be
+     * connectable
      *
      * @param a
      * @param b
-     * @return true if a and b might be connectable, false if they have the same start/endpoints or overlap
+     * @return true if a and b might be connectable, false if they have the same
+     * start/endpoints or overlap
      */
     public static boolean isConnectable(Path a, Path b) {
         Node a1 = a.getFirst();
@@ -271,23 +242,24 @@ public class OSMUtils {
         }
         return false;
     }
-    
-        /**
+
+    /**
      * http://wiki.openstreetmap.org/wiki/MaxSpeed_Overlay_Kosmos_Rules
-     * http://wiki.openstreetmap.org/wiki/DE:MaxSpeed_Karte
-     * @FIXME move this method into a utility class
+     * http://wiki.openstreetmap.org/wiki/DE:MaxSpeed_Karte @FIXME move this
+     * method into a utility class
+     *
      * @param l
      */
     public static void setSpeed(OSMGraph g, OSMLink l) {
         Map<String, Integer> speed = g.getSpeedMap();
-        
+
         assert speed != null : "speed object is null?";
         assert l != null : "link is null?";
 
         String maxSpeedValue = l.getAttr("maxspeed");
         if (maxSpeedValue != null) { // maxSpeed set. try to use it
             if (maxSpeedValue.contains(";")) {
-                log.fine("Link [" + l + "]: multiple values in maxspeed. Using first of: " + maxSpeedValue);
+                log.log(Level.FINE, "Link [{0}]: multiple values in maxspeed. Using first of: {1}", new Object[]{l, maxSpeedValue});
                 maxSpeedValue = maxSpeedValue.split(";")[0];
             }
             try {
@@ -301,7 +273,7 @@ public class OSMUtils {
                 } else if (maxSpeedValue.equals("variable")) {
                     l.setSpeed(speed.get("footway"));
                 } else {
-                    log.fine("Link [" + l + "]: Unmapped maxspeed value: " + maxSpeedValue + ". Use highway type.");
+                    log.log(Level.FINE, "Link [{0}]: Unmapped maxspeed value: {1}. Use highway type.", new Object[]{l, maxSpeedValue});
                 }
             }
 
@@ -317,7 +289,7 @@ public class OSMUtils {
             Integer maxSpeedInt = speed.get(highway);
 
             if (maxSpeedInt == null && highway.contains(";")) {
-                log.fine("Link [" + l + "]: multiple highway settings. Using first of: " + highway);
+                log.log(Level.FINE, "Link [{0}]: multiple highway settings. Using first of: {1}", new Object[]{l, highway});
                 maxSpeedInt = speed.get(highway.split(";")[0]);
             }
             if (maxSpeedInt == null) {
