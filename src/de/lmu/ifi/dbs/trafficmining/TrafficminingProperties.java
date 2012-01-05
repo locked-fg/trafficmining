@@ -17,6 +17,7 @@ public class TrafficminingProperties {
 
     public static final String SETTINGS_FILE = "config.properties";
     public static final String SETTINGS_DIR = "PAROS";
+    public static final String TAG_WHITELIST_FILE = "whitelist-tags.properties";
     private final PropertyContainer pc;
     // settings
     public static final String autoload_graph = "autoload.graph";
