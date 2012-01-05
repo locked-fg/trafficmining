@@ -14,59 +14,60 @@ import javax.xml.parsers.SAXParserFactory;
 import org.xml.sax.SAXException;
 
 /**
- * Class for reading OSM XML files
- * <p/>
- * @author graf @modified greil
+ * Class for reading OSM XML files into a Graph representation
+ *
+ * @author graf
+ * @author greil
  */
-public class XmlOsmGraphReader<N extends OSMNode<L>, L extends OSMLink<N>> {
+public class XmlOsmGraphReader {
 
     private static final Logger log = Logger.getLogger(XmlOsmGraphReader.class.getName());
-    private OSMGraph<N, L> graph = new OSMGraph<>();
-    private XmlOsmHandler xmlHandler = new XmlOsmHandler();
+    private final File osmXML;
+    private final List<String> tagWhitelist;
+    private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
+    private XmlOsmHandler xmlHandler;
 
-    public XmlOsmGraphReader() {
+    public XmlOsmGraphReader(File osmXML, List<String> tagWhitelist) {
+        this.osmXML = osmXML;
+        this.tagWhitelist = tagWhitelist;
     }
 
-    private void parseOSMxml(File osmXML) {
-        try {
-            if (log.isLoggable(Level.INFO)) {
-                long filesize = (osmXML.length() / 1024 / 1024);
-                String out = filesize + " mb";
-                if (filesize < 1) {
-                    out = (osmXML.length() / 1024) + " kb";
-                }
-                log.log(Level.INFO, "parsing XML: {0}; filesize: {1}", new Object[]{osmXML.getAbsolutePath(), out});
-            }
-            if (Thread.interrupted()) {
-                return;
-            }
+    public void process() throws IOException, ParserConfigurationException,
+            SAXException {
 
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            factory.setNamespaceAware(true);
-            factory.setValidating(true);
-            SAXParser parser = factory.newSAXParser();
-            parser.parse(osmXML, xmlHandler);
-        } catch (IOException | ParserConfigurationException | SAXException ex) {
-            Logger.getLogger(XmlOsmGraphReader.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void initGraph() {
         if (Thread.interrupted()) {
             return;
         }
 
-        List<N> nodes = xmlHandler.getListNodes();
-        List<OSMLink<OSMNode>> links = xmlHandler.getListLinks();
-        graph.addNodeList(nodes);
-        graph.setLinkList(links);
+        parseXml(osmXML);
 
+        if (Thread.interrupted()) {
+            return;
+        }
+
+        graph = new OSMGraph<>();
+        graph.addNodeList(xmlHandler.getListNodes());
+        graph.setLinkList(xmlHandler.getListLinks());
+
+        graph.beautifyGraph();
     }
 
-    public OSMGraph<N, L> getGraph(File osmXML) {
-        parseOSMxml(osmXML);
-        initGraph();
-        graph.beautifyGraph();
+    private void parseXml(File osmXML) throws ParserConfigurationException,
+            SAXException, IOException {
+        xmlHandler = new XmlOsmHandler();
+        xmlHandler.setTagWhitelist(tagWhitelist);
+
+        log.log(Level.INFO, "parsing XML: {0}; filesize: {1}kb", new Object[]{osmXML.getAbsolutePath(), osmXML.length() / 1024});
+
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        factory.setNamespaceAware(true);
+        factory.setValidating(true);
+
+        SAXParser parser = factory.newSAXParser();
+        parser.parse(osmXML, xmlHandler);
+    }
+
+    public OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> getGraph() {
         return graph;
     }
 }
