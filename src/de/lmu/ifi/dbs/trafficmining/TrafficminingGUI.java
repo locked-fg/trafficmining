@@ -715,7 +715,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private void loadGraphFromFile(File sourceFile, LoadGraphAction listener) {
         log.fine("starting load graph worker");
         File whitelist = null;
-        if (jCheckBoxMenuItem_tagWhitelist.isSelected()) {
+        if (useWhitelistMenuItem.isSelected()) {
             whitelist = new File(TrafficminingProperties.TAG_WHITELIST_FILE);
         }
 
@@ -964,17 +964,17 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem loadGraphItem = new javax.swing.JMenuItem();
         autoloadMenuItem = new javax.swing.JCheckBoxMenuItem();
-        jCheckBoxMenuItem_tagWhitelist = new javax.swing.JCheckBoxMenuItem();
+        useWhitelistMenuItem = new javax.swing.JCheckBoxMenuItem();
         paintGraphMenuItem = new javax.swing.JCheckBoxMenuItem();
         visitedNodesItem = new javax.swing.JCheckBoxMenuItem();
-        jMenuItem_loadPBF = new javax.swing.JMenuItem();
-        javax.swing.JMenuItem exitItem = new javax.swing.JMenuItem();
-        jMenu1 = new javax.swing.JMenu();
+        importPbfMenuItem = new javax.swing.JMenuItem();
+        javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
+        clusterMenu = new javax.swing.JMenu();
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
         jMenu_tileservers = new javax.swing.JMenu();
         javax.swing.JMenu aboutMenu = new javax.swing.JMenu();
-        javax.swing.JMenuItem aboutmenuItem = new javax.swing.JMenuItem();
+        javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("MARiO: Multi Attribute Routing in Open Street Map");
@@ -1223,9 +1223,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         });
         fileMenu.add(autoloadMenuItem);
 
-        jCheckBoxMenuItem_tagWhitelist.setSelected(true);
-        jCheckBoxMenuItem_tagWhitelist.setText("use whitelist for osm graph tags");
-        fileMenu.add(jCheckBoxMenuItem_tagWhitelist);
+        useWhitelistMenuItem.setSelected(true);
+        useWhitelistMenuItem.setText("use whitelist for osm graph tags");
+        fileMenu.add(useWhitelistMenuItem);
 
         paintGraphMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         paintGraphMenuItem.setSelected(true);
@@ -1246,33 +1246,33 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         });
         fileMenu.add(visitedNodesItem);
 
-        jMenuItem_loadPBF.setText("Import PBF");
-        jMenuItem_loadPBF.addActionListener(new java.awt.event.ActionListener() {
+        importPbfMenuItem.setText("Import PBF");
+        importPbfMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem_loadPBFActionPerformed(evt);
+                importPbfMenuItemActionPerformed(evt);
             }
         });
-        fileMenu.add(jMenuItem_loadPBF);
+        fileMenu.add(importPbfMenuItem);
 
-        exitItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
-        exitItem.setMnemonic('x');
-        exitItem.setText("Exit");
-        exitItem.addActionListener(new java.awt.event.ActionListener() {
+        exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
+        exitMenuItem.setMnemonic('x');
+        exitMenuItem.setText("Exit");
+        exitMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exitItemActionPerformed(evt);
+                exitMenuItemActionPerformed(evt);
             }
         });
-        fileMenu.add(exitItem);
+        fileMenu.add(exitMenuItem);
 
         menuBar.add(fileMenu);
 
-        jMenu1.setMnemonic('c');
-        jMenu1.setText("Cluster");
-        jMenu1.setEnabled(false);
+        clusterMenu.setMnemonic('c');
+        clusterMenu.setText("Cluster");
+        clusterMenu.setEnabled(false);
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
-        jMenu1.add(jCheckBoxMenuItem1);
+        clusterMenu.add(jCheckBoxMenuItem1);
 
         jCheckBoxMenuItem2.setText("TEST CLUSTERING");
         jCheckBoxMenuItem2.addActionListener(new java.awt.event.ActionListener() {
@@ -1280,9 +1280,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 jCheckBoxMenuItem2ActionPerformed(evt);
             }
         });
-        jMenu1.add(jCheckBoxMenuItem2);
+        clusterMenu.add(jCheckBoxMenuItem2);
 
-        menuBar.add(jMenu1);
+        menuBar.add(clusterMenu);
 
         jMenu_tileservers.setMnemonic('T');
         jMenu_tileservers.setText("Tileservers");
@@ -1296,14 +1296,14 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             }
         });
 
-        aboutmenuItem.setMnemonic('a');
-        aboutmenuItem.setText("About");
-        aboutmenuItem.addActionListener(new java.awt.event.ActionListener() {
+        aboutMenuItem.setMnemonic('a');
+        aboutMenuItem.setText("About");
+        aboutMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                aboutmenuItemActionPerformed(evt);
+                aboutMenuItemActionPerformed(evt);
             }
         });
-        aboutMenu.add(aboutmenuItem);
+        aboutMenu.add(aboutMenuItem);
 
         menuBar.add(aboutMenu);
 
@@ -1312,10 +1312,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void exitItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitItemActionPerformed
+    private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
         dispose();
         System.exit(0);
-    }//GEN-LAST:event_exitItemActionPerformed
+    }//GEN-LAST:event_exitMenuItemActionPerformed
 
     /**
      * user selected something in the algorithm list
@@ -1388,32 +1388,31 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jList_nodesKeyReleased
 
-private void jMenuItem_loadPBFActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem_loadPBFActionPerformed
+private void importPbfMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importPbfMenuItemActionPerformed
 // TODO add your handling code here:
     openPBFWindow();
-}//GEN-LAST:event_jMenuItem_loadPBFActionPerformed
+}//GEN-LAST:event_importPbfMenuItemActionPerformed
 
-private void aboutmenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutmenuItemActionPerformed
+private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
 
     AboutDialog ad = new AboutDialog(this, true);
     ad.setLocationRelativeTo(null);
     ad.setVisible(true);
-}//GEN-LAST:event_aboutmenuItemActionPerformed
+}//GEN-LAST:event_aboutMenuItemActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.DefaultComboBoxModel algorithmBoxModel;
     private javax.swing.JComboBox algorithmComboBox;
     private javax.swing.JCheckBoxMenuItem autoloadMenuItem;
     private org.jdesktop.swingx.JXBusyLabel busyLabel;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JMenu clusterMenu;
     private javax.swing.JButton configureButton;
+    private javax.swing.JMenuItem importPbfMenuItem;
     private javax.swing.JButton jButton_adressSearch;
     private javax.swing.JButton jButton_deleteAllNodes;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
-    private static javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem_tagWhitelist;
     private javax.swing.JList jList_nodes;
-    private javax.swing.JMenu jMenu1;
-    private javax.swing.JMenuItem jMenuItem_loadPBF;
     private javax.swing.JMenu jMenu_tileservers;
     private javax.swing.JPanel jPanel_nodes;
     private javax.swing.JScrollPane jScrollPane_nodes;
@@ -1433,6 +1432,7 @@ private void aboutmenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl2D simplexControl2D;
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl3D simplexControl3D;
     private javax.swing.JLabel statusbarLabel;
+    private static javax.swing.JCheckBoxMenuItem useWhitelistMenuItem;
     private javax.swing.JSplitPane verticalSplitPane;
     private javax.swing.JCheckBoxMenuItem visitedNodesItem;
     // End of variables declaration//GEN-END:variables
