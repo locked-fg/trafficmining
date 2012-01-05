@@ -1,6 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
+import de.lmu.ifi.dbs.trafficmining.utils.GeoDistance;
+import de.lmu.ifi.dbs.trafficmining.utils.GreatcircleDistance;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
+import de.lmu.ifi.dbs.utilities.distances.Distance;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -17,6 +20,7 @@ import java.util.logging.Logger;
 public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> {
 
     private static final Logger log = Logger.getLogger(OSMGraph.class.getName());
+    private GeoDistance distance = new GreatcircleDistance();
     protected List<OSMLink<OSMNode>> linkList = new ArrayList<>();
     protected HashMap<String, Integer> speed = new HashMap<>();
     private final String[] blacklist = new String[]{"height", "name", "note"};
@@ -88,14 +92,14 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
                 if (l == 0) { // first node
                     act_nodes.add(n);
                 } else if (l == list_nodes.size() - 1) {  // last node
-                    if (link_splitted) {  // at least 1 node had attribs
+                    if (link_splitted) {  // at least 1 node had attributes
                         act_nodes.add(n);
                         OSMLink<OSMNode> lw = newLinker(act_nodes, id_counter, link_org);
                         newLinkList.add(lw);
                         id_counter--;
                     } else { // no node had attribs, maintain the original unmodified link
                         act_nodes.clear();
-                        link_org.setDistance(OSMUtils.dist(link_org));
+                        link_org.setLength(distance.length(link_org));
                         newLinkList.add(link_org);
                     }
                 } else {  // intermediate nodes
@@ -148,20 +152,20 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
             throw new IllegalStateException("linking less than 2 nodes does not work");
         }
 
-        OSMLink<OSMNode> ret = new OSMLink(nodes.get(0), nodes.get(nodes.size() - 1), link_org.isOneway());
+        OSMLink<OSMNode> result = new OSMLink(nodes.get(0), nodes.get(nodes.size() - 1), link_org.isOneway());
         for (OSMNode oSMNode : nodes) {
             oSMNode.removeLink(link_org);  // reset the node<>link memory
-            ret.addNodes(oSMNode);  // and readd the nodes to the link
+            result.addNodes(oSMNode);  // and readd the nodes to the link
         }
 
-        ret.setId(id);
-        ret.setAscend(link_org.getAscend());
-        ret.setDescend(link_org.getDescend());
+        result.setId(id);
+        result.setAscend(link_org.getAscend());
+        result.setDescend(link_org.getDescend());
         for (Map.Entry<String, String> entry : link_org.getAttr().entrySet()) {
-            ret.setAttr(entry.getKey(), entry.getValue());
+            result.setAttr(entry.getKey(), entry.getValue());
         }
-        ret.setDistance(OSMUtils.dist(ret));
-        return ret;
+        result.setLength(distance.length(result));
+        return result;
     }
 
     private void cleanNodeList() {
