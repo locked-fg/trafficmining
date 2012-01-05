@@ -82,16 +82,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         map = jXMapKit.getMainMap();
 
         properties = new TrafficminingProperties();
-//        List<String> srtm = new ArrayList<String>();
-//        for (String s : properties.getKeys()) {
-//            if (s.startsWith("srtm.src.url.")) {
-//                srtm.add(properties.getString(s));
-//            }
-//        }
-//        pbf_o.setSRTMServers(srtm);
-
         pbf_o = new PBFtoOSMFrame();
-
 
         loadAlgorithmComboBox();
 
@@ -135,12 +126,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         autoloadMenuItem.setSelected(autoLoadGraph);
         if (autoLoadGraph && lrud != null && lruf != null) {
             try {
-                File osmXml = new File(lrud + File.separator + lruf);
-
-                log.fine("starting load graph worker");
-                loadGraphWorker = new LoadGraphWorker(osmXml);
-                loadGraphWorker.addPropertyChangeListener(loadAction);
-                loadGraphWorker.execute();
+                File osmXml = new File(new File(lrud), lruf);
+                loadGraphFromFile(osmXml, loadAction);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "", e);
             }
@@ -173,9 +160,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     /**
-     * @fixme servers hardcoded = uncool
-     * solution: exclude whole process into some *.properties files
-     * 
+     * @fixme servers hardcoded = uncool solution: exclude whole process into
+     * some *.properties files
+     *
      */
     private void createTileServer() {
 
@@ -252,9 +239,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (!setTileServer(ts)) {
-//                        JCheckBoxes.get(i).setS
-                    }
                     repaint();
                 }
             });
@@ -289,15 +273,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         return true;
     }
 
-//    private void clusterCheckBoxMenuItemActionPerformed(java.awt.event.ActionEvent evt) {
-//        if (clusterCheckBoxMenuItem.isSelected()) {
-//            clusterScrollPane.setVisible(true);
-//            simplexContainer.setVisible(false);
-//        } else {
-//            clusterScrollPane.setVisible(false);
-//            simplexContainer.setVisible(true);
-//        }
-//    }
     private void startClustering() {
         if (result.getResults().size() > 1) {
             SingleLinkClusteringWithPreprocessing skyclus = new SingleLinkClusteringWithPreprocessing();
@@ -353,24 +328,12 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     /**
      * Reformats an exception's stacktrace to a string
+     *
      * @param e the exception
      * @return string of the stacktraceo
      */
     private String exceptionist(Exception e) {
-        StringBuilder ex = new StringBuilder();
-        for (int i = 0; i < e.getStackTrace().length; i++) {
-            String s = e.getStackTrace()[i].toString();
-            if (i == 0) {
-                ex.append("\n").append(s).append("\n");
-                continue;
-            } else if (i == e.getStackTrace().length - 1) {
-                ex.append(s).append("\n");
-                continue;
-            }
-            ex.append(s).append("\n");
-        }
-        return ex.toString();
-
+        return Arrays2.join(e.getStackTrace(), "\n");
     }
 
     private void configureAlgorithm() {
@@ -396,7 +359,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 bcd.setBean(currentAlgorithm);
                 bcd.setVisible(true);
             } catch (Exception ex) {
-                // s.th went wrong
                 log.log(Level.SEVERE, null, ex);
                 // s.th went wrong. So close the window and tell the user that
                 // s.th unexpected happened.
@@ -408,7 +370,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                         + exceptionist(ex) + "\n"
                         + "Maybe the log file is more informative about what went wrong.",
                         "Error", JOptionPane.ERROR_MESSAGE);
-                return;
             }
         }
     }
@@ -715,10 +676,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     /**
-     * Ensures that currentAlgorithm is set and initialized.
-     * The method also sets the current graph and the node list.
+     * Ensures that currentAlgorithm is set and initialized. The method also
+     * sets the current graph and the node list.
      *
-     * For any configuration beyond this basic setting, call #configureAlgorithm()
+     * For any configuration beyond this basic setting, call
+     * #configureAlgorithm()
      *
      * @throws InstantiationException if the algorithm could not be instanciated
      * @throws IllegalAccessException if the algorithm could not be instanciated
@@ -750,12 +712,24 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         currentAlgorithm.setNodes(model_wp.getNodes());
     }
 
+    private void loadGraphFromFile(File sourceFile, LoadGraphAction listener) {
+        log.fine("starting load graph worker");
+        File whitelist = null;
+        if (jCheckBoxMenuItem_tagWhitelist.isSelected()) {
+            whitelist = new File(TrafficminingProperties.TAG_WHITELIST_FILE);
+        }
+
+        loadGraphWorker = new LoadGraphWorker(sourceFile, whitelist);
+        loadGraphWorker.addPropertyChangeListener(listener);
+        loadGraphWorker.execute();
+    }
+
     /**
-     * Opens the filechooser for the load graph action.
-     * Upon File selection, a new SwingWorker ist started to load the files.
+     * Opens the filechooser for the load graph action. Upon File selection, a
+     * new SwingWorker ist started to load the files.
      *
-     * Also updates the painter as soon as the graph is loaded
-     * @TODO separate class
+     * Also updates the painter as soon as the graph is loaded @TODO separate
+     * class
      */
     class LoadGraphAction implements ActionListener, PropertyChangeListener {
 
@@ -807,11 +781,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 }
 
                 try {
-                    log.fine("starting worker");
                     busyLabel.setBusy(true);
-                    loadGraphWorker = new LoadGraphWorker(chooser.getSelectedFile());
-                    loadGraphWorker.addPropertyChangeListener(this);
-                    loadGraphWorker.execute();
+                    loadGraphFromFile(chooser.getSelectedFile(), this);
                 } catch (Throwable t) {
                     log.log(Level.SEVERE, "couldn't init graph loader:", t.getMessage());
                     JOptionPane.showInternalMessageDialog(getContentPane(), t.getMessage());
@@ -821,6 +792,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         /**
          * Method that is called as soon as the graphloader task has finished
+         *
          * @param evt
          */
         @Override
@@ -839,8 +811,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     /**
-     * MouseAdapter that takes a click on the main map, seeks the nearest node to
-     * the click position in the graph and adds this node in the according lists.
+     * MouseAdapter that takes a click on the main map, seeks the nearest node
+     * to the click position in the graph and adds this node in the according
+     * lists.
      */
     class MapToNodeList extends MouseAdapter {
 
@@ -869,7 +842,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     /**
-     * Listener that keeps an eye on an AlgorithmWorker and propagates the result of the computation
+     * Listener that keeps an eye on an AlgorithmWorker and propagates the
+     * result of the computation
      */
     class AlgorithmWorkerListener implements PropertyChangeListener {
 
@@ -948,10 +922,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         pbf_o.setMapTileServer(tileServer);
         pbf_o.setLocationRelativeTo(null);
         pbf_o.setVisible(true);
-    }
-
-    public static boolean getWhitelistStatus() {
-        return jCheckBoxMenuItem_tagWhitelist.getState();
     }
 
     @SuppressWarnings("unchecked")
