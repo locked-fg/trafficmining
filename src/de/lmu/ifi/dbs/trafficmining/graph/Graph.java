@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Graph<N extends Node, L extends Link> {
 
-    private HashMap<Integer, N> nodes = new HashMap<Integer, N>();
+    private HashMap<Integer, N> nodes = new HashMap<>();
 
     public Graph() {
     }
@@ -15,8 +15,8 @@ public class Graph<N extends Node, L extends Link> {
         nodes.put(node.getName(), node);
     }
     
-    public void addNodeList(List<N> list) {
-        for (N n : list) {
+    public void addNodeList(List<N> nodeList) {
+        for (N n : nodeList) {
             nodes.put(n.getName(), n);
         }
     }
