@@ -44,90 +44,101 @@ public class OSMUtils {
         return nearest;
     }
 
-//    public static List<OSMLink<OSMNode>> split(final OSMLink<OSMNode> l, final OSMNode n, GeoDistance distance) {
-//        List<OSMNode> nodes = getOrderedNodes(l);
-//        int index = nodes.indexOf(n);
-//        if (index < 0) {
-//            throw new IllegalArgumentException("node not in list");
-//        }
-//
-//        // create 2 sublists
-//        List<OSMNode> newListA = nodes.subList(0, index + 1);
-//        List<OSMNode> newListB = nodes.subList(index, nodes.size());
-//        assert newListA.get(newListA.size() - 1).equals(newListB.get(0));
-//
-//        // unbind the link from it's source/target
-//        l.getSource().removeLink(l);
-//        l.getTarget().removeLink(l);
-//
-//        // create 2 new Links from the old one
-//        List<OSMLink<OSMNode>> result = new ArrayList<>(2);
-//        result.add(listToLink(newListA, l, distance));
-//        result.add(listToLink(newListB, l, distance));
-//        return result;
-//    }
-//    /**
-//     * Converts a list of OSMNodes to an OSMLink and adopts the ID and
-//     * attributes of a given sample link.
-//     *
-//     * @param nodeList The list of nodes representing the new link
-//     * @param masterLink The link from which ID and attributes (oneway for ex.)
-//     * should be taken
-//     * @param distance The applied distance measure
-//     * @return a new link
-//     */
-//    private static OSMLink<OSMNode> listToLink(List<OSMNode> nodeList, OSMLink<OSMNode> masterLink, GeoDistance distance) {
-//        assert nodeList.size() > 1 : "list size 1?";
-//
-//        OSMLink<OSMNode> link = new OSMLink<>(nodeList.get(0), nodeList.get(nodeList.size() - 1), masterLink.isOneway());
-//        link.setId(masterLink.getId());
-//        // copy attributes
-//        for (Map.Entry<String, String> entry : masterLink.getAttr().entrySet()) {
-//            link.setAttr(entry.getKey(), entry.getValue());
-//        }
-//
-//
-//        double dist = 0;
-//        double asc = 0;
-//        double dsc = 0;
-//
-//        for (int i = 0; i < nodeList.size() - 1; i++) {
-//            OSMNode a = nodeList.get(i);
-//            OSMNode b = nodeList.get(i + 1);
-//
-//            double diff = b.getHeight() - a.getHeight();
-//            if (!Double.isNaN(diff)) {
-//                if (diff > 0) {
-//                    asc += diff;
-//                } else if (diff < 0) {
-//                    dsc -= diff;
-//                }
-//            }
-//        }
-//
-//        link.setLength(distance.length(link));
-//        link.setAscend(asc);
-//        link.setDescend(dsc);
-//        link.setLength(dist);
-//        link.addNodes(nodeList);
-//        link.setSpeed(masterLink.getSpeed());
-//
-//        return link;
-//    }
-//    public static List<OSMNode> getOrderedNodes(OSMLink<OSMNode> link) {
-//        List<OSMNode> nodes = new ArrayList<>();
-//        nodes.addAll(link.getNodes());
-//        if (nodes.isEmpty()) {
-//            nodes.add(link.getSource());
-//            nodes.add(link.getTarget());
-//            return nodes;
-//        }
-//
-//        if (!nodes.get(0).equals(link.getSource())) {
-//            Collections.reverse(nodes);
-//        }
-//        return nodes;
-//    }
+    /**
+     * Splits a link at a given node
+     *
+     * @param splitLink The link that should be splitted
+     * @param splitNode The node of the link that marks the split position
+     * @param distance the distance measure to use for the resulting links
+     * @return list containing the 2 new links
+     */
+    public static List<OSMLink<OSMNode>> split(final OSMLink<OSMNode> splitLink, final OSMNode splitNode, GeoDistance distance) {
+        List<OSMNode> nodes = getOrderedNodes(splitLink);
+        int index = nodes.indexOf(splitNode);
+        if (index < 0) {
+            throw new IllegalArgumentException("node not in list");
+        }
+
+        // create 2 sublists
+        List<OSMNode> newListA = nodes.subList(0, index + 1);
+        List<OSMNode> newListB = nodes.subList(index, nodes.size());
+        assert newListA.get(newListA.size() - 1).equals(newListB.get(0));
+
+        // unbind the link from it's source/target
+        splitLink.getSource().removeLink(splitLink);
+        splitLink.getTarget().removeLink(splitLink);
+
+        // create 2 new Links from the old one
+        List<OSMLink<OSMNode>> result = new ArrayList<>(2);
+        result.add(listToLink(newListA, splitLink, distance));
+        result.add(listToLink(newListB, splitLink, distance));
+        return result;
+    }
+
+    /**
+     * Converts a list of OSMNodes to an OSMLink and adopts the ID and
+     * attributes of a given sample link.
+     *
+     * @param nodeList The list of nodes representing the new link
+     * @param masterLink The link from which ID and attributes (oneway for ex.)
+     * should be taken
+     * @param distance The applied distance measure
+     * @return a new link
+     */
+    private static OSMLink<OSMNode> listToLink(List<OSMNode> nodeList, OSMLink<OSMNode> masterLink, GeoDistance distance) {
+        assert nodeList.size() > 1 : "list size 1?";
+
+        OSMLink<OSMNode> link = new OSMLink<>(nodeList.get(0), nodeList.get(nodeList.size() - 1), masterLink.isOneway());
+        link.setId(masterLink.getId());
+        // copy attributes
+        for (Map.Entry<String, String> entry : masterLink.getAttr().entrySet()) {
+            link.setAttr(entry.getKey(), entry.getValue());
+        }
+
+
+        double dist = 0;
+        double asc = 0;
+        double dsc = 0;
+
+        for (int i = 0; i < nodeList.size() - 1; i++) {
+            OSMNode a = nodeList.get(i);
+            OSMNode b = nodeList.get(i + 1);
+
+            double diff = b.getHeight() - a.getHeight();
+            if (!Double.isNaN(diff)) {
+                if (diff > 0) {
+                    asc += diff;
+                } else if (diff < 0) {
+                    dsc -= diff;
+                }
+            }
+        }
+
+        link.setLength(distance.length(link));
+        link.setAscend(asc);
+        link.setDescend(dsc);
+        link.setLength(dist);
+        link.addNodes(nodeList);
+        link.setSpeed(masterLink.getSpeed());
+
+        return link;
+    }
+
+    private static List<OSMNode> getOrderedNodes(OSMLink<OSMNode> link) {
+        List<OSMNode> nodes = new ArrayList<>();
+        nodes.addAll(link.getNodes());
+        if (nodes.isEmpty()) {
+            nodes.add(link.getSource());
+            nodes.add(link.getTarget());
+            return nodes;
+        }
+
+        if (!nodes.get(0).equals(link.getSource())) {
+            Collections.reverse(nodes);
+        }
+        return nodes;
+    }
+
     /**
      * Returns an ordered list of nodes that represent the link between the 2
      * given nodes.
