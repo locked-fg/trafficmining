@@ -17,7 +17,7 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  * @author greil
  */
-public class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends DefaultHandler {
+class XmlOsmHandler<N extends OSMNode<L>, L extends OSMLink<N>> extends DefaultHandler {
 
     private static final Logger log = Logger.getLogger(XmlOsmGraphReader.class.getName());
     private HashMap<Integer, OSMNode> hm_nodes = new HashMap<>();
