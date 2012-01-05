@@ -7,6 +7,10 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
 
     private int id = -1; // this id need not be unique!
     private static final Logger log = Logger.getLogger(OSMLink.class.getName());
+    /**
+     * The length of the link in meters (regarding sub nodes and elevation data
+     * if possible).
+     */
     private double length;
     private double ascend;
     private double descend;
@@ -26,7 +30,7 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
         for (N n : list) {
             addNodes(n);
         }
-        if (ns instanceof ArrayList) { // let don't make the array larger than it has to be
+        if (ns instanceof ArrayList) { // don't make the array larger than it has to be
             ((ArrayList) ns).trimToSize();
         }
     }
@@ -36,7 +40,7 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
             throw new NullPointerException("no null nodes allowed");
         }
         if (ns == null) {
-            ns = new ArrayList<>(3);
+            ns = new ArrayList<>(2);
         }
         if (ns.isEmpty() && (!n.equals(getSource()) && !n.equals(getTarget()))) {
             log.info("initializing sublist with a node which is neither start nor target node");
@@ -94,14 +98,6 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
         return this.length;
     }
 
-    /**
-     * @deprecated @see #setLength(double)
-     */
-    @Deprecated
-    public void setDistance(double distance) {
-        this.length = distance;
-    }
-
     public void setAscend(double ascend) {
         this.ascend = ascend;
     }
@@ -138,15 +134,6 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
 
     public String getAttr(String key) {
         return attr != null ? attr.get(key) : null;
-    }
-
-    /**
-     * @deprecated 
-     * @see #getLength() 
-     */
-    @Deprecated
-    public double getDistance() {
-        return length;
     }
 
     public double getAscend() {

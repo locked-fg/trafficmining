@@ -36,7 +36,6 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
     private List<N> referencePoints = null;
     // ----
     private Logger log = Logger.getLogger(OSMSkyline.class.getName());
-    
     private boolean DISTANCE = true;
     private boolean TIME = true;
     private boolean HEIGHT = false;
@@ -45,25 +44,23 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
     private Result result;
     private String[] nameUnits;
     private String[] nameAttribs;
-    
     private String embeddingFilePath = "embedding.cache.txt";
-    
+
     public void set_EmbeddingFilePath(String eFilePath) {
         if (eFilePath.isEmpty()) {
-            eFilePath="embedding.cache.txt";
+            eFilePath = "embedding.cache.txt";
         }
         embeddingFilePath = eFilePath;
         embeddingFile = new File(embeddingFilePath);
         embCache = new SoftReference(null);
     }
-    
+
     public String get_EmbeddingFilePath() {
         return embeddingFilePath;
     }
 
     public OSMSkyline() {
     }
-
 
     public boolean isDISTANCE() {
         return attribs[0];
@@ -97,7 +94,6 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         attribs[3] = check(b);
     }
 
-
     private boolean check(boolean b) {
         if (b && ac < maxAttributes) {
             ac++;
@@ -108,7 +104,6 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         }
         return false;
     }
-    
 
     @Override
     public Result getResult() {
@@ -117,7 +112,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
 
     @Override
     public void run() {
-        
+
         long a = System.currentTimeMillis();
         this.referencePoints = selectRefPoints(numberOfRefpoints);
         buildEmbedding();
@@ -191,7 +186,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         buildUnitsAndAttribs();
         res.setUnits(nameUnits);
         res.setAttributes(nameAttribs);
-        
+
         return res;
     }
 
@@ -225,7 +220,6 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         nameUnits = units;
         nameAttribs = natt;
     }
-    
 
     private float[] buildWeights() {
         float[] weights = new float[attribs.length];
@@ -388,8 +382,9 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
     }
 
     /**
-     * Makes a reverse subskylin-search for the embedded nearest neighbors in each
-     * direction and their skylines. If the start is already found search is finisched
+     * Makes a reverse subskylin-search for the embedded nearest neighbors in
+     * each direction and their skylines. If the start is already found search
+     * is finisched
      *
      * @param start
      * @param dest
@@ -482,6 +477,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
 
     /**
      * Checks all candidates whether they are already dominated for result node
+     *
      * @param cand candidate paths
      * @param result result subskylines
      * @return reduced candidate set;
@@ -617,7 +613,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
      * @return array of weights
      */
     private float[] linkToCost(OSMLink<N> l, float[] weights) {
-        float x = (float) l.getDistance();
+        float x = (float) l.getLength() / 1000;
         float v = l.getSpeed();
         float t = x / v; // v = x/t
         float z = (float) (l.getAscend() + l.getDescend());
@@ -665,5 +661,3 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         return "OSMSkyline";
     }
 }
-
-

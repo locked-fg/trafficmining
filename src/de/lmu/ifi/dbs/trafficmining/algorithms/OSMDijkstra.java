@@ -110,7 +110,7 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
 
     private double linkCost(OSMLink link) {
         if (myAttribs == ATTRIBS.FASTEST) {
-            double x = link.getDistance();
+            double x = link.getLength()/1000;
             double v = link.getSpeed();
             double time = x / v;
             if (time <= 0) {
@@ -119,7 +119,7 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
             }
             return time;
         } else {
-            return link.getDistance();
+            return link.getLength()/1000;
         }
     }
 

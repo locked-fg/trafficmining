@@ -110,7 +110,7 @@ public class OSMUtils {
 
         link.setAscend(asc);
         link.setDescend(dsc);
-        link.setDistance(dist);
+        link.setLength(dist);
         link.addNodes(list);
         link.setSpeed(l.getSpeed());
         // copy attributes
