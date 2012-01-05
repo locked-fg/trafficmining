@@ -216,7 +216,7 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
                 if (links.size() > 0 && !links.contains(l)) {
                     linkList.remove(link_inner);
                     removes++;
-                    List<OSMLink<OSMNode>> newLinks = OSMUtils.split(l, innerNode);
+                    List<OSMLink<OSMNode>> newLinks = OSMUtils.split(l, innerNode, distance);
                     for (OSMLink<OSMNode> aLink : newLinks) {
                         linkList.add(link_inner, aLink);
                         adds++;
