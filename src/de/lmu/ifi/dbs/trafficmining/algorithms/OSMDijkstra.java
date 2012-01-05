@@ -202,3 +202,32 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
         }
     }
 }
+
+
+class WeightedPath<N extends OSMNode<L>, L extends OSMLink<N>>
+        extends Path<WeightedPath, N, L> {
+
+    private final double cost;
+
+    /**
+     * @param n start node
+     * @param l new link
+     * @param cost costs
+     */
+    WeightedPath(N n, L l, double cost) {
+        super(n, l);
+        this.cost = cost;
+        assert getParent() == null || !getParent().contains(getLast()) : "Loop in: " + toString();
+        assert cost >= 0 : "negative cost?";
+    }
+
+    WeightedPath(WeightedPath p, L l, double newCost) {
+        super(p, l);
+        this.cost = p.getCost() + newCost;
+        assert cost >= 0 : "negative cost?";
+    }
+
+    public double getCost() {
+        return cost;
+    }
+}
