@@ -7,7 +7,7 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
 
     private int id = -1; // this id need not be unique!
     private static final Logger log = Logger.getLogger(OSMLink.class.getName());
-    private double distance;
+    private double length;
     private double ascend;
     private double descend;
     private int speed;
@@ -75,8 +75,31 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
         this.attr.put(key.intern(), value.intern());
     }
 
+    /**
+     * Sets the length of this link. This value should regard all subnodes and
+     * if possible elevation data.
+     *
+     * @param length the length measured in m
+     */
+    public void setLength(double length) {
+        this.length = length;
+    }
+
+    /**
+     * The length of the link in meters.
+     *
+     * @return length in meters
+     */
+    public double getLength() {
+        return this.length;
+    }
+
+    /**
+     * @deprecated @see #setLength(double)
+     */
+    @Deprecated
     public void setDistance(double distance) {
-        this.distance = distance;
+        this.length = distance;
     }
 
     public void setAscend(double ascend) {
@@ -93,7 +116,7 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
 
     /**
      * Returns an immutable list of detailed nodes.
-     * 
+     *
      * @return
      */
     public List<N> getNodes() {
@@ -117,8 +140,13 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
         return attr != null ? attr.get(key) : null;
     }
 
+    /**
+     * @deprecated 
+     * @see #getLength() 
+     */
+    @Deprecated
     public double getDistance() {
-        return distance;
+        return length;
     }
 
     public double getAscend() {
