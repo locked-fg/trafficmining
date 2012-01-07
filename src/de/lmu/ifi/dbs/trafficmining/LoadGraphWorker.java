@@ -27,8 +27,8 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
     private static final String WHITELIST_KEY = "tags";
     private static final String WHITELIST_VALUE_SEPARATOR = ";";
     private static final Logger log = Logger.getLogger(LoadGraphWorker.class.getName());
-    private final File whitelistFile;
     private final File osmXml;
+    private final List<String> tagWhitelist;
 
     /**
      * Initialize the worker.
@@ -38,24 +38,22 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
      * <code>tags</code> followed by a ";" separated list of tag names.
      *
      * @param osmFile the source osm file
-     * @param whitelistProperties properties file containing whitelisted node
-     * attributes or null
+     * @param useTagWhitelist use tag whitelist specified at TrafficminingProperties.TAG_WHITELIST_FILE
      */
-    public LoadGraphWorker(File osmFile, File whitelistProperties) {
+    public LoadGraphWorker(File osmFile, boolean useTagWhitelist) {
         if (!osmFile.exists() || !osmFile.canRead()) {
             throw new IllegalArgumentException(osmFile.getName() + " doesn't exist or is not readable!");
         }
         if (!osmFile.getName().toLowerCase().endsWith(".osm")) {
-            throw new NullPointerException("file must be an osm file (*.osm)");
+            throw new IllegalArgumentException("file must be an osm file (*.osm)");
         }
         osmXml = osmFile;
 
-        // probably set the tagwhitelist
-        if (whitelistProperties != null && whitelistProperties.exists() && whitelistProperties.canRead()) {
-            this.whitelistFile = whitelistProperties;
+        if (useTagWhitelist) {
+            tagWhitelist = initTagWhitelist();
         } else {
             log.info("tag whitelist file either null, not found or not readable - ignoring");
-            this.whitelistFile = null;
+            tagWhitelist = null;
         }
     }
 
@@ -65,8 +63,6 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
         try {
             log.log(Level.FINE, "reading graph from {0}", osmXml.getName());
             long a = System.currentTimeMillis();
-
-            List<String> tagWhitelist = initTagWhitelist();
 
             XmlOsmGraphReader reader = new XmlOsmGraphReader(osmXml, tagWhitelist);
             reader.process();
@@ -90,27 +86,26 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
     }
 
     private List<String> initTagWhitelist() {
-        List<String> tagWhitelist = new ArrayList<>();
+        List<String> whitelist = new ArrayList<>();
+        File whitelistFile = new File(TrafficminingProperties.TAG_WHITELIST_FILE);
 
-        if (whitelistFile != null) {
-            try {
-                log.log(Level.FINE, "Using whitelist file for tags: {0}", whitelistFile.getAbsolutePath());
-                Properties prop = new Properties();
-                prop.load(new BufferedReader(new FileReader(whitelistFile)));
+        try {
+            log.log(Level.FINE, "Using whitelist file for tags: {0}", whitelistFile.getAbsolutePath());
+            Properties prop = new Properties();
+            prop.load(new BufferedReader(new FileReader(whitelistFile)));
 
-                String tagList = prop.getProperty(WHITELIST_KEY);
-                if (tagList != null) {
-                    String[] tags = tagList.split(WHITELIST_VALUE_SEPARATOR);
-                    log.log(Level.FINE, "{0} tags listed for whitelisted", tags.length);
-                    for (String s : tags) {
-                        tagWhitelist.add(s.toLowerCase().intern());
-                    }
+            String tagList = prop.getProperty(WHITELIST_KEY);
+            if (tagList != null) {
+                String[] tags = tagList.split(WHITELIST_VALUE_SEPARATOR);
+                log.log(Level.FINE, "{0} tags listed for whitelisted", tags.length);
+                for (String s : tags) {
+                    whitelist.add(s.toLowerCase().intern());
                 }
-            } catch (IOException e) {
-                log.warning("An error occured due parsing the whitelist file, using no tag filtering");
-                return null;
             }
+        } catch (IOException e) {
+            log.warning("An error occured due parsing the whitelist file, using no tag filtering");
+            return null;
         }
-        return tagWhitelist;
+        return whitelist;
     }
 }

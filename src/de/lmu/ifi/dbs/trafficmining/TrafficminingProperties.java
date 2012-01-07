@@ -15,9 +15,14 @@ import java.util.logging.Logger;
  */
 public class TrafficminingProperties {
 
-    public static final String SETTINGS_FILE = "config.properties";
-    public static final String SETTINGS_DIR = "PAROS";
+    public static final String SETTINGS_DIR = "TRAFFICMINING";
+    
+    //properties files
+    public static final String SETTINGS_FILE = "trafficmining.properties";
     public static final String TAG_WHITELIST_FILE = "whitelist-tags.properties";
+    public static final String ZOOM_WHITELIST_FILE = "whitelist-zoom.properties";
+    public static final String SPEED_SETTINGS_FILE = "speeds.properties";    
+    
     private final PropertyContainer pc;
     // settings
     public static final String autoload_graph = "autoload.graph";

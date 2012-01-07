@@ -8,8 +8,8 @@ import java.awt.Image;
 import java.io.*;
 import java.net.*;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
+import java.util.WeakHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.imageio.ImageIO;
@@ -36,7 +36,7 @@ public class TileServer {
     private TileFactory tf = null;
     private int CACHESIZE = 256;
     private Random rnd;
-    private Map<String, String> hm = new HashMap<String, String>(CACHESIZE);
+    private WeakHashMap<String, String> hm = new WeakHashMap<>(CACHESIZE);
     private boolean VERBOSE = false;
     private boolean broken = false;
 
@@ -180,25 +180,21 @@ public class TileServer {
         try {
             URL url = new URI(s).toURL();
             URLConnection urlConnection = url.openConnection();
+            try (BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
+                    BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f))) {
 
-            BufferedInputStream in = new BufferedInputStream(urlConnection.getInputStream());
-            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(f));
-
-            byte[] buffer = new byte[1024 * 1024];
-            int len = in.read(buffer);
-            while (len >= 0) {
-                out.write(buffer, 0, len);
-                len = in.read(buffer);
+                byte[] buffer = new byte[1024 * 1024];
+                int len = in.read(buffer);
+                while (len >= 0) {
+                    out.write(buffer, 0, len);
+                    len = in.read(buffer);
+                }
+                out.flush();
             }
-            out.flush();
-            out.close();
-            in.close();
             if (urlConnection.getContentLength() == f.length()) {
                 return true;
             }
-        } catch (MalformedURLException ex) {
-            Logger.getLogger(TileServer.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (URISyntaxException ex) {
+        } catch (MalformedURLException | URISyntaxException ex) {
             Logger.getLogger(TileServer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             //Logger.getLogger(TileServer.class.getName()).log(Level.SEVERE, null, ex);
@@ -301,11 +297,13 @@ public class TileServer {
         this.caching = caching;
         if (caching) {
             String tempDir = System.getProperty("java.io.tmpdir");
+            String fileSeperator = System.getProperty("file.separator");
+            String modName = "tm_"+name;
 
             if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
-                tempDir += System.getProperty("file.separator") + name + System.getProperty("file.separator");
+                tempDir += fileSeperator + modName + fileSeperator;
             } else {
-                tempDir += name + System.getProperty("file.separator");
+                tempDir += modName + fileSeperator;
             }
             tmpDir = new File(tempDir);
             tmpDir.mkdirs();
