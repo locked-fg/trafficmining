@@ -113,12 +113,12 @@ public class OSMUtils {
                 }
             }
         }
-
+        
+        link.addNodes(nodeList);
         link.setLength(distance.length(link));
         link.setAscend(asc);
         link.setDescend(dsc);
         link.setLength(dist);
-        link.addNodes(nodeList);
         link.setSpeed(masterLink.getSpeed());
 
         return link;

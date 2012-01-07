@@ -167,55 +167,45 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private void createTileServer() {
 
         //TODO implement, but read FAQ...
-//        http://code.google.com/intl/de-DE/apis/maps/documentation/staticmaps/
-//        http://maps.google.com/maps/api/staticmap?zoom=1&size=512x512&maptype=roadmap&sensor=false
-//        &maptype=roadmap/hybrid/satellite
-        TileServer ts_osm = new TileServer(
-                "osm",
-                true,
-                1,
-                15,
-                17,
-                256,
-                true,
-                true,
-                "http://tile.openstreetmap.org/",
-                "x",
-                "y",
-                "z");
+
+        TileServer ts_osm = new TileServer("osm_mapnik", true, 1, 15, 17, 256, true, true, "http://tile.openstreetmap.org/", "x", "y", "z");
         ts_osm.setCaching(true);
-        ts_osm.setLoadBalancing(
-                true,
-                "http://@.tile.openstreetmap.org/",
-                "@",
-                new String[]{"a", "b", "c"});
+        ts_osm.setLoadBalancing(true, "http://@.tile.openstreetmap.org/", "@", new String[]{"a", "b", "c"});
         ts_osm.setUpTileFactory();
         ts_osm.setVERBOSE(false);
 
-        TileServer ts_tah = new TileServer(
-                "tah",
-                true,
-                1,
-                15,
-                17,
-                256,
-                true,
-                true,
-                "http://tah.openstreetmap.org/Tiles/tile/",
-                "x",
-                "y",
-                "z");
+        TileServer ts_tah = new TileServer("osm_osmarender", true, 1, 15, 17, 256, true, true, "http://tah.openstreetmap.org/Tiles/tile/", "x", "y", "z");
         ts_tah.setCaching(true);
-        ts_tah.setLoadBalancing(
-                true,
-                "http://@.tah.openstreetmap.org/Tiles/tile/",
-                "@",
-                new String[]{"a", "b", "c", "d", "e", "f"});
+        ts_tah.setLoadBalancing(true, "http://@.tah.openstreetmap.org/Tiles/tile/", "@", new String[]{"a", "b", "c", "d", "e", "f"});
         ts_tah.setUpTileFactory();
-//        ts_tah.setVERBOSE(true);
+        ts_tah.setVERBOSE(false);
 
+//        TileServer ts_ocm = new TileServer("opencyclemap",true,1,15,16,256,true,true,"http://tile.opencyclemap.org/cycle/","x","y","z");
+//        ts_ocm.setCaching(true);
+//        ts_ocm.setLoadBalancing(true,"http://@.tile.opencyclemap.org/cycle/","@",new String[]{"a", "b", "c"});
+//        ts_ocm.setUpTileFactory();
+//        ts_ocm.setVERBOSE(false);
+
+        TileServer ts_mq = new TileServer("mapquest", true, 1, 15, 17, 256, true, true, "http://otile.mqcdn.com/tiles/1.0.0/osm/", "x", "y", "z");
+        ts_mq.setCaching(true);
+        ts_mq.setLoadBalancing(true, "http://otile@.mqcdn.com/tiles/1.0.0/osm/", "@", new String[]{"1", "2", "3", "4"});
+        ts_mq.setUpTileFactory();
+        ts_mq.setVERBOSE(true);
+
+        //http://developer.mapquest.com/web/products/open/map
+//        TileServer ts_mqoa = new TileServer("mapquest_open_aerial", true, 1, 10, 11, 256, true, true, "http://oatile.mqcdn.com/tiles/1.0.0/sat/", "x", "y", "z");
+//        ts_mqoa.setCaching(true);
+//        ts_mqoa.setLoadBalancing(true, "http://oatile@.mqcdn.com/tiles/1.0.0/sat/", "@", new String[]{"1", "2", "3", "4"});
+//        ts_mqoa.setUpTileFactory();
+//        ts_mqoa.setVERBOSE(false);
+
+        //INFO SEE HERE
+        //http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
         TILESERVERS.add(ts_osm);
         TILESERVERS.add(ts_tah);
+//        TILESERVERS.add(ts_ocm);
+        TILESERVERS.add(ts_mq);
+//        TILESERVERS.add(ts_mqoa);
         setTileServer(ts_osm);
         addTileServerToMenu();
 
@@ -231,7 +221,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private void addTileServerToMenu() {
         ButtonGroup button_group = new ButtonGroup();
         for (final TileServer ts : TILESERVERS) {
-            JCheckBoxMenuItem rb = new JCheckBoxMenuItem(ts.getBaseURL());
+            JCheckBoxMenuItem rb = new JCheckBoxMenuItem(ts.getName()+" : "+ts.getBaseURL());
             button_group.add(rb);
             jMenu_tileservers.add(rb);
             rb.setSelected(ts.equals(tileServer));
@@ -239,6 +229,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
+                    setTileServer(ts);
                     repaint();
                 }
             });
@@ -345,7 +336,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this,
                     "The selected algorithm could not be instanciated.\n"
                     + "This can be caused by a faulty plugin:\n"
-                    //                            + ex.getStackTrace() + "\n"
                     + exceptionist(ex) + "\n"
                     + "Maybe the log file is more informative about what went wrong.",
                     "Error", JOptionPane.ERROR_MESSAGE);
@@ -360,13 +350,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 bcd.setVisible(true);
             } catch (Exception ex) {
                 log.log(Level.SEVERE, null, ex);
-                // s.th went wrong. So close the window and tell the user that
-                // s.th unexpected happened.
                 bcd.dispose();
                 JOptionPane.showMessageDialog(this,
                         "The selected algorithm could not be instanciated.\n"
                         + "This can be caused by a faulty plugin:\n"
-                        //                            + ex.getStackTrace() + "\n"
                         + exceptionist(ex) + "\n"
                         + "Maybe the log file is more informative about what went wrong.",
                         "Error", JOptionPane.ERROR_MESSAGE);
@@ -453,8 +440,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 Integer resultId = (Integer) resultTable.getValueAt(rowId, 0);
                 SimplexResultEntry entry = results.get(resultId);
                 if (entry != null) {
-                    Map<PATH_ATTRIBUTES, String> map = statistics.getPath(entry.getPath());
-                    statisticsFrame.addPathData(map, resultId);
+                    Map<PATH_ATTRIBUTES, String> mapIntern = statistics.getPath(entry.getPath());
+                    statisticsFrame.addPathData(mapIntern, resultId);
                 }
             }
         }
@@ -714,12 +701,18 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private void loadGraphFromFile(File sourceFile, LoadGraphAction listener) {
         log.fine("starting load graph worker");
-        File whitelist = null;
+        boolean useTagWhitelist = false;
         if (useWhitelistMenuItem.isSelected()) {
-            whitelist = new File(TrafficminingProperties.TAG_WHITELIST_FILE);
+            useTagWhitelist = true;
         }
 
-        loadGraphWorker = new LoadGraphWorker(sourceFile, whitelist);
+        //WOOZA-WOMBAT!          
+        
+        if (loadGraphWorker!=null) {
+            loadGraphWorker.cancel(true);
+        }
+
+        loadGraphWorker = new LoadGraphWorker(sourceFile, useTagWhitelist);
         loadGraphWorker.addPropertyChangeListener(listener);
         loadGraphWorker.execute();
     }
@@ -779,7 +772,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                     JOptionPane.showInternalMessageDialog(getContentPane(), "You must not load more than one *.osm file!");
                     return;
                 }
-
+                   
                 try {
                     busyLabel.setBusy(true);
                     loadGraphFromFile(chooser.getSelectedFile(), this);

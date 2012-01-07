@@ -1,5 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.graphpainter;
 
+import de.lmu.ifi.dbs.trafficmining.TrafficminingProperties;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
@@ -10,7 +11,13 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.TileFactory;
 import org.jdesktop.swingx.painter.AbstractPainter;
@@ -20,6 +27,7 @@ import org.jdesktop.swingx.painter.AbstractPainter;
  */
 public class GraphPainter extends AbstractPainter<JXMapViewer> {
 
+    private static final Logger log = Logger.getLogger(GraphPainter.class.getName());
     private static final String LINK_PAINT_ATTRIBUTE = "highway";
     private HashMap<Integer, List<String>> zoomToLinkWhitelist = new HashMap<>();
     private final Color color = Color.red;
@@ -103,10 +111,10 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         }
 
         // just paint if no whitelist is defined
-        if (zoomToLinkWhitelist.isEmpty()){
+        if (zoomToLinkWhitelist.isEmpty()) {
             return true;
         }
-        
+
         // invalid zoomlevel or end of recursion
         if (zoom <= 0) {
             return false;
@@ -191,5 +199,26 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         Point2D a = toPixel(link.getSource(), tf, zoom);
         Point2D b = toPixel(link.getTarget(), tf, zoom);
         return (int) a.distance(b);
+    }
+
+    public GraphPainter() {
+        try {
+            File zoomToLinkFile = new File(TrafficminingProperties.ZOOM_WHITELIST_FILE);
+            Properties prop = new Properties();
+            prop.load(new BufferedReader(new FileReader(zoomToLinkFile)));
+            log.log(Level.INFO, "Using zoom config: {0}", zoomToLinkFile.getAbsolutePath());
+            log.log(Level.FINE, "Zoomlevels found: {0}", prop.keySet().size());
+            for (Map.Entry<Object, Object> entry : prop.entrySet()) {
+                Integer zoomlevel = Integer.parseInt((String) entry.getKey());
+                String temp = (String) entry.getValue();
+                String[] temp_ar = temp.trim().split(";");
+                List<String> list = Arrays.asList(temp_ar);
+                zoomToLinkWhitelist.put(zoomlevel, list);
+                log.log(Level.FINE, "{0} -> {1}", new Object[]{zoomlevel, list});
+            }
+        } catch (IOException | NumberFormatException e) {
+            log.info("A error occured due parsing zoom config, using no zoom config at all");
+            zoomToLinkWhitelist.clear();
+        }
     }
 }

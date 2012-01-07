@@ -72,9 +72,10 @@
 
     -->
     <target name="-post-jar">
-        <copy file="config.properties" todir="${dist.dir}" />
+        <copy file="trafficmining.properties" todir="${dist.dir}" />
         <copy file="speeds.properties" todir="${dist.dir}" />
          <copy file="whitelist-tags.properties" todir="${dist.dir}" />
+         <copy file="whitelist-zoom.properties" todir="${dist.dir}" />
         <antcall target="-build-plugins"/>
     </target>
 

@@ -1,5 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
+import de.lmu.ifi.dbs.trafficmining.TrafficminingProperties;
 import de.lmu.ifi.dbs.trafficmining.utils.GeoDistance;
 import de.lmu.ifi.dbs.trafficmining.utils.GreatcircleDistance;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
@@ -23,8 +24,13 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     private GeoDistance distance = new GreatcircleDistance();
     protected List<OSMLink<OSMNode>> linkList = new ArrayList<>();
     protected HashMap<String, Integer> speed = new HashMap<>();
-    private final String[] blacklist = new String[]{"height", "name", "note"};
-    private final String speedsConfig = "speeds.properties";
+    //do not split links at these attributes
+    private final String[] blacklistForLinkSplitting = new String[]{
+        "height", 
+        "name", 
+        "note"
+    };
+
 
     public OSMGraph() {
         speed.clear();
@@ -53,15 +59,15 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
 
     }
 
-    public Node getNode(Double lat, Double lon) {
-        Collection<N> nodes = this.getNodes();
-        for (N aktN : nodes) {
-            if (aktN.getLat() == lat && aktN.getLon() == lon) {
-                return aktN;
-            }
-        }
-        return null;
-    }
+//    public Node getNode(Double lat, Double lon) {
+//        Collection<N> nodes = this.getNodes();
+//        for (N aktN : nodes) {
+//            if (aktN.getLat() == lat && aktN.getLon() == lon) {
+//                return aktN;
+//            }
+//        }
+//        return null;
+//    }
 
     /**
      * if a node has an additional attribute and is an intermediate node split
@@ -71,7 +77,7 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
         int s = linkList.size();
         log.log(Level.INFO, "creating new links for nodes with attribs. Links: {0}", s);
         List<OSMLink<OSMNode>> newLinkList = new ArrayList<>(s);
-        int id_counter = -1;
+        int id_counter = -123;
 
         // list with all active links
         for (int o = 0; o < linkList.size(); o++) {
@@ -107,9 +113,9 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
 
                     boolean usefulAttribs = false;
                     Map<String, String> map_node_attr = n.getAttr();
-                    if (map_node_attr.size() >= 1) {
+                    if (map_node_attr.size() > 0) {
                         for (String attrib : map_node_attr.keySet()) {
-                            for (String bl : blacklist) {
+                            for (String bl : blacklistForLinkSplitting) {
                                 if (!attrib.equalsIgnoreCase(bl)) {
                                     usefulAttribs = true; // node has informational attribs except the blacklisted ones e.g. height (no need to split here)
                                 }
@@ -201,29 +207,29 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
             }
         }
 
-        for (int link_inner = 0; link_inner < linkList.size() && !Thread.interrupted(); link_inner++) {
-            if (log.isLoggable(Level.FINE) && link_inner != 0 && link_inner % 10000 == 0) {
-                log.log(Level.FINE, "processed {0} / {1} links", new Object[]{link_inner, linkList.size()});
+        for (int i = 0; i < linkList.size() && !Thread.interrupted(); i++) {
+            if (i != 0 && i % 10000 == 0) {
+                log.log(Level.FINE, "processed {0} / {1} links", new Object[]{i, linkList.size()});
             }
 
             int removes = 0;
             int adds = 0;
-            OSMLink<OSMNode> l = linkList.get(link_inner);
-            List<OSMNode> linkNodes = l.getNodes();
-            for (int iN = 0; l != null && iN < linkNodes.size() && !Thread.interrupted(); iN++) {
-                OSMNode innerNode = linkNodes.get(iN);
+            OSMLink<OSMNode> link = linkList.get(i);
+            List<OSMNode> linkNodes = link.getNodes();
+            for (int j = 0; link != null && j < linkNodes.size() && !Thread.interrupted(); j++) {
+                OSMNode innerNode = linkNodes.get(j);
                 List<OSMLink<OSMNode>> links = innerNode.getLinks();
-                if (links.size() > 0 && !links.contains(l)) {
-                    linkList.remove(link_inner);
+                if (links.size() > 0 && !links.contains(link)) {
+                    linkList.remove(i);
                     removes++;
-                    List<OSMLink<OSMNode>> newLinks = OSMUtils.split(l, innerNode, distance);
+                    List<OSMLink<OSMNode>> newLinks = OSMUtils.split(link, innerNode, distance);
                     for (OSMLink<OSMNode> aLink : newLinks) {
-                        linkList.add(link_inner, aLink);
+                        linkList.add(i, aLink);
                         adds++;
                     }
-                    l = null;
+                    link = null;
                     linkNodes = null;
-                    link_inner--;
+                    i--;
                 }
             }
         }
@@ -285,10 +291,10 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     }
 
     private void loadSpeedMap() throws IOException {
-        File f = new File(speedsConfig);
+        File speedFile = new File(TrafficminingProperties.SPEED_SETTINGS_FILE);
         Properties prop = new Properties();
-        prop.load(new BufferedReader(new FileReader(f)));
-        log.log(Level.INFO, "Using speeds config: {0}", f.getAbsolutePath());
+        prop.load(new BufferedReader(new FileReader(speedFile)));
+        log.log(Level.INFO, "Using speeds config: {0}", speedFile.getAbsolutePath());
         log.log(Level.FINE, "Speeds found: {0}", prop.keySet().size());
 
         for (Map.Entry<Object, Object> entry : prop.entrySet()) {

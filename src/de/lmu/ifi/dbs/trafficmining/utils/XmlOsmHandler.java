@@ -48,6 +48,9 @@ class XmlOsmHandler extends DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
+        if (Thread.interrupted()) {
+            return;
+        }
         switch (qName) {
             case "node":
                 //NODE
@@ -78,11 +81,14 @@ class XmlOsmHandler extends DefaultHandler {
                         list_wayAttribs.add(new String[]{k, v});
                     } else if (open_node) {
                         if (k.equalsIgnoreCase("height")) {
+                            double height = 0;
                             try {
-                                double height = Double.parseDouble(v);
-                                currentNode.setHeight(height);
+                                height = Double.parseDouble(v);
                             } catch (NumberFormatException nfe) {
+                                log.warning("WARNING! height is parsed to Double.NaN");
+                                height = Double.NaN;
                             }
+                            currentNode.setHeight(height);
                         } else {
                             currentNode.setAttr(k, v);
                         }
@@ -107,6 +113,9 @@ class XmlOsmHandler extends DefaultHandler {
 
     @Override
     public void endElement(String uri, String localName, String qName) {
+        if (Thread.interrupted()) {
+            return;
+        }
         switch (qName) {
             case "way":
                 OSMLink<OSMNode> link;
