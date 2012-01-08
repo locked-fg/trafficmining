@@ -1,13 +1,9 @@
-/*
- * To change this template, choose Tools | Templates and open the template in
- * the editor.
- */
+
 package de.lmu.ifi.dbs.trafficmining;
 
 import java.awt.Image;
 import java.io.*;
 import java.net.*;
-import java.util.HashMap;
 import java.util.Random;
 import java.util.WeakHashMap;
 import java.util.logging.Level;
@@ -20,7 +16,7 @@ import org.jdesktop.swingx.mapviewer.TileFactoryInfo;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 public class TileServer {
 

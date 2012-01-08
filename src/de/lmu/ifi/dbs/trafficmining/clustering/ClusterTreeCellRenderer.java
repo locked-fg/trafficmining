@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.lmu.ifi.dbs.trafficmining.clustering;
 
 import java.awt.Component;
@@ -12,7 +9,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 public class ClusterTreeCellRenderer extends DefaultTreeCellRenderer {
 

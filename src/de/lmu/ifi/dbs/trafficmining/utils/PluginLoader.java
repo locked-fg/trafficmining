@@ -28,7 +28,7 @@ public class PluginLoader<T> {
     private final URLClassLoader classLoader;
     private final List<File> jars;
     private final Class<T> pluginClass;
-    private final List<Entry<Class<T>, File>> map = new ArrayList<Entry<Class<T>, File>>();
+    private final List<Entry<Class<T>, File>> map = new ArrayList<>();
     private boolean includeInnerClasses = false;
     private boolean includeInterfaces = false;
     private boolean includeAbstractClasses = false;
@@ -54,7 +54,7 @@ public class PluginLoader<T> {
 
     private List<Class<T>> scanForPlugins(File f) throws
             IOException {
-        List<Class<T>> list = new ArrayList<Class<T>>();
+        List<Class<T>> list = new ArrayList<>();
         ZipFile jar = new ZipFile(f);
         for (Enumeration entries = jar.entries(); entries.hasMoreElements();) {
             String binaryName = ((ZipEntry) entries.nextElement()).getName();
@@ -65,7 +65,7 @@ public class PluginLoader<T> {
             binaryName = binaryName.replace(".class", "");
             binaryName = binaryName.replace("/", "."); // directory to package
             if (binaryName.contains("$") && !includeInnerClasses) {
-                Logger.getLogger(PluginLoader.class.getName()).log(Level.FINE, "Skipped inner class: " + binaryName);
+                Logger.getLogger(PluginLoader.class.getName()).log(Level.FINE, "Skipped inner class: {0}", binaryName);
                 continue;
             }
 
@@ -116,7 +116,7 @@ public class PluginLoader<T> {
     }
 
     /**
-     * 
+     *
      * @return List of all found algorithmic jar/zips
      */
     public List<Entry<Class<T>, File>> getMap() {

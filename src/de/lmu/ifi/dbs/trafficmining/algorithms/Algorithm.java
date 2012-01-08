@@ -15,7 +15,7 @@ import java.util.Locale;
  *
  * DO NOT keep static information in implementing classes!
  * And check Thread.interrupted() for cancelation of the task
- * 
+ *
  * @author graf
  * @param <N>
  * @param <G>
@@ -52,7 +52,7 @@ public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
      * @param path
      */
     protected void buildStatistics(Path path) {
-        List<Path> list = new ArrayList<Path>(1);
+        List<Path> list = new ArrayList<>(1);
         list.add(path);
         buildStatistics(list);
     }
@@ -75,8 +75,8 @@ public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
     /**
      * Returns the name of the algorithm as it should be shown in the GUI.
      * If the Method is not overwritten, getClass().getName() is used to give at
-     * least a hint about the algorithm. 
-     * 
+     * least a hint about the algorithm.
+     *
      * Nevertheless it is strongly recommended to override this method.
      *
      * @return name of the algorithm as it should be shown in the GUI
@@ -97,7 +97,7 @@ public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
 
     /**
      * Retrieve the result of the computation. This should currently be one of Simplex1-3Result.
-     * 
+     *
      * @return a subclass of result or null if the task was cancelled
      */
     public abstract Result getResult();
@@ -115,9 +115,9 @@ public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
     /**
      * Sets all nodes. The method is called by the gui
      * when starting the algorithm
-     * 
+     *
      * @see #getNodes()
-     * @param nodes 
+     * @param nodes
      */
     public void setNodes(List<N> nodes) {
         this.nodes = nodes;
@@ -125,7 +125,7 @@ public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
 
     /**
      * Returns all nodes
-     * 
+     *
      * @see #getNodes()
      * @return
      */
@@ -147,7 +147,7 @@ public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
      * sets the graph that the algorithm should be operating on. The method is
      * called by the gui when starting the algorithm.
      *
-     * @see #getGraph() 
+     * @see #getGraph()
      * @param graph
      */
     public void setGraph(G graph) {

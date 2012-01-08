@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.lmu.ifi.dbs.trafficmining.result;
 
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel;
@@ -17,7 +14,7 @@ import javax.swing.SwingUtilities;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 /**
  * Link the clicks on the simplexcontrols' paintpanels with the selection of the

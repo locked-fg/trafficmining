@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates and open the template in
- * the editor.
- */
+
 package de.lmu.ifi.dbs.trafficmining.utils;
 
 import java.text.NumberFormat;
@@ -14,7 +11,7 @@ import org.openstreetmap.osmosis.core.task.v0_6.SinkSource;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 public class OSMEntityWorker implements SinkSource, EntityProcessor {
 
@@ -95,7 +92,7 @@ public class OSMEntityWorker implements SinkSource, EntityProcessor {
     public Bound getBounds() {
         return bounds;
     }
-    
+
     public void setEndString(String s) {
         end = s;
     }

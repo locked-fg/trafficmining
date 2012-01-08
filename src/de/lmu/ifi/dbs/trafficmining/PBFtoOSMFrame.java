@@ -1,11 +1,4 @@
-/*
- * To change this template, choose Tools | Templates and open the template in
- * the editor.
- */
 
-/*
- * NewJFrame.java <p/> Created on 11.07.2011, 22:38:08
- */
 package de.lmu.ifi.dbs.trafficmining;
 
 import de.lmu.ifi.dbs.trafficmining.graphpainter.PolyPainter;

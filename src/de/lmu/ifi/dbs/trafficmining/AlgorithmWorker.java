@@ -22,6 +22,10 @@ public class AlgorithmWorker extends SwingWorker<AlgorithmResult, Void> {
         if (algorithm != null) {
             algorithm.run();
         }
+        if (Thread.interrupted()) {
+            return null;
+        }
+
         return new AlgorithmResult(algorithm.getResult(), algorithm.getStatistics());
     }
 }

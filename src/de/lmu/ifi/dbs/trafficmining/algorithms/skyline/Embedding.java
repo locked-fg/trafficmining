@@ -7,12 +7,13 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Embedding<N extends OSMNode> {
 
-    private final Logger log = Logger.getLogger(Embedding.class.getName());
-    private Map<N, NodeWrapper<N>> embedding = new HashMap<N, NodeWrapper<N>>();
+    private static final Logger log = Logger.getLogger(Embedding.class.getName());
+    private Map<N, NodeWrapper<N>> embedding = new HashMap<>();
 
     public Embedding() {
     }
@@ -33,12 +34,12 @@ public class Embedding<N extends OSMNode> {
     }
 
     public synchronized void serializeTo(File file) throws IOException {
-        if (embedding == null || embedding.size() == 0) {
+        if (embedding == null || embedding.isEmpty()) {
             log.info("embedding null or empty");
             return;
         }
         long before = System.currentTimeMillis();
-        log.fine("writing embedding to " + file);
+        log.log(Level.FINE, "writing embedding to {0}", file);
 
         BufferedWriter bw = null;
         try {
@@ -64,7 +65,7 @@ public class Embedding<N extends OSMNode> {
             }
         }
         long after = System.currentTimeMillis();
-        log.info("serialized embedding (" + embedding.size() + " entries) in " + (after - before) + "ms");
+        log.log(Level.INFO, "serialized embedding ({0} entries) in {1}ms", new Object[]{embedding.size(), after - before});
     }
 
     public void deserializeFrom(OSMGraph<N, ?> g, File file) throws IOException {
@@ -115,6 +116,6 @@ public class Embedding<N extends OSMNode> {
             }
         }
         long after = System.currentTimeMillis();
-        log.info("deserialized embedding in " + (after - before) + "ms");
+        log.log(Level.INFO, "deserialized embedding in {0}ms", (after - before));
     }
 }

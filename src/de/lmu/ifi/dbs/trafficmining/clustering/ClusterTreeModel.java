@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package de.lmu.ifi.dbs.trafficmining.clustering;
 
@@ -61,5 +57,5 @@ public class ClusterTreeModel implements TreeModel{
 
     @Override
     public void removeTreeModelListener(TreeModelListener tl) {}
-    
+
 }

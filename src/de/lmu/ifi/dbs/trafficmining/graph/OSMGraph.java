@@ -4,7 +4,6 @@ import de.lmu.ifi.dbs.trafficmining.TrafficminingProperties;
 import de.lmu.ifi.dbs.trafficmining.utils.GeoDistance;
 import de.lmu.ifi.dbs.trafficmining.utils.GreatcircleDistance;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
-import de.lmu.ifi.dbs.utilities.distances.Distance;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -26,8 +25,8 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
     protected HashMap<String, Integer> speed = new HashMap<>();
     //do not split links at these attributes
     private final String[] blacklistForLinkSplitting = new String[]{
-        "height", 
-        "name", 
+        "height",
+        "name",
         "note"
     };
 

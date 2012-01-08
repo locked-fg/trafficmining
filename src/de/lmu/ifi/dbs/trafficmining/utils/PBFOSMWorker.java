@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates and open the template in
- * the editor.
- */
+
 package de.lmu.ifi.dbs.trafficmining.utils;
 
 import crosby.binary.osmosis.OsmosisReader;
@@ -17,7 +14,7 @@ import org.srtmplugin.osm.osmosis.SrtmPlugin_task;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 public class PBFOSMWorker extends SwingWorker {
 //public class PBFOSMWorker {
@@ -41,7 +38,7 @@ public class PBFOSMWorker extends SwingWorker {
         this.out_osm = out_osm;
         this.dir_srtm = dir_srtm;
 //        this.srtm_urls = srtm_urls;
-        this.active = this;
+        PBFOSMWorker.active = this;
     }
 
     public void init() {

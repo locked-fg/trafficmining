@@ -59,7 +59,7 @@ public class BeanModel extends DefaultTableModel {
         } else { // value of the attribute
             try { // get value from bean
                 return descriptors[row].getReadMethod().invoke(bean);
-            } catch (Exception ex) {
+            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
                 Logger.getLogger(BeanModel.class.getName()).log(Level.SEVERE, null, ex);
             }
             return null;
@@ -85,7 +85,7 @@ public class BeanModel extends DefaultTableModel {
             }
             Method writeMethod = descriptors[row].getWriteMethod();
             writeMethod.invoke(bean, editor.getValue());
-        } catch (Exception ex) {
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(BeanModel.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

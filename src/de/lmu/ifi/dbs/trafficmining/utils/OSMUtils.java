@@ -113,12 +113,11 @@ public class OSMUtils {
                 }
             }
         }
-        
+
         link.addNodes(nodeList);
-        link.setLength(distance.length(link));
         link.setAscend(asc);
         link.setDescend(dsc);
-        link.setLength(dist);
+        link.setLength(distance.length(link));
         link.setSpeed(masterLink.getSpeed());
 
         return link;
@@ -213,7 +212,7 @@ public class OSMUtils {
             start = nodes.get(i);
         }
 
-        HashMap<PATH_ATTRIBUTES, String> map = new HashMap<PATH_ATTRIBUTES, String>();
+        HashMap<PATH_ATTRIBUTES, String> map = new HashMap<>();
         map.put(PATH_ATTRIBUTES.NODES_DEG_GT2, Integer.toString(nodecount));
         map.put(PATH_ATTRIBUTES.TRAFFIC_SIGNALS, Integer.toString(trafficsignals));
         return map;
@@ -311,7 +310,7 @@ public class OSMUtils {
                 maxSpeedInt = speed.get(highway.split(";")[0]);
             }
             if (maxSpeedInt == null) {
-                log.fine("Link [" + l + "]: unknown highway type: " + highway + ". Setting default.");
+                log.log(Level.FINE, "Link [{0}]: unknown highway type: {1}. Setting default.", new Object[]{l, highway});
                 maxSpeedInt = speed.get("default");
             }
             l.setSpeed(maxSpeedInt);
@@ -320,7 +319,7 @@ public class OSMUtils {
         }
 
         // neither maxspeed nor highway gave a hint about the speed of this link
-        log.info("Link [" + l + "]: no highway type set, using default.");
+        log.log(Level.INFO, "Link [{0}]: no highway type set, using default.", l);
         l.setSpeed(speed.get("default"));
     }
 }
