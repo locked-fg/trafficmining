@@ -28,14 +28,14 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
     private static SoftReference embCache = new SoftReference(null);
     // -
     private File embeddingFile = new File("embedding.cache.txt");
-    private Map<N, NodeWrapper<N>> embedding = new HashMap<N, NodeWrapper<N>>();
+    private Map<N, NodeWrapper<N>> embedding = new HashMap<>();
     // -
     private final int numberOfRefpoints = 50;
     private final int maxAttributes = 3;
     private int ac = 2;
     private List<N> referencePoints = null;
     // ----
-    private Logger log = Logger.getLogger(OSMSkyline.class.getName());
+    private static final Logger log = Logger.getLogger(OSMSkyline.class.getName());
     private boolean DISTANCE = true;
     private boolean TIME = true;
     private boolean HEIGHT = false;
@@ -127,7 +127,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
             return;
         }
 
-        log.fine("found " + resultList.size() + " skylines");
+        log.log(Level.FINE, "found {0} skylines", resultList.size());
         AbstractResult res = buildResult();
         for (OSMComplexPath aPath : resultList) {
             getStatistics().putPath(aPath, OSMUtils.getPathInfos(aPath.getNodes()));
@@ -238,20 +238,20 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
 
         log.fine("get surrounding skyline");
         Map<N, OSMSubSkyline> targets = getSurroundingSkyline(start, destination, weights);
-        log.fine("found " + targets.size() + " surrounding skylines");
+        log.log(Level.FINE, "found {0} surrounding skylines", targets.size());
 
         // start in targets?
         if (targets.containsKey(start)) {
             OSMSubSkyline<N> sky = targets.get(start);
-            List<OSMComplexPath> res = new ArrayList<OSMComplexPath>();
+            List<OSMComplexPath> res = new ArrayList<>();
             for (OSMComplexPath path : sky.getSkyline()) {
                 res.add(path.reverse());
             }
             return res;
         }
 
-        Map<N, OSMSubSkyline> nodeTab = new HashMap<N, OSMSubSkyline>();
-        UpdatablePriorityQueue<PrioritySubSkyline> q = new UpdatablePriorityQueue<PrioritySubSkyline>(true);
+        Map<N, OSMSubSkyline> nodeTab = new HashMap<>();
+        UpdatablePriorityQueue<PrioritySubSkyline> q = new UpdatablePriorityQueue<>(true);
         for (L aktLink : start.getOutLinks()) {
             OSMComplexPath<N, ?> aktPath = new OSMComplexPath(start, aktLink, linkToCost(aktLink, weights));
             OSMSubSkyline sub = nodeTab.get(aktPath.getLast());
@@ -373,7 +373,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         getStatistics().setVisitedNodes(nodeTab.keySet());
         getStatistics().put(STAT_NUM_VISITED_NODES, String.format("%d / %d = %d%%",
                 visitedNodes, allNodes, visitedNodes * 100 / allNodes));
-        log.fine(nodeTab.size() + " subskylines, iterations: " + (count++) + ", queue size: " + q.size());
+        log.log(Level.FINE, "{0} subskylines, iterations: {1}, queue size: {2}", new Object[]{nodeTab.size(), count++, q.size()});
 
         if (subSkylineResult == null) {
             return Collections.EMPTY_LIST;
@@ -391,19 +391,19 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
      * @return Map with nearest embedded neighbors
      */
     private Map<N, OSMSubSkyline> getSurroundingSkyline(N start, N dest, float[] weights) {
-        OSMApproximation<N> mD = new OSMNoApproximation<N>();
-        Map<N, OSMSubSkyline> result = new HashMap<N, OSMSubSkyline>();
-        Map<N, OSMSubSkyline> nodeTab = new HashMap<N, OSMSubSkyline>();
+        OSMApproximation<N> mD = new OSMNoApproximation<>();
+        Map<N, OSMSubSkyline> resultInternal = new HashMap<>();
+        Map<N, OSMSubSkyline> nodeTab = new HashMap<>();
 
-        UpdatablePriorityQueue<PrioritySubSkyline> q = new UpdatablePriorityQueue<PrioritySubSkyline>(true);
-        UpdatablePriorityQueue<PrioritySubSkyline> q2 = new UpdatablePriorityQueue<PrioritySubSkyline>(true);
+        UpdatablePriorityQueue<PrioritySubSkyline> q = new UpdatablePriorityQueue<>(true);
+        UpdatablePriorityQueue<PrioritySubSkyline> q2 = new UpdatablePriorityQueue<>(true);
 
         // inits paths with start=end
         if (embedding.get(dest) != null) {
             OSMComplexPath path = new OSMComplexPath(dest, dest, new float[weights.length]);
             OSMSubSkyline subSkyline = new OSMSubSkyline(path, weights, mD, dest, embedding);
-            result.put(dest, subSkyline);
-            return result;
+            resultInternal.put(dest, subSkyline);
+            return resultInternal;
         }
 
         for (OSMLink<N> aktLink : dest.getInLinks()) {
@@ -421,12 +421,12 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         while (!q.isEmpty() && !Thread.interrupted()) {
             OSMSubSkyline aktSL = q.removeFirst().getValue();
             if (aktSL.getEnd() == start) {
-                result.put(dest, aktSL);
+                resultInternal.put(dest, aktSL);
                 continue;
             }
 
             if (embedding.get(aktSL.getEnd()) != null) {
-                result.put(dest, aktSL);
+                resultInternal.put(dest, aktSL);
                 q2.insertIfBetter(new PrioritySubSkyline(aktSL, aktSL.getPreference()));
                 continue;
             }
@@ -450,14 +450,14 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         while (!q2.isEmpty()) {
             OSMSubSkyline aktSL = q2.removeFirst().getValue();
             if (aktSL.getEnd() == start) {
-                result.put(dest, aktSL);
+                resultInternal.put(dest, aktSL);
                 continue;
             }
 
             // Erweitern aller Skyline-Pfade auf diesem Pfad
             // Erweiterung aller lokalen Skyline-Pfade
             List<OSMComplexPath> cand = extend(aktSL, aktSL.getEnd().getInLinks(), weights);
-            cand = checkAgainstResult(cand, result, weights);
+            cand = checkAgainstResult(cand, resultInternal, weights);
             // Einfügen der Kandidatenpfade in lokale Skylines
             // falls sie nicht dominiert werden
             for (OSMComplexPath aktPath : cand) {
@@ -472,7 +472,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
             }
         }
 
-        return result;
+        return resultInternal;
     }
 
     /**
@@ -484,7 +484,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
      */
     private List<OSMComplexPath> checkAgainstResult(List<OSMComplexPath> cand, Map<N, OSMSubSkyline> result, float[] weights) {
         OSMApproximation minDist = new OSMNoApproximation();
-        List<OSMComplexPath> r = new ArrayList<OSMComplexPath>();
+        List<OSMComplexPath> r = new ArrayList<>();
         for (OSMComplexPath path : cand) {
             boolean needed = false;
             for (OSMSubSkyline<N> sky : result.values()) {
@@ -532,9 +532,9 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         }
 
         if (embeddingFile.exists()) { // check for embeddingfile
-            log.fine("try to load embedding from file: " + embeddingFile);
+            log.log(Level.FINE, "try to load embedding from file: {0}", embeddingFile);
             try {
-                Embedding emb = new Embedding<N>();
+                Embedding emb = new Embedding<>();
                 emb.deserializeFrom(getGraph(), embeddingFile);
                 embedding = emb.getEmbedding();
                 // TODO check dimensionality of costs
@@ -551,18 +551,18 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
 
         log.fine("start building embedding");
         long a = System.currentTimeMillis();
-        this.embedding = new HashMap<N, NodeWrapper<N>>();
+        this.embedding = new HashMap<>();
 
         // calculate all reverse shortest paths from all refPoints to all other nodes
         for (int i = 0; i < referencePoints.size(); i++) {
             N refPoint = referencePoints.get(i);
             for (int p = 0; p < attribs.length && !Thread.interrupted(); p++) {
-                log.fine("calculate embedding " + (i + 1) + "/" + referencePoints.size() + ": " + refPoint + ", weight " + (p + 1) + "/" + attribs.length);
+                log.log(Level.FINE, "calculate embedding {0}/{1}: {2}, weight {3}/{4}", new Object[]{i + 1, referencePoints.size(), refPoint, p + 1, attribs.length});
                 buildAllShortestPaths(refPoint, p);
             }
         }
         long b = System.currentTimeMillis();
-        log.fine("embedding built in " + (b - a) + "ms");
+        log.log(Level.FINE, "embedding built in {0}ms", (b - a));
 
         // TODO caching issue
         OSMSkyline.embCache = new SoftReference(embedding);
@@ -578,7 +578,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
     private void buildAllShortestPaths(N startRefNode, int p) {
         float[] weights = new float[attribs.length];
         weights[p] = 1;
-        UpdatablePriorityQueue<PriorityPath> q = new UpdatablePriorityQueue<PriorityPath>(true);
+        UpdatablePriorityQueue<PriorityPath> q = new UpdatablePriorityQueue<>(true);
 
         for (OSMLink<N> aktLink : startRefNode.getInLinks()) {
             OSMComplexPath aktPath = new OSMComplexPath(startRefNode, aktLink, linkToCost(aktLink, null));
@@ -641,12 +641,12 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
 
     private List<N> selectRefPoints(int refNum) {
         Collection<N> nodes = getGraph().getNodes();
-        List<N> refNodes = new ArrayList<N>(nodes.size());
+        List<N> refNodes = new ArrayList<>(nodes.size());
         refNodes.addAll(nodes);
         Collections.shuffle(refNodes);
 
         // copy shuffeled list to new array as sublist just link to the original list
-        List<N> newRefNodes = new ArrayList<N>();
+        List<N> newRefNodes = new ArrayList<>();
         for (int i = 0; newRefNodes.size() < refNum && i < nodes.size(); i++) {
             N node = refNodes.get(i); // add only nodes that can be traversed (in AND out)
             if (node.getInLinks().size() > 0 && node.getOutLinks().size() > 0) {

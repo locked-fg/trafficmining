@@ -11,12 +11,12 @@ import de.lmu.ifi.dbs.utilities.MutablePriorityObject;
 import de.lmu.ifi.dbs.utilities.UpdatablePriorityQueue;
 import java.util.HashMap;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
         extends Algorithm<N, OSMGraph<N, L>, Path> {
 
-	
     private static final String STAT_RUNTIME = "Runtime";
     private static final String STAT_NUM_VISITED_NODES = "# of visited nodes";
     // -
@@ -43,10 +43,10 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
 
     /**
      * Conditionally update the table of visited nodes.
-     * 
+     *
      * @param node
      * @param pathToNode
-     * @return 
+     * @return
      */
     private boolean updateVisited(N node, WeightedPath pathToNode) {
         WeightedPath oldCost = visited.get(node);
@@ -68,7 +68,7 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
 
         double best = Double.MAX_VALUE;
         WeightedPath<N, L> bestPath = null;
-        UpdatablePriorityQueue<PriorityPath> q = new UpdatablePriorityQueue<PriorityPath>(true);
+        UpdatablePriorityQueue<PriorityPath> q = new UpdatablePriorityQueue<>(true);
 
         // initialize queue
         for (OSMLink<N> aktLink : node1.getOutLinks()) {
@@ -110,16 +110,18 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
 
     private double linkCost(OSMLink link) {
         if (myAttribs == ATTRIBS.FASTEST) {
-            double x = link.getLength()/1000;
-            double v = link.getSpeed();
-            double time = x / v;
+            double v = link.getSpeed(); //km/h
+//            @FIXME, CHECKME
+            double x = link.getLength() / 1000; //meter/1000 -> km
+            double time = x / v; //km / (km/h) -> h
             if (time <= 0) {
-                log.warning("invalid time!: " + x + "km, " + v + "km/h => " + time + "h");
+                log.log(Level.WARNING, "Invalid time at link: {0} -> length: {1}km, speed: {2}km/h => time: {3}h", new Object[]{link, x, v, time});
                 time = 1;
             }
+
             return time;
         } else {
-            return link.getLength()/1000;
+            return link.getLength() / 1000; //meter/1000 -> km
         }
     }
 
@@ -202,7 +204,6 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
         }
     }
 }
-
 
 class WeightedPath<N extends OSMNode<L>, L extends OSMLink<N>>
         extends Path<WeightedPath, N, L> {

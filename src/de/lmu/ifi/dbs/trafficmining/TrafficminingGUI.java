@@ -372,7 +372,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         properties.save();
 
         super.dispose();
-        System.exit(1);
     }
 
     /**
@@ -706,8 +705,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             useTagWhitelist = true;
         }
 
-        //WOOZA-WOMBAT!          
-        
         if (loadGraphWorker!=null) {
             loadGraphWorker.cancel(true);
         }
@@ -772,7 +769,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                     JOptionPane.showInternalMessageDialog(getContentPane(), "You must not load more than one *.osm file!");
                     return;
                 }
-                   
+
                 try {
                     busyLabel.setBusy(true);
                     loadGraphFromFile(chooser.getSelectedFile(), this);

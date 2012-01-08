@@ -1,7 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
 import de.lmu.ifi.dbs.beansUI.EnumPropertyDescriptor;
@@ -14,7 +11,7 @@ import java.util.logging.Logger;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 public class OSMDijkstraBeanInfo extends SimpleBeanInfo {
 

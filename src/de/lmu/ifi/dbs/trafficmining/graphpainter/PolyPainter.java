@@ -11,7 +11,7 @@ import org.jdesktop.swingx.painter.Painter;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 public class PolyPainter extends MouseAdapter implements Painter<JXMapViewer> {
 

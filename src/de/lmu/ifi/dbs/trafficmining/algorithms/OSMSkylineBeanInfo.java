@@ -1,12 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
 /**
  *
- * @author wombat
+ * @author greil
  */
 import java.beans.BeanDescriptor;
 import java.beans.IntrospectionException;
