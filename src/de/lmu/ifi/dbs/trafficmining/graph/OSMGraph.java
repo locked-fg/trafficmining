@@ -30,7 +30,6 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
         "note"
     };
 
-
     public OSMGraph() {
         speed.clear();
         setDefaultSpeeds();
@@ -67,7 +66,6 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
 //        }
 //        return null;
 //    }
-
     /**
      * if a node has an additional attribute and is an intermediate node split
      * the link to two new links and set the node as start or end for a new link
@@ -79,8 +77,7 @@ public class OSMGraph<N extends OSMNode, L extends OSMLink> extends Graph<N, L> 
         int id_counter = -123;
 
         // list with all active links
-        for (int o = 0; o < linkList.size(); o++) {
-
+        for (int o = 0; o < linkList.size() && !Thread.interrupted(); o++) {
             //specified link
             OSMLink<OSMNode> link_org = linkList.get(o);
 
