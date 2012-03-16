@@ -158,5 +158,6 @@ public class PBFOSMWorker extends SwingWorker {
         if (srtm != null) {
             srtm.setSink(null);
         }
+        cancel(true);
     }
 }
