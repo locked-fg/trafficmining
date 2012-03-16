@@ -966,7 +966,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         javax.swing.JMenu aboutMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MARiO: Multi Attribute Routing in Open Street Map");
 
         horizontalSplit.setDividerLocation(275);
