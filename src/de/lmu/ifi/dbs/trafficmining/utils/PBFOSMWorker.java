@@ -1,4 +1,3 @@
-
 package de.lmu.ifi.dbs.trafficmining.utils;
 
 import crosby.binary.osmosis.OsmosisReader;
@@ -17,27 +16,24 @@ import org.srtmplugin.osm.osmosis.SrtmPlugin_task;
  * @author greil
  */
 public class PBFOSMWorker extends SwingWorker {
-//public class PBFOSMWorker {
 
+    private static final Logger log = Logger.getLogger(PBFOSMWorker.class.getName());
     private File in_pbf, out_osm, dir_srtm;
     private BufferedInputStream buff_inpStream;
     private BufferedWriter buff_outWriter;
     private OsmosisReader pbf_reader;
     private XmlWriter xml_writer;
-//    private SrtmWorker srtm_old;
     private SrtmPlugin_task srtm;
     private BoundingBoxFilter bounding_box;
     private OSMEntityWorker oec;
-//    private List<String> srtm_urls;
     public final static String EVT_STAT = "STATUS";
+    // FIXME try to get rid of the static
     public static PBFOSMWorker active = null;
 
     public PBFOSMWorker(File in_pbf, File out_osm, File dir_srtm) {
-//    public PBFOSMWorker(File in_pbf, File out_osm, File dir_srtm, List<String> srtm_urls) {
         this.in_pbf = in_pbf;
         this.out_osm = out_osm;
         this.dir_srtm = dir_srtm;
-//        this.srtm_urls = srtm_urls;
         PBFOSMWorker.active = this;
     }
 
@@ -66,17 +62,15 @@ public class PBFOSMWorker extends SwingWorker {
     }
 
     /**
-     * Sets up the osmosis pipeline with all needed
-     * parameters
+     * Sets up the osmosis pipeline with all needed parameters
+     *
      * @param box bounds of the selection
      * @param srtm_enabled use of srtm annotation
      */
     public void config(double[] box, boolean srtm_enabled) {
-//        BufferedOutputStream buff_outpStream = null;
         try {
             buff_inpStream = new BufferedInputStream(new FileInputStream(in_pbf));
             buff_outWriter = new BufferedWriter(new FileWriter(out_osm), 15 * 1024 * 1024);
-//            buff_outpStream = new BufferedOutputStream(new FileOutputStream(out_osm), 15 * 1024 * 1024);
         } catch (FileNotFoundException ex) {
             Logger.getLogger(PBFOSMWorker.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
@@ -84,7 +78,6 @@ public class PBFOSMWorker extends SwingWorker {
         }
         pbf_reader = new OsmosisReader(buff_inpStream);
         xml_writer = new XmlWriter(buff_outWriter);
-//        OsmosisSerializer pbf_out = new OsmosisSerializer(new BlockOutputStream(buff_outpStream));
 
         if (srtm_enabled) {
             srtm = new SrtmPlugin_task(
@@ -108,14 +101,12 @@ public class PBFOSMWorker extends SwingWorker {
         } else {
             oec.setEndString("writing osm");
             bounding_box.setSink(xml_writer);
-//            oec.setEndString("writing pbf");
-//            bounding_box.setSink(pbf_out);
         }
     }
 
     /**
-     * Returns the bounds of the selection
-     * at the JXMapKit
+     * Returns the bounds of the selection at the JXMapKit
+     *
      * @return bounds of selection
      */
     public double[] getBounds() {
@@ -130,6 +121,7 @@ public class PBFOSMWorker extends SwingWorker {
                     b.getBottom(),};
     }
 
+    // FIXME try to get rid of the static
     public static void setStatus(String s) {
         active.firePropertyChange(EVT_STAT, "x", s);
     }
@@ -152,13 +144,12 @@ public class PBFOSMWorker extends SwingWorker {
             }
             setStatus("");
         } catch (IOException ex) {
-            Logger.getLogger(PBFOSMWorker.class.getName()).log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, null, ex);
         }
     }
 
     /**
-     * kills the SwingWorker due shutting down
-     * the complete osmosis pipeline
+     * kills the SwingWorker due shutting down the complete osmosis pipeline
      */
     public void kill() {
         pbf_reader.setSink(null);
