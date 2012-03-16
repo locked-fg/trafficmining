@@ -20,10 +20,12 @@ import java.util.zip.ZipFile;
 
 /**
  * @TODO support ZIP as well
+ *
  * @author graf
  */
 public class PluginLoader<T> {
 
+    static final Logger log = Logger.getLogger(PluginLoader.class.getName());
     private final File pluginDir;
     private final URLClassLoader classLoader;
     private final List<File> jars;
@@ -65,7 +67,7 @@ public class PluginLoader<T> {
             binaryName = binaryName.replace(".class", "");
             binaryName = binaryName.replace("/", "."); // directory to package
             if (binaryName.contains("$") && !includeInnerClasses) {
-                Logger.getLogger(PluginLoader.class.getName()).log(Level.FINE, "Skipped inner class: {0}", binaryName);
+                log.log(Level.FINE, "Skipped inner class: {0}", binaryName);
                 continue;
             }
 
@@ -84,7 +86,7 @@ public class PluginLoader<T> {
                 }
             } catch (ClassNotFoundException e) {
                 // This should never happen
-                Logger.getLogger(PluginLoader.class.getName()).log(Level.WARNING, "couldn't find class: " + binaryName, e);
+                log.log(Level.WARNING, "couldn't find class: " + binaryName, e);
             }
         }
         return list;
@@ -116,7 +118,7 @@ public class PluginLoader<T> {
     }
 
     /**
-     *
+     * 
      * @return List of all found algorithmic jar/zips
      */
     public List<Entry<Class<T>, File>> getMap() {
