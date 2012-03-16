@@ -323,7 +323,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      * @param e the exception
      * @return string of the stacktraceo
      */
-    private String exceptionist(Exception e) {
+    private String stackTraceToString(Exception e) {
         return Arrays2.join(e.getStackTrace(), "\n");
     }
 
@@ -336,7 +336,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this,
                     "The selected algorithm could not be instanciated.\n"
                     + "This can be caused by a faulty plugin:\n"
-                    + exceptionist(ex) + "\n"
+                    + stackTraceToString(ex) + "\n"
                     + "Maybe the log file is more informative about what went wrong.",
                     "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -354,7 +354,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 JOptionPane.showMessageDialog(this,
                         "The selected algorithm could not be instanciated.\n"
                         + "This can be caused by a faulty plugin:\n"
-                        + exceptionist(ex) + "\n"
+                        + stackTraceToString(ex) + "\n"
                         + "Maybe the log file is more informative about what went wrong.",
                         "Error", JOptionPane.ERROR_MESSAGE);
             }
