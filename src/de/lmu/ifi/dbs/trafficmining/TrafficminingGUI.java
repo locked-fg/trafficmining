@@ -1467,10 +1467,15 @@ class ComboboxLoader {
     void load() {
         try {
             model.removeAllElements();
-            if (pluginDir == null || !pluginDir.exists()) {
-                logger.log(Level.INFO, "plugin.dir not set or does not exist: {0}", pluginDir.getAbsolutePath());
+            if (pluginDir == null) {
+                logger.log(Level.INFO, "plugin.dir null");
                 return;
             }
+            if (!pluginDir.exists() || !pluginDir.canRead()){
+                logger.log(Level.INFO, "plugin.dir set but does not exist or is not readable: {0}", pluginDir);
+                return;
+            }
+            
             PluginLoader<Algorithm> pluginLoader = new PluginLoader<>(pluginDir, Algorithm.class);
             List<Entry<Class<Algorithm>, File>> map = pluginLoader.getMap();
             List<AlgorithmComboBoxElement> list = new ArrayList<>();
