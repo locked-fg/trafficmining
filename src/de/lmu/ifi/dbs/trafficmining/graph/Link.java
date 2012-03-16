@@ -10,7 +10,6 @@ public class Link<N extends Node> {
     private final boolean oneway;
 
     /**
-     * @FIXME default = oneway? does this make sense?!
      * @param src
      * @param dst
      */
