@@ -3,3 +3,4 @@
 \.chg\..*$
 \.rej$
 \.conflict\~$
+^java0\.log$
