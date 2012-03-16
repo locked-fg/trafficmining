@@ -142,7 +142,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             }
         });
 
-        //@fixme: check clustering
+        // FIXME : check clustering
         clusterModel = new ClusterTreeModel(clusterTree);
         jTree_cluster.setModel(clusterModel);
         jTree_cluster.addTreeSelectionListener(new TreeSelectionListener() {
@@ -221,7 +221,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private void addTileServerToMenu() {
         ButtonGroup button_group = new ButtonGroup();
         for (final TileServer ts : TILESERVERS) {
-            JCheckBoxMenuItem rb = new JCheckBoxMenuItem(ts.getName()+" : "+ts.getBaseURL());
+            JCheckBoxMenuItem rb = new JCheckBoxMenuItem(ts.getName() + " : " + ts.getBaseURL());
             button_group.add(rb);
             jMenu_tileservers.add(rb);
             rb.setSelected(ts.equals(tileServer));
@@ -301,17 +301,16 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    //TODO: CLUSTERING END
     private void restoreLastMapPosition() {
-//        Integer zoom = properties.getInteger(TrafficminingProperties.map_last_zoom);
+        //        Integer zoom = properties.getInteger(TrafficminingProperties.map_last_zoom);
         try {
             Double lat = properties.getDouble(TrafficminingProperties.map_last_center_latitude);
             Double lon = properties.getDouble(TrafficminingProperties.map_last_center_longitude);
 
-//        if (zoom != null && lat != null && lon != null) {
+            //        if (zoom != null && lat != null && lon != null) {
             if (lat != null && lon != null) {
                 map.setCenterPosition(new GeoPosition(lat, lon));
-//            map.setZoom(zoom);
+                //            map.setZoom(zoom);
             }
         } catch (NumberFormatException nfe) {
         }
@@ -705,7 +704,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             useTagWhitelist = true;
         }
 
-        if (loadGraphWorker!=null) {
+        if (loadGraphWorker != null) {
             loadGraphWorker.cancel(true);
         }
 
@@ -718,8 +717,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      * Opens the filechooser for the load graph action. Upon File selection, a
      * new SwingWorker ist started to load the files.
      *
-     * Also updates the painter as soon as the graph is loaded @TODO separate
-     * class
+     * Also updates the painter as soon as the graph is loaded
+     *
+     * @TODO extract class
      */
     class LoadGraphAction implements ActionListener, PropertyChangeListener {
 
@@ -1379,7 +1379,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_jList_nodesKeyReleased
 
 private void importPbfMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importPbfMenuItemActionPerformed
-// TODO add your handling code here:
     openPBFWindow();
 }//GEN-LAST:event_importPbfMenuItemActionPerformed
 
@@ -1471,11 +1470,11 @@ class ComboboxLoader {
                 logger.log(Level.INFO, "plugin.dir null");
                 return;
             }
-            if (!pluginDir.exists() || !pluginDir.canRead()){
+            if (!pluginDir.exists() || !pluginDir.canRead()) {
                 logger.log(Level.INFO, "plugin.dir set but does not exist or is not readable: {0}", pluginDir);
                 return;
             }
-            
+
             PluginLoader<Algorithm> pluginLoader = new PluginLoader<>(pluginDir, Algorithm.class);
             List<Entry<Class<Algorithm>, File>> map = pluginLoader.getMap();
             List<AlgorithmComboBoxElement> list = new ArrayList<>();
