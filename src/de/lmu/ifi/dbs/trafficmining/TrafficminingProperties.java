@@ -37,8 +37,6 @@ public class TrafficminingProperties {
         if (!propFile.exists()) {
 
             String home = System.getProperty("user.home");
-
-
             if (home != null) {
                 File base = new File(home);
                 String osName = System.getProperty("os.name").toLowerCase();
@@ -56,6 +54,9 @@ public class TrafficminingProperties {
             } else {
                 propFile = new File(SETTINGS_FILE);
             }
+            
+            propFile.getParentFile().mkdirs();
+            propFile.createNewFile();
         }
         log.log(Level.FINE, "using config file: {0}", propFile.getAbsolutePath());
         this.pc = new PropertyContainer(propFile);
