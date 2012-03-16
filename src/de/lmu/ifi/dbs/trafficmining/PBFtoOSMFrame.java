@@ -36,7 +36,6 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
     private PBFOSMWorker pbf_w = null;
     private CompoundPainter cp = new CompoundPainter();
     private static double[] bounds = null;
-//    private List<String> srtm_urls;
     private boolean pbf = false;
     private boolean osm = false;
     private boolean srtm = false;
@@ -445,15 +444,6 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
     /** Creates new form NewJFrame */
     public PBFtoOSMFrame() {
         initComponents();
-
-//        map = jXMapKit.getMainMap();
-
-//        System.out.println("WARNING!\nPREDEFINED PBF FILES!");
-//        File file1 = new File("E:\\CONFIG\\coding\\data\\osm\\germany.osm.pbf");
-//        File file1 = new File("E:\\CONFIG\\coding\\data\\osm\\central-america.osm.pbf");
-//        File file2 = new File("C:\\Users\\rob\\Desktop\\TEST_OSM_CUT.txt");
-//        File file3 = new File("E:\\CONFIG\\coding\\data\\srtm");
-//        files = new File[]{file1, file2, file3};
     }
 
     @Override
@@ -471,10 +461,6 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
         map.setRestrictOutsidePanning(true);
         map.setHorizontalWrapped(false);
     }
-
-//    public void setSRTMServers(List<String> srtm) {
-//        srtm_urls = srtm;
-//    }
 
     private boolean chooser(final String end, final String desc, final boolean file, javax.swing.JFormattedTextField t, int i) {
         jfc = new JFileChooser(lrd);
@@ -685,11 +671,9 @@ private void jButton_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_jButton_loadActionPerformed
 
 private void jButton_workActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_workActionPerformed
-// TODO add your handling code here:
     if (pbf_w != null) {
         pbf_w.kill();
     } else {
-//        pbf_w = new PBFOSMWorker(files[0], files[1], files[2], srtm_urls);
         pbf_w = new PBFOSMWorker(files[0], files[1], files[2]);
         pbf_w.addPropertyChangeListener(new PropertyChangeListener() {
 
@@ -722,7 +706,6 @@ private void jButton_workActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_jButton_workActionPerformed
 
 private void jCheckBox_srtmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox_srtmActionPerformed
-// TODO add your handling code here:
     if (jCheckBox_srtm.isSelected()) {
         if (files[2] == null) {
             srtm = false;
