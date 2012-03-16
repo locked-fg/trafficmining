@@ -611,7 +611,6 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
     }
 
 private void jButton_in_pbfActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_in_pbfActionPerformed
-// TODO add your handling code here:
     if (chooser(".pbf", "compressed osm file (pbf)", true, jFormattedTextField_in_pbf, 0)) {
         pbf = true;
         loadButtonChecker();
@@ -619,7 +618,6 @@ private void jButton_in_pbfActionPerformed(java.awt.event.ActionEvent evt) {//GE
 }//GEN-LAST:event_jButton_in_pbfActionPerformed
 
 private void jButton_out_osmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_out_osmActionPerformed
-// TODO add your handling code here:
     if (chooser(".osm", "output osm file", true, jFormattedTextField_out_osm, 1)) {
         osm = true;
         loadButtonChecker();
@@ -627,7 +625,6 @@ private void jButton_out_osmActionPerformed(java.awt.event.ActionEvent evt) {//G
 }//GEN-LAST:event_jButton_out_osmActionPerformed
 
 private void jButton_dir_srtmActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_dir_srtmActionPerformed
-// TODO add your handling code here:
     if (chooser("", "directory for srtm files", false, jFormattedTextField_dir_srtm, 2)) {
         srtm = true;
         loadButtonChecker();
@@ -635,8 +632,6 @@ private void jButton_dir_srtmActionPerformed(java.awt.event.ActionEvent evt) {//
 }//GEN-LAST:event_jButton_dir_srtmActionPerformed
 
 private void jButton_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_loadActionPerformed
-// TODO add your handling code here:
-//    pbf_w = new PBFOSMWorker(files[0], files[1], files[2], srtm_urls);
     pbf_w = new PBFOSMWorker(files[0], files[1], files[2]);
     pbf_w.init();
     pbf_w.config(null, jCheckBox_srtm.isSelected());
@@ -644,9 +639,8 @@ private void jButton_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 
     while (pbf_w.getBounds() == null) {
         try {
-            Thread.sleep(1000);
-
-
+            // FIXME can this somehow be replaced by callback
+            Thread.sleep(500);
         } catch (InterruptedException ex) {
             Logger.getLogger(PBFtoOSMFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
