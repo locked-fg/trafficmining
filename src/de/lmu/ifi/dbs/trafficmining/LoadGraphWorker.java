@@ -58,7 +58,7 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
     }
 
     @Override
-    protected OSMGraph doInBackground() {
+    protected OSMGraph doInBackground() throws IOException, ParserConfigurationException, SAXException {
         OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph = null;
         try {
             log.log(Level.FINE, "reading graph from {0}", osmXml.getName());
@@ -71,9 +71,9 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
             long b = System.currentTimeMillis();
             log.log(Level.FINE, "successfully read graph in {0}ms", (b - a));
         } catch (IOException | ParserConfigurationException | SAXException ex) {
-            Logger.getLogger(LoadGraphWorker.class.getName()).log(Level.SEVERE, "Exception occured while reading the graph", ex);
+            log.log(Level.SEVERE, "Exception occured while reading the graph", ex);
+            return null;
         }
-
 
         // Loading the Graph might have caused quite some overhead and a lot of 
         // now obsolete objects. Thus we request a System.gc to cleanup at once.
