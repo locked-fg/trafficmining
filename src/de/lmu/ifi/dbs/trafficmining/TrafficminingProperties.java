@@ -15,14 +15,13 @@ import java.util.logging.Logger;
  */
 public class TrafficminingProperties {
 
+    private static final Logger log = Logger.getLogger(TrafficminingProperties.class.getName());
     public static final String SETTINGS_DIR = "TRAFFICMINING";
-
     //properties files
     public static final String SETTINGS_FILE = "trafficmining.properties";
     public static final String TAG_WHITELIST_FILE = "whitelist-tags.properties";
     public static final String ZOOM_WHITELIST_FILE = "whitelist-zoom.properties";
     public static final String SPEED_SETTINGS_FILE = "speeds.properties";
-
     private final PropertyContainer pc;
     // settings
     public static final String autoload_graph = "autoload.graph";
@@ -58,7 +57,7 @@ public class TrafficminingProperties {
                 propFile = new File(SETTINGS_FILE);
             }
         }
-        Logger.getLogger(TrafficminingProperties.class.getName()).log(Level.FINE, "using config file: {0}", propFile.getAbsolutePath());
+        log.log(Level.FINE, "using config file: {0}", propFile.getAbsolutePath());
         this.pc = new PropertyContainer(propFile);
     }
 
