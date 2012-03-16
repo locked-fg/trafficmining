@@ -1,5 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Link<N extends Node> {
@@ -58,7 +59,7 @@ public class Link<N extends Node> {
      */
     public N getTarget(N start) {
         if (!start.equals(this.source) && !start.equals(target)) {
-            log.fine("In: " + start.toString() + " but link is from " + source.toString() + " to " + target.toString());
+            log.log(Level.FINE, "In: {0} but link is from {1} to {2}", new Object[]{start.toString(), source.toString(), target.toString()});
             throw new IllegalArgumentException("The given node is neither start nor the end of this link.");
         }
 
