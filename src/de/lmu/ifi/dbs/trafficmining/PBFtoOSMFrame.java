@@ -31,7 +31,7 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
     private static PolyPainter painter_intersection, painter_bounds, painter_sele;
     private JFileChooser jfc = null;
     private static JXMapViewer map = null;
-    private String lrd = "";
+    private String recentlyUsedDirectory = "";
     private File[] files = new File[3];
     private PBFOSMWorker pbf_w = null;
     private CompoundPainter cp = new CompoundPainter();
@@ -463,7 +463,7 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
     }
 
     private boolean chooser(final String end, final String desc, final boolean file, javax.swing.JFormattedTextField t, int i) {
-        jfc = new JFileChooser(lrd);
+        jfc = new JFileChooser(recentlyUsedDirectory);
         jfc.setMultiSelectionEnabled(false);
 
         if (!file) {
@@ -485,8 +485,8 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
 
         // If the user pressed "okay", try to load the files
         if (JFileChooser.APPROVE_OPTION == jfc.showOpenDialog(getContentPane())) {
-            if (lrd.isEmpty()) {
-                lrd = jfc.getCurrentDirectory().getAbsolutePath();
+            if (recentlyUsedDirectory.isEmpty()) {
+                recentlyUsedDirectory = jfc.getCurrentDirectory().getAbsolutePath();
             }
             t.setText(jfc.getSelectedFile().getAbsolutePath());
             files[i] = new File(jfc.getSelectedFile().getAbsolutePath());
