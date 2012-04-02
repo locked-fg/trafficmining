@@ -32,7 +32,7 @@ public class TileServer {
     private int CACHESIZE = 256;
     private Random rnd;
     private WeakHashMap<String, String> hm = new WeakHashMap<>(CACHESIZE);
-    private boolean broken = false;
+    private boolean valid = false;
 
     public TileServer(String name, boolean osmUrlFormat, int minimumZoomLevel, int maximumZoomLevel, int totalMapZoom, int tileSize, boolean xr2l, boolean yt2b, String baseURL, String xparam, String yparam, String zparam) {
         this.name = name;
@@ -79,7 +79,6 @@ public class TileServer {
                     } else {
                         uri = this.baseURL + number + ".png";
                     }
-
 
                     String v = hm.get(number);
                     log.log(Level.FINE, "REQ uri: {0}", uri);
@@ -151,12 +150,10 @@ public class TileServer {
     private void checkTileServer() {
         String urlstring = tf.getTile(1, 1, 1).getURL();
         try {
-            URL url = new URL(urlstring);
-            Object content = url.getContent();
+            Object content = new URL(urlstring).getContent();
         } catch (Exception e) {
-            log.log(Level.SEVERE, "Tileserver \"{0}\" can not retrieve testuri: " + urlstring + "!"
-                    + "\nSeems to be broken, therefore broken set to TRUE.", name);
-            broken = true;
+            log.log(Level.SEVERE, "Tileserver \"{0}\" can not retrieve testuri: " + urlstring, name);
+            valid = false;
         }
     }
 
@@ -186,9 +183,6 @@ public class TileServer {
         return false;
     }
 
-//    public void setVERBOSE(boolean b) {
-//        VERBOSE = b;
-//    }
     /**
      * @return the name
      */
@@ -335,7 +329,7 @@ public class TileServer {
     /**
      * @return the broken
      */
-    public boolean isBroken() {
-        return broken;
+    public boolean isValid() {
+        return valid;
     }
 }
