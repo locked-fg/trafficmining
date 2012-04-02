@@ -226,13 +226,13 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    public boolean setTileServer(TileServer tileServer) {
+    private boolean setTileServer(TileServer tileServer) {
         if (this.tileServer == tileServer) {
             return true;
         }
 
         if (tileServer.getTileFactory() != null) {
-            if (tileServer.isBroken()) {
+            if (!tileServer.isValid()) {
                 JOptionPane.showMessageDialog(
                         null,
                         "Tileserver \"" + tileServer.getBaseURL() + "\" seems to be broken."
