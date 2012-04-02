@@ -166,10 +166,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      */
     private void createTileServer() {
         //TODO implement, but read FAQ...
-        TileServer ts_osm = new TileServer("osm_mapnik", true, 1, 15, 17, 256, true, true, "http://tile.openstreetmap.org/", "x", "y", "z");
-        ts_osm.setCaching(true);
-        ts_osm.setLoadBalancing(true, "http://@.tile.openstreetmap.org/", "@", new String[]{"a", "b", "c"});
-        ts_osm.setUpTileFactory();
+        TileServer mapnik = new TileServer("osm_mapnik", true, 1, 15, 17, 256, true, true, "http://tile.openstreetmap.org/", "x", "y", "z");
+        mapnik.setCaching(true);
+        mapnik.setLoadBalancing(true, "http://@.tile.openstreetmap.org/", "@", new String[]{"a", "b", "c"});
+        mapnik.setUpTileFactory();
 
 //        TileServer ts_ocm = new TileServer("opencyclemap",true,1,15,16,256,true,true,"http://tile.opencyclemap.org/cycle/","x","y","z");
 //        ts_ocm.setCaching(true);
@@ -177,10 +177,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 //        ts_ocm.setUpTileFactory();
 //        ts_ocm.setVERBOSE(false);
 
-        TileServer ts_mq = new TileServer("mapquest", true, 1, 15, 17, 256, true, true, "http://otile.mqcdn.com/tiles/1.0.0/osm/", "x", "y", "z");
-        ts_mq.setCaching(true);
-        ts_mq.setLoadBalancing(true, "http://otile@.mqcdn.com/tiles/1.0.0/osm/", "@", new String[]{"1", "2", "3", "4"});
-        ts_mq.setUpTileFactory();
+        TileServer mapQuest = new TileServer("mapquest", true, 1, 15, 17, 256, true, true, "http://otile.mqcdn.com/tiles/1.0.0/osm/", "x", "y", "z");
+        mapQuest.setCaching(true);
+        mapQuest.setLoadBalancing(true, "http://otile@.mqcdn.com/tiles/1.0.0/osm/", "@", new String[]{"1", "2", "3", "4"});
+        mapQuest.setUpTileFactory();
 
         //http://developer.mapquest.com/web/products/open/map
 //        TileServer ts_mqoa = new TileServer("mapquest_open_aerial", true, 1, 10, 11, 256, true, true, "http://oatile.mqcdn.com/tiles/1.0.0/sat/", "x", "y", "z");
@@ -191,12 +191,12 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         //INFO SEE HERE
         //http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
-        tileservers.add(ts_osm);
+        tileservers.add(mapnik);
 //        TILESERVERS.add(ts_tah);
 //        TILESERVERS.add(ts_ocm);
-        tileservers.add(ts_mq);
+        tileservers.add(mapQuest);
 //        TILESERVERS.add(ts_mqoa);
-        setTileServer(ts_osm);
+        setTileServer(mapnik);
         addTileServerToMenu();
 
         // load more tiles in parallel
