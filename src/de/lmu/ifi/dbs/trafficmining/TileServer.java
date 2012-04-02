@@ -1,4 +1,3 @@
-
 package de.lmu.ifi.dbs.trafficmining;
 
 import java.awt.Image;
@@ -33,7 +32,6 @@ public class TileServer {
     private int CACHESIZE = 256;
     private Random rnd;
     private WeakHashMap<String, String> hm = new WeakHashMap<>(CACHESIZE);
-    private boolean VERBOSE = false;
     private boolean broken = false;
 
     public TileServer(String name, boolean osmUrlFormat, int minimumZoomLevel, int maximumZoomLevel, int totalMapZoom, int tileSize, boolean xr2l, boolean yt2b, String baseURL, String xparam, String yparam, String zparam) {
@@ -84,19 +82,13 @@ public class TileServer {
 
 
                     String v = hm.get(number);
-                    if (VERBOSE) {
-                        System.out.println("REQ uri: " + uri);
-                    }
+                    log.log(Level.FINE, "REQ uri: {0}", uri);
                     if (v != null) {
                         uri = v;
-                        if (VERBOSE) {
-                            System.out.println("RET uri (hm): " + uri);
-                        }
+                        log.log(Level.FINE, "RET uri (hm): {0}", uri);
                     } else if (v == null) {
                         hm.put(number, uri);
-                        if (VERBOSE) {
-                            System.out.println("RET uri (preload): " + uri);
-                        }
+                        log.log(Level.FINE, "RET uri (preload): {0}", uri);
                         if (caching) {
                             String number_format = number.replaceAll("/", "_") + ".png";
                             File f = new File(tmpDir, number_format);
@@ -104,9 +96,7 @@ public class TileServer {
                                 if (checkImage(f)) {
                                     uri = "file:" + f.getAbsolutePath().replaceAll("\\\\", "/");
                                     hm.put(number, uri);
-                                    if (VERBOSE) {
-                                        System.out.println("RET uri (exists): " + uri);
-                                    }
+                                    log.log(Level.FINE, "RET uri (exists): {0}", uri);
                                     return uri;
                                 } else {
                                     f.delete();
@@ -124,9 +114,7 @@ public class TileServer {
                                     if (downloadRemoteToLocalTempfile(sw_uri, sw_f)) {
                                         String uri = "file:" + sw_f.getAbsolutePath().replaceAll("\\\\", "/");
                                         hm.put(sw_number, uri);
-                                        if (VERBOSE) {
-                                            System.out.println("RET uri (loaded): " + uri);
-                                        }
+                                        log.log(Level.FINE, "RET uri (loaded): {0}", uri);
                                         return true;
                                     } else {
                                         sw_f.delete();
@@ -198,10 +186,9 @@ public class TileServer {
         return false;
     }
 
-    public void setVERBOSE(boolean b) {
-        VERBOSE = b;
-    }
-
+//    public void setVERBOSE(boolean b) {
+//        VERBOSE = b;
+//    }
     /**
      * @return the name
      */
@@ -294,7 +281,7 @@ public class TileServer {
         if (caching) {
             String tempDir = System.getProperty("java.io.tmpdir");
             String fileSeperator = System.getProperty("file.separator");
-            String modName = "tm_"+name;
+            String modName = "tm_" + name;
 
             if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
                 tempDir += fileSeperator + modName + fileSeperator;
