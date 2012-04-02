@@ -165,7 +165,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      *
      */
     private void createTileServer() {
-
         //TODO implement, but read FAQ...
 
         TileServer ts_osm = new TileServer("osm_mapnik", true, 1, 15, 17, 256, true, true, "http://tile.openstreetmap.org/", "x", "y", "z");
@@ -173,12 +172,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         ts_osm.setLoadBalancing(true, "http://@.tile.openstreetmap.org/", "@", new String[]{"a", "b", "c"});
         ts_osm.setUpTileFactory();
         ts_osm.setVERBOSE(false);
-
-        TileServer ts_tah = new TileServer("osm_osmarender", true, 1, 15, 17, 256, true, true, "http://tah.openstreetmap.org/Tiles/tile/", "x", "y", "z");
-        ts_tah.setCaching(true);
-        ts_tah.setLoadBalancing(true, "http://@.tah.openstreetmap.org/Tiles/tile/", "@", new String[]{"a", "b", "c", "d", "e", "f"});
-        ts_tah.setUpTileFactory();
-        ts_tah.setVERBOSE(false);
 
 //        TileServer ts_ocm = new TileServer("opencyclemap",true,1,15,16,256,true,true,"http://tile.opencyclemap.org/cycle/","x","y","z");
 //        ts_ocm.setCaching(true);
@@ -202,7 +195,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         //INFO SEE HERE
         //http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
         TILESERVERS.add(ts_osm);
-        TILESERVERS.add(ts_tah);
+//        TILESERVERS.add(ts_tah);
 //        TILESERVERS.add(ts_ocm);
         TILESERVERS.add(ts_mq);
 //        TILESERVERS.add(ts_mqoa);
