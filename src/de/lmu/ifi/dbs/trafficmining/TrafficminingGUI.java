@@ -72,7 +72,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     // fields used for the post processing of nodes
     private ClusterTreeModel clusterModel;
     private Cluster clusterTree;
-    private List<TileServer> TILESERVERS = new ArrayList<>();
+    private List<TileServer> tileservers = new ArrayList<>();
     private TileServer tileServer;
     private JXMapViewer map;
 
@@ -166,7 +166,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      */
     private void createTileServer() {
         //TODO implement, but read FAQ...
-
         TileServer ts_osm = new TileServer("osm_mapnik", true, 1, 15, 17, 256, true, true, "http://tile.openstreetmap.org/", "x", "y", "z");
         ts_osm.setCaching(true);
         ts_osm.setLoadBalancing(true, "http://@.tile.openstreetmap.org/", "@", new String[]{"a", "b", "c"});
@@ -194,10 +193,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         //INFO SEE HERE
         //http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
-        TILESERVERS.add(ts_osm);
+        tileservers.add(ts_osm);
 //        TILESERVERS.add(ts_tah);
 //        TILESERVERS.add(ts_ocm);
-        TILESERVERS.add(ts_mq);
+        tileservers.add(ts_mq);
 //        TILESERVERS.add(ts_mqoa);
         setTileServer(ts_osm);
         addTileServerToMenu();
@@ -213,7 +212,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private void addTileServerToMenu() {
         ButtonGroup button_group = new ButtonGroup();
-        for (final TileServer ts : TILESERVERS) {
+        for (final TileServer ts : tileservers) {
             JCheckBoxMenuItem rb = new JCheckBoxMenuItem(ts.getName() + " : " + ts.getBaseURL());
             button_group.add(rb);
             jMenu_tileservers.add(rb);
