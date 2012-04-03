@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.SwingWorker;
 import org.jdesktop.swingx.mapviewer.DefaultTileFactory;
+import org.jdesktop.swingx.mapviewer.Tile;
 import org.jdesktop.swingx.mapviewer.TileFactory;
 import org.jdesktop.swingx.mapviewer.TileFactoryInfo;
 
@@ -32,7 +33,7 @@ public class TileServer {
     private int CACHESIZE = 256;
     private Random rnd;
     private WeakHashMap<String, String> hm = new WeakHashMap<>(CACHESIZE);
-    private boolean valid = false;
+    private boolean valid = true;
 
     public TileServer(String name, boolean osmUrlFormat, int minimumZoomLevel, int maximumZoomLevel, int totalMapZoom, int tileSize, boolean xr2l, boolean yt2b, String baseURL, String xparam, String yparam, String zparam) {
         this.name = name;
@@ -72,10 +73,13 @@ public class TileServer {
                     String number = (zoom + "/" + xtile + "/" + ytile);
 
                     if (loadBalancing) {
+                        int next = rnd.nextInt(alternativeServers.length);
                         String[] split = baseUrlWithSplitter.split(splitString);
-                        uri = split[0] + alternativeServers[rnd.nextInt(alternativeServers.length)] + split[1];
-                        uri = uri + number;
-                        uri = uri + ".png";
+                        uri = split[0];
+                        uri += alternativeServers[next];
+                        uri += split[1];
+                        uri += number;
+                        uri += ".png";
                     } else {
                         uri = this.baseURL + number + ".png";
                     }
@@ -148,11 +152,13 @@ public class TileServer {
     }
 
     private void checkTileServer() {
-        String urlstring = tf.getTile(1, 1, 1).getURL();
         try {
-            Object content = new URL(urlstring).getContent();
-        } catch (Exception e) {
-            log.log(Level.SEVERE, "Tileserver \"{0}\" can not retrieve testuri: " + urlstring, name);
+            //            String urlstring = tf.getTile(1, 1, 1).getURL();
+            Tile tile = tf.getTile(1, 1, 1);
+            tile.getImage();
+            valid = true;
+        } catch (Throwable e) {
+            log.log(Level.SEVERE, "Can not retrieve test tile", e);
             valid = false;
         }
     }
@@ -275,7 +281,7 @@ public class TileServer {
         if (caching) {
             String tempDir = System.getProperty("java.io.tmpdir");
             String fileSeperator = System.getProperty("file.separator");
-            String modName = "tm_" + name;
+            String modName = "tm_" + name.replace(" ", "-");
 
             if (!(tempDir.endsWith("/") || tempDir.endsWith("\\"))) {
                 tempDir += fileSeperator + modName + fileSeperator;
