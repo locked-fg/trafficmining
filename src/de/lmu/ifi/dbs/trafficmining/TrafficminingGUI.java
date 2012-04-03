@@ -72,16 +72,21 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     // fields used for the post processing of nodes
     private ClusterTreeModel clusterModel;
     private Cluster clusterTree;
-    private List<TileServer> tileservers = new ArrayList<>();
+    private HashMap<String, TileServer> tileservers = new HashMap<>();
     private TileServer tileServer;
     private JXMapViewer map;
 
-    public TrafficminingGUI() throws IOException {
+    public TrafficminingGUI() {
         log.info("start");
         initComponents();
         map = jXMapKit.getMainMap();
 
-        properties = new TrafficminingProperties();
+        try {
+            properties = new TrafficminingProperties();
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, null, ex);
+            throw new IllegalStateException(ex.getMessage(), ex);
+        }
         pbf_o = new PBFtoOSMFrame();
 
         loadAlgorithmComboBox();
@@ -159,63 +164,37 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         jTree_cluster.setCellRenderer(new ClusterTreeCellRenderer());
     }
 
-    /**
-     * @fixme servers hardcoded = uncool solution: exclude whole process into
-     * some *.properties files
-     *
-     */
     private void createTileServer() {
-        //TODO implement, but read FAQ...
-        TileServer mapnik = new TileServer("osm_mapnik", true, 1, 15, 17, 256, true, true, "http://tile.openstreetmap.org/", "x", "y", "z");
-        mapnik.setCaching(true);
-        mapnik.setLoadBalancing(true, "http://@.tile.openstreetmap.org/", "@", new String[]{"a", "b", "c"});
-        mapnik.setUpTileFactory();
+        try {
+            TileServerFactory tileServerFactory = new TileServerFactory();
+            tileServerFactory.load();
+            tileservers = tileServerFactory.getTileServers();
+            setTileServer(tileServerFactory.getDefaultServer());
+            addTileServerToMenu();
 
-//        TileServer ts_ocm = new TileServer("opencyclemap",true,1,15,16,256,true,true,"http://tile.opencyclemap.org/cycle/","x","y","z");
-//        ts_ocm.setCaching(true);
-//        ts_ocm.setLoadBalancing(true,"http://@.tile.opencyclemap.org/cycle/","@",new String[]{"a", "b", "c"});
-//        ts_ocm.setUpTileFactory();
-//        ts_ocm.setVERBOSE(false);
-
-        TileServer mapQuest = new TileServer("mapquest", true, 1, 15, 17, 256, true, true, "http://otile.mqcdn.com/tiles/1.0.0/osm/", "x", "y", "z");
-        mapQuest.setCaching(true);
-        mapQuest.setLoadBalancing(true, "http://otile@.mqcdn.com/tiles/1.0.0/osm/", "@", new String[]{"1", "2", "3", "4"});
-        mapQuest.setUpTileFactory();
-
-        //http://developer.mapquest.com/web/products/open/map
-//        TileServer ts_mqoa = new TileServer("mapquest_open_aerial", true, 1, 10, 11, 256, true, true, "http://oatile.mqcdn.com/tiles/1.0.0/sat/", "x", "y", "z");
-//        ts_mqoa.setCaching(true);
-//        ts_mqoa.setLoadBalancing(true, "http://oatile@.mqcdn.com/tiles/1.0.0/sat/", "@", new String[]{"1", "2", "3", "4"});
-//        ts_mqoa.setUpTileFactory();
-//        ts_mqoa.setVERBOSE(false);
-
-        //INFO SEE HERE
-        //http://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Tile_servers
-        tileservers.add(mapnik);
-//        TILESERVERS.add(ts_tah);
-//        TILESERVERS.add(ts_ocm);
-        tileservers.add(mapQuest);
-//        TILESERVERS.add(ts_mqoa);
-        setTileServer(mapnik);
-        addTileServerToMenu();
-
-        // load more tiles in parallel
-        // MIND THE TILE USE POLICY IF USING OSM DIRECTLY
-        // http://wiki.openstreetmap.org/wiki/Tile_usage_policy
-        ((DefaultTileFactory) map.getTileFactory()).setThreadPoolSize(8);
-        map.setRestrictOutsidePanning(true);
-        map.setHorizontalWrapped(false);
-//        map.setDrawTileBorders(true);
+            // load more tiles in parallel
+            // MIND THE TILE USE POLICY IF USING OSM DIRECTLY
+            // http://wiki.openstreetmap.org/wiki/Tile_usage_policy
+            // FIXME put this into a property
+            ((DefaultTileFactory) map.getTileFactory()).setThreadPoolSize(3);
+            map.setRestrictOutsidePanning(true);
+            map.setHorizontalWrapped(false);
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, null, ex);
+        }
     }
 
     private void addTileServerToMenu() {
-        ButtonGroup button_group = new ButtonGroup();
-        for (final TileServer ts : tileservers) {
-            JCheckBoxMenuItem rb = new JCheckBoxMenuItem(ts.getName() + " : " + ts.getBaseURL());
-            button_group.add(rb);
-            jMenu_tileservers.add(rb);
-            rb.setSelected(ts.equals(tileServer));
-            rb.addActionListener(new ActionListener() {
+        ButtonGroup group = new ButtonGroup();
+        List<String> names = new ArrayList<>(tileservers.keySet());
+        Collections.sort(names);
+        for (String key : names) {
+            final TileServer ts = tileservers.get(key);
+            JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(key);
+            group.add(menuItem);
+            jMenu_tileservers.add(menuItem);
+            menuItem.setSelected(ts.equals(tileServer));
+            menuItem.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -1431,12 +1410,8 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 
             @Override
             public void run() {
-                try {
-                    TrafficminingGUI d = new TrafficminingGUI();
-                    d.setVisible(true);
-                } catch (IOException ex) {
-                    Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                TrafficminingGUI d = new TrafficminingGUI();
+                d.setVisible(true);
             }
         });
     }
