@@ -103,7 +103,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         mapToLayoutName.put(Simplex1Result.class, "simplex1d");
         mapToLayoutName.put(Simplex2Result.class, "simplex2d");
         mapToLayoutName.put(Simplex3Result.class, "simplex3d");
-
         resultToLayoutName = Collections.unmodifiableMap(mapToLayoutName);
 
         // fill the resultTo*- maps
