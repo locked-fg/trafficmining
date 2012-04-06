@@ -66,7 +66,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
     private LoadGraphWorker loadGraphWorker;
     private AlgorithmWorker calculator;
-    private PBFtoOSMFrame pbf_o;
+    private PbfImportFrame pbfImportFrame;
     private StatisticsFrame statisticsFrame;
     private Algorithm currentAlgorithm;
     // fields used for the post processing of nodes
@@ -87,7 +87,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             log.log(Level.SEVERE, null, ex);
             throw new IllegalStateException(ex.getMessage(), ex);
         }
-        pbf_o = new PBFtoOSMFrame();
+        pbfImportFrame = new PbfImportFrame();
 
         loadAlgorithmComboBox();
 
@@ -877,9 +877,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void openPBFWindow() {
-        pbf_o.setMapTileServer(tileServer);
-        pbf_o.setLocationRelativeTo(null);
-        pbf_o.setVisible(true);
+        pbfImportFrame.setMapTileServer(tileServer);
+        pbfImportFrame.setLocationRelativeTo(null);
+        pbfImportFrame.setVisible(true);
     }
 
     @SuppressWarnings("unchecked")

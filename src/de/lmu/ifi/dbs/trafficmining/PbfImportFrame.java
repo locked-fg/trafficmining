@@ -25,7 +25,7 @@ import org.jdesktop.swingx.painter.CompoundPainter;
  *
  * @author rob
  */
-public class PBFtoOSMFrame extends javax.swing.JFrame {
+public class PbfImportFrame extends javax.swing.JFrame {
 
     private static final long serialVersionUID = 1L;
     private static PolyPainter painter_intersection, painter_bounds, painter_sele;
@@ -442,7 +442,7 @@ public class PBFtoOSMFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     /** Creates new form NewJFrame */
-    public PBFtoOSMFrame() {
+    public PbfImportFrame() {
         initComponents();
     }
 
@@ -628,7 +628,7 @@ private void jButton_loadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
             // FIXME can this somehow be replaced by callback
             Thread.sleep(500);
         } catch (InterruptedException ex) {
-            Logger.getLogger(PBFtoOSMFrame.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PbfImportFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 

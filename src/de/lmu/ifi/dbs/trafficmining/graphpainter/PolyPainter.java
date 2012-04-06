@@ -1,6 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.graphpainter;
 
-import de.lmu.ifi.dbs.trafficmining.PBFtoOSMFrame;
+import de.lmu.ifi.dbs.trafficmining.PbfImportFrame;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -111,7 +111,7 @@ public class PolyPainter extends MouseAdapter implements Painter<JXMapViewer> {
             GeoPosition geo_br = map.convertPointToGeoPosition(new Point(r_union.x + r_union.width, r_union.y + r_union.height));
             GeoPosition geo_bl = map.convertPointToGeoPosition(new Point(r_union.x, r_union.y + r_union.height));
             geos = new GeoPosition[]{geo_tl, geo_tr, geo_br, geo_bl};
-            PBFtoOSMFrame.setLongLat(
+            PbfImportFrame.setLongLat(
                     new double[]{
                         geo_tl.getLongitude(),
                         geo_tr.getLongitude(),
