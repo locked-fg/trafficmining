@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 
 public class OSMLink<N extends OSMNode> extends Link<N> {
 
-    private int id = -666; // this id need not be unique!
+    private int id = Integer.MIN_VALUE; // this id need not be unique!
     private static final Logger log = Logger.getLogger(OSMLink.class.getName());
     /**
      * The length of the link in meters (regarding sub nodes and elevation data
@@ -18,10 +18,6 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
     private int speed;
     private HashMap<String, String> attr = null;
     private List<N> ns = null;
-
-//    public OSMLink(N src, N dest) {
-//        super(src, dest);
-//    }
 
     public OSMLink(N src, N dest, boolean oneway) {
         super(src, dest, oneway);
@@ -117,7 +113,7 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
      * @return
      */
     public List<N> getNodes() {
-        if (ns==null) {
+        if (ns == null) {
             log.log(Level.SEVERE, "WARNING! link {0} does not contain any nodes - returning empty list", id);
             return Collections.EMPTY_LIST;
         }
