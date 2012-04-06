@@ -1,6 +1,7 @@
 package de.lmu.ifi.dbs.trafficmining.graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -64,5 +65,25 @@ public class Node<L extends Link> {
     @Override
     public String toString() {
         return "N" + id;
+    }
+
+    /**
+     * Returns all links to the target node. If dst.equals(this), an empty list
+     * is returned
+     *
+     * @param dst
+     * @return list of links to the target node
+     */
+    public List<L> getLinksTo(Node dst) {
+        List<L> result = new ArrayList<>();
+        if (dst.equals(this)) {
+            return result;
+        }
+        for (L link : getLinks()) {
+            if (link.getSource().equals(dst) || link.getTarget().equals(dst)) {
+                result.add(link);
+            }
+        }
+        return result;
     }
 }

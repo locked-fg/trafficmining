@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * @author graf
@@ -14,93 +15,96 @@ import java.util.List;
 public class Path<P extends Path, N extends Node, L extends Link> implements
         Iterable<N> {
 
-    private final N end;
-    private final N start;
-    private final P prev;
+    static final Logger log = Logger.getLogger(Path.class.getName());
+    private final N endNode;
+    private final N startNode;
+    private final P previousPath;
     private final L link;
     private final int hops;
 
     /**
      * Preferred method to initialize a path with the given link.
-     * 
+     *
      * @param parent
-     * @param link 
+     * @param link
      */
     public Path(P parent, L link) {
-        this.start = (N) parent.getFirst();
-        this.end = (N) link.getTarget(parent.getLast());
+        this.startNode = (N) parent.getFirst();
+        this.endNode = (N) link.getTarget(parent.getLast());
         this.hops = parent.getLength() + 1;
-        this.prev = parent;
+        this.previousPath = parent;
         this.link = link;
     }
 
     /**
-     * @see #Path(de.lmu.ifi.dbs.trafficmining.graph.Node, de.lmu.ifi.dbs.trafficmining.graph.Link) as preferred method
+     * Generates a path between the given nodes.<br>
+     *
+     * If the nodes are connected by multible links, it will not be clear which
+     * link should be used!
+     *
+     * @see #Path(de.lmu.ifi.dbs.trafficmining.graph.Node,
+     * de.lmu.ifi.dbs.trafficmining.graph.Link) as preferred method
      * @param start
-     * @param end 
+     * @param end
      */
     public Path(N start, N end) {
-        this.start = start;
-        this.end = end;
-        if (start.equals(end)) {
-            this.hops = 0;
-        } else {
-            this.hops = 1;
-        }
-        this.prev = null;
-        this.link = null;
+        this(start, end, start.equals(end) ? 0 : 1, null);
     }
 
     /**
-     * Consructs a new Path from start to end.
-     * If prev is null, you might want to use Path(N start, N end) instead.
+     * Consructs a new Path from start to end. If prev is null, you might want
+     * to use Path(N start, N end) instead.
      *
-     * If you extend an existing path, use Path(P p, L n) instead. as the Link 
+     * If you extend an existing path, use Path(P p, L n) instead as the link
      * information will not be lost.
      *
-     * @param start 
+     * @param start
      * @param end
      * @param hops
      * @param prev
      */
     public Path(N start, N end, int hops, P prev) {
-        this.start = start;
-        this.end = end;
+        if (!start.getLinksTo(end).isEmpty()) {
+            log.warning("A path between 2 nodes is to be created even though "
+                    + "links would connect the nodes. This might indicate an error. "
+                    + "Consider using Path(P parent, L link)");
+        }
+
+        this.startNode = start;
+        this.endNode = end;
         this.hops = hops;
-        this.prev = prev;
+        this.previousPath = prev;
         this.link = null;
     }
 
     /**
-     * Extends a path to the given node. If multiple links exist for the end of 
-     * the path and the given node, the painter WILL NOT be able to determine which 
-     * link was followed!
-     * 
-     * {@link Path(de.lmu.ifi.dbs.trafficmining.graph.Path, de.lmu.ifi.dbs.trafficmining.graph.Link)} shoule be preferred
-     * 
-     * @see Path(de.lmu.ifi.dbs.trafficmining.graph.Path, de.lmu.ifi.dbs.trafficmining.graph.Link)
+     * Extends a path to the given node. If multiple links exist for the end of
+     * the path and the given node, the painter WILL NOT be able to determine
+     * which link was followed!
+     *
+     * {@link Path(de.lmu.ifi.dbs.trafficmining.graph.Path, de.lmu.ifi.dbs.trafficmining.graph.Link)}
+     * shoule be preferred
+     *
+     * @see Path(de.lmu.ifi.dbs.trafficmining.graph.Path,
+     * de.lmu.ifi.dbs.trafficmining.graph.Link)
      * @param p
-     * @param n 
+     * @param n
      */
     public Path(P p, N n) {
-        this.start = (N) p.getFirst();
-        this.end = n;
-        this.hops = p.getLength() + 1;
-        this.prev = p;
-        this.link = null;
+        this((N) p.getFirst(), n, p.getLength() + 1, p);
     }
 
     /**
      * Initializes a path with a start node and a following link.
-     * 
+     *
      * @param startNode the start node
      * @param link the link that this path follows
      */
     public Path(N startNode, L link) {
-        this.start = startNode;
-        this.end = (N) link.getTarget(start);
+        this.startNode = startNode;
+        this.endNode = (N) link.getTarget(startNode);
         this.hops = 1;
-        this.prev = null;
+        this.previousPath = null;
         this.link = link;
     }
 
@@ -109,15 +113,15 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
     }
 
     public N getFirst() {
-        return start;
+        return startNode;
     }
 
     public N getLast() {
-        return end;
+        return endNode;
     }
 
     public P getParent() {
-        return prev;
+        return previousPath;
     }
 
     public L getLink() {
@@ -145,7 +149,7 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
             nodes.add(p.getLast());
             p = p.getParent();
         }
-        nodes.add(start);
+        nodes.add(startNode);
         Collections.reverse(nodes);
         return nodes;
     }

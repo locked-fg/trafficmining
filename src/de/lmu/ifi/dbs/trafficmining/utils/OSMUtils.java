@@ -154,14 +154,20 @@ public class OSMUtils {
     @Deprecated
     public static List<OSMNode> orderedNodesBetween(OSMNode srcNode, OSMNode dstNode) {
         List<OSMNode> nodes = new ArrayList<>();
-        OSMLink<OSMNode> link = srcNode.getLinkTo(dstNode);
-        if (link == null) {
+        //        OSMLink link = (OSMLink) srcNode.getLinksTo(dstNode);
+        List<OSMLink> links = srcNode.getLinksTo(dstNode);
+        if (links.isEmpty()) {
             nodes.add(srcNode);
             nodes.add(dstNode);
             return nodes;
         }
 
-        nodes.addAll(link.getNodes());
+        if (links.size() > 1) {
+            log.log(Level.WARNING, "the given nodes are connected by {0} "
+                    + "links. Nodes of just one of them are returned.", links.size());
+        }
+
+        nodes.addAll(links.get(0).getNodes());
         if (nodes.isEmpty()) {
             nodes.add(srcNode);
             nodes.add(dstNode);
