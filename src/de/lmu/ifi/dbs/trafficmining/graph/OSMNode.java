@@ -56,25 +56,6 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
     }
 
     /**
-     * returns the link to the target node or null if no such link exists. If
-     * dst.equals(this), also null is returned
-     *
-     * @param dst
-     * @return
-     */
-    public L getLinkTo(OSMNode dst) {
-        if (dst.equals(this)) {
-            return null;
-        }
-        for (OSMLink link : getLinks()) {
-            if (link.getSource().equals(dst) || link.getTarget().equals(dst)) {
-                return (L) link;
-            }
-        }
-        return null;
-    }
-
-    /**
      * Set's a certain attribute key/value pair. For both key and value, the
      * intern representation is used to (hopefully) save memory.
      *
@@ -84,7 +65,7 @@ public class OSMNode<L extends OSMLink> extends Node<L> {
      */
     public void setAttr(String key, String value) {
         if (attr == null) {
-            attr = new HashMap<String, String>(1);
+            attr = new HashMap<>(1);
         }
         this.attr.put(key.intern(), value.intern());
     }
