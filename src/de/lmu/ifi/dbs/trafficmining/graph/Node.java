@@ -12,11 +12,11 @@ public class Node<L extends Link> {
 
     public Node(int id) {
         this.id = id;
-        this.links = new ArrayList<L>(1);
+        this.links = new ArrayList<>(1);
     }
 
     public List<L> getOutLinks() {
-        List<L> out = new ArrayList<L>(links.size());
+        List<L> out = new ArrayList<>(links.size());
         for (L link : links) {
             if (!link.isOneway() || link.getSource().equals(this)) {
                 out.add(link);
@@ -26,7 +26,7 @@ public class Node<L extends Link> {
     }
 
     public List<L> getInLinks() {
-        List<L> out = new ArrayList<L>(links.size());
+        List<L> out = new ArrayList<>(links.size());
         for (L link : links) {
             if (!link.isOneway() || link.getTarget().equals(this)) {
                 out.add(link);
