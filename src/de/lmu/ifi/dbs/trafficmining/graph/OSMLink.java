@@ -8,12 +8,11 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
 
     private int id = Integer.MIN_VALUE; // this id need not be unique!
     private static final Logger log = Logger.getLogger(OSMLink.class.getName());
-    /**
-     * The length of the link in meters (regarding sub nodes and elevation data
-     * if possible).
-     */
+    // The length of the link in meters (regarding sub nodes and elevation data
     private double length;
+    // total ascend of the link in meters (regarding sub nodes and elevation data
     private double ascend;
+    // total descend of the link in meters (regarding sub nodes and elevation data
     private double descend;
     private int speed;
     private HashMap<String, String> attr = null;
@@ -45,29 +44,11 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
         ns.add(n);
     }
 
-    public void delNodes(int i) {
-        if (i >= ns.size() || i < 0) {
-            throw new NullPointerException("node index wrong");
-        } else {
-            ns.remove(i);
-        }
-    }
-
-    public void delNodes(N node) {
-        ns.remove(node);
-    }
-
-    public void clearNodes() {
-        ns.clear();
-    }
-
     /**
-     * Set's a certain attribute key/value pair. For both key and value, the
-     * intern representation is used to (hopefully) save memory.
+     * Sets a certain attribute key/value pair.
      *
      * @param key
      * @param value
-     * @see String#intern()
      */
     public void setAttr(String key, String value) {
         if (attr == null) {
@@ -80,7 +61,7 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
      * Sets the length of this link. This value should regard all subnodes and
      * if possible elevation data.
      *
-     * @param length the length measured in m
+     * @param length the length measured in meters
      */
     public void setLength(double length) {
         this.length = length;
