@@ -4,6 +4,7 @@ import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -15,13 +16,13 @@ import java.util.logging.Logger;
  */
 public class Statistics {
 
-    private final Logger log = Logger.getLogger(Statistics.class.getName());
+    private static final Logger log = Logger.getLogger(Statistics.class.getName());
     /** do not keep more than that many nodes */
     public static final int MAX_VISITED_NODES = 500000;
     /** General statistics about teh algorithm like runtime etc. */
-    private Hashtable<String, String> map = new Hashtable<>();
+    private HashMap<String, String> map = new HashMap<>();
     /** Statistics about a certain path */
-    private Hashtable<Path, Map<PATH_ATTRIBUTES, String>> pathMap = new Hashtable<>();
+    private HashMap<Path, Map<PATH_ATTRIBUTES, String>> pathMap = new HashMap<>();
     /** List of visited nodes */
     private List<OSMNode> visitedNodes = new ArrayList<>();
 
@@ -37,7 +38,7 @@ public class Statistics {
     public void setVisitedNodes(Collection<? extends OSMNode> nodes) {
         this.visitedNodes = new ArrayList<>();
         if (nodes.size() > MAX_VISITED_NODES) {
-            log.info(nodes.size() + " visited nodes were requested to be stored. Storing only the first " + MAX_VISITED_NODES);
+            log.log(Level.INFO, "{0} visited nodes were requested to be stored. Storing only the first {1}", new Object[]{nodes.size(), MAX_VISITED_NODES});
             for (Iterator<? extends OSMNode> it = nodes.iterator(); this.visitedNodes.size() < MAX_VISITED_NODES;) {
                 this.visitedNodes.add(it.next());
             }
@@ -80,7 +81,7 @@ public class Statistics {
         keys.addAll(map.keySet());
         StringBuilder out = new StringBuilder(100);
         for (String key : keys) {
-            out.append(key + " : " + get(key) + " | ");
+            out.append(key).append(" : ").append(get(key)).append(" | ");
         }
         return out.toString();
     }
