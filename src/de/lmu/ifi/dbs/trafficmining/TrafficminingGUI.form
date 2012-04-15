@@ -41,7 +41,7 @@
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="autoloadMenuItem">
               <Properties>
                 <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" value="autoload graph next time"/>
+                <Property name="text" type="java.lang.String" value="Reload last graph upon start"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autoloadMenuItemActionPerformed"/>
@@ -50,7 +50,7 @@
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="useWhitelistMenuItem">
               <Properties>
                 <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" value="use whitelist for osm graph tags"/>
+                <Property name="text" type="java.lang.String" value="Only load whitelisted osm tags"/>
               </Properties>
             </MenuItem>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="paintGraphMenuItem">
@@ -59,7 +59,7 @@
                   <KeyStroke key="Ctrl+P"/>
                 </Property>
                 <Property name="selected" type="boolean" value="true"/>
-                <Property name="text" type="java.lang.String" value="paint Graph"/>
+                <Property name="text" type="java.lang.String" value="Paint graph"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="paintGraphMenuItemActionPerformed"/>
@@ -70,7 +70,7 @@
                 <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
                   <KeyStroke key="Ctrl+V"/>
                 </Property>
-                <Property name="text" type="java.lang.String" value="paint visited nodes"/>
+                <Property name="text" type="java.lang.String" value="Paint visited nodes"/>
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="visitedNodesItemActionPerformed"/>
