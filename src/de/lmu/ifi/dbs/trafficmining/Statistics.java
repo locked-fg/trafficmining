@@ -19,11 +19,11 @@ public class Statistics {
     /** do not keep more than that many nodes */
     public static final int MAX_VISITED_NODES = 500000;
     /** General statistics about teh algorithm like runtime etc. */
-    private Hashtable<String, String> map = new Hashtable<String, String>();
+    private Hashtable<String, String> map = new Hashtable<>();
     /** Statistics about a certain path */
-    private Hashtable<Path, Map<PATH_ATTRIBUTES, String>> pathMap = new Hashtable<Path, Map<PATH_ATTRIBUTES, String>>();
+    private Hashtable<Path, Map<PATH_ATTRIBUTES, String>> pathMap = new Hashtable<>();
     /** List of visited nodes */
-    private List<OSMNode> visitedNodes = new ArrayList<OSMNode>();
+    private List<OSMNode> visitedNodes = new ArrayList<>();
 
     public List<OSMNode> getVisitedNodes() {
         return visitedNodes;
@@ -35,7 +35,7 @@ public class Statistics {
      * @see #MAX_VISITED_NODES
      */
     public void setVisitedNodes(Collection<? extends OSMNode> nodes) {
-        this.visitedNodes = new ArrayList<OSMNode>();
+        this.visitedNodes = new ArrayList<>();
         if (nodes.size() > MAX_VISITED_NODES) {
             log.info(nodes.size() + " visited nodes were requested to be stored. Storing only the first " + MAX_VISITED_NODES);
             for (Iterator<? extends OSMNode> it = nodes.iterator(); this.visitedNodes.size() < MAX_VISITED_NODES;) {
@@ -76,7 +76,7 @@ public class Statistics {
 
     @Override
     public String toString() {
-        List<String> keys = new ArrayList<String>();
+        List<String> keys = new ArrayList<>();
         keys.addAll(map.keySet());
         StringBuilder out = new StringBuilder(100);
         for (String key : keys) {

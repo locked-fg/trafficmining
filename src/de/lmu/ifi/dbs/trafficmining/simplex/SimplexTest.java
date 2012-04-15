@@ -19,8 +19,8 @@ public class SimplexTest extends javax.swing.JFrame {
         initComponents();
         { // 1D
             PointPanel pp1 = d1.getPointPanel();
-            List<PointPanel.PointSource> list = new ArrayList<PointPanel.PointSource>();
-            List<PointPanel.PointSource> high = new ArrayList<PointPanel.PointSource>();
+            List<PointPanel.PointSource> list = new ArrayList<>();
+            List<PointPanel.PointSource> high = new ArrayList<>();
             final PS pS = new PS(0.2, 0.0);
             list.add(pS);
             high.add(pS);
@@ -34,8 +34,8 @@ public class SimplexTest extends javax.swing.JFrame {
         }
         { // 2D
             PointPanel pp2 = d2.getPointPanel();
-            List<PointPanel.PointSource> list = new ArrayList<PointPanel.PointSource>();
-            List<PointPanel.PointSource> high = new ArrayList<PointPanel.PointSource>();
+            List<PointPanel.PointSource> list = new ArrayList<>();
+            List<PointPanel.PointSource> high = new ArrayList<>();
             final PS pS = new PS(0.2, 0.1);
             list.add(pS);
             high.add(pS);
@@ -51,8 +51,8 @@ public class SimplexTest extends javax.swing.JFrame {
         { // 3D
             d3.setAttributNames(Arrays.asList(new String[]{"1", "2", "3"}));
 
-            List<PointPanel.PointSource> list = new ArrayList<PointPanel.PointSource>();
-            List<PointPanel.PointSource> high = new ArrayList<PointPanel.PointSource>();
+            List<PointPanel.PointSource> list = new ArrayList<>();
+            List<PointPanel.PointSource> high = new ArrayList<>();
 //            list.add(new SimplexPoint3d(0, 0, 1));
 //            list.add(new SimplexPoint3d(0, 1, 0));
             list.add(new SimplexPoint3d(1, 0, 0));

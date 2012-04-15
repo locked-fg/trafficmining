@@ -15,7 +15,7 @@ public class IterativeDistWithHashing implements RouteDistanceWithPruning {
     private double splitBasis = 0.5;
     private double mergeWeight = 0;
     private double mergeBasis = 0;
-    private HashMap<Integer, Integer> table = new HashMap<Integer, Integer>();
+    private HashMap<Integer, Integer> table = new HashMap<>();
 
     public IterativeDistWithHashing() {
         this.splitWeight = 1;

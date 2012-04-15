@@ -14,7 +14,7 @@ public class NodeWrapper<N> {
     private final HashMap<N, float[]> distances; // target -> distances
 
     public NodeWrapper(N source, int numAttributes) {
-        this.distances = new HashMap<N, float[]>();
+        this.distances = new HashMap<>();
         this.source = source;
         this.numAttributes = numAttributes;
     }

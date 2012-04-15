@@ -27,7 +27,7 @@ public class StatisticsFrame extends javax.swing.JFrame {
         // re initalize the model
         generalModel.setRowCount(0);
 
-        ArrayList<String> keys = new ArrayList<String>(data.getAll().keySet());
+        ArrayList<String> keys = new ArrayList<>(data.getAll().keySet());
         Collections.sort(keys);
 
         int i = 0;
@@ -41,7 +41,7 @@ public class StatisticsFrame extends javax.swing.JFrame {
 
     public void addPathData(Map<PATH_ATTRIBUTES, String> data, int resultId) {
         // re initalize the model
-        ArrayList<PATH_ATTRIBUTES> keys = new ArrayList<PATH_ATTRIBUTES>(data.keySet());
+        ArrayList<PATH_ATTRIBUTES> keys = new ArrayList<>(data.keySet());
         Collections.sort(keys);
 
         // build first column

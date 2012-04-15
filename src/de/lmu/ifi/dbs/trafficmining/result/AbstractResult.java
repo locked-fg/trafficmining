@@ -8,9 +8,9 @@ import java.util.logging.Logger;
 public abstract class AbstractResult implements Result {
 
     private static final Logger log = Logger.getLogger(AbstractResult.class.getName());
-    private final HashMap<Path, double[]> results = new HashMap<Path, double[]>();
-    protected final List<String> units = new ArrayList<String>(3);
-    protected final List<String> attribs = new ArrayList<String>(3);
+    private final HashMap<Path, double[]> results = new HashMap<>();
+    protected final List<String> units = new ArrayList<>(3);
+    protected final List<String> attribs = new ArrayList<>(3);
 
     @Override
     public Map<Path, double[]> getResults() {

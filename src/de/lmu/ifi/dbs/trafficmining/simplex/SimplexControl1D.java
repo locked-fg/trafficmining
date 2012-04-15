@@ -46,7 +46,7 @@ public class SimplexControl1D extends JXPanel implements SimplexControl {
 
     @Override
     public List<PointSource> getSourceFor(List<PointSource> eventSource) {
-        List<PointSource> out = new ArrayList<PointSource>();
+        List<PointSource> out = new ArrayList<>();
         for (PointSource in : eventSource) {
             PointSource p = getSourceFor(in);
             if (p != null) {

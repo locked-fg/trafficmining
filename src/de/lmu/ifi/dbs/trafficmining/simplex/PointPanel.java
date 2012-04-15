@@ -29,8 +29,8 @@ public class PointPanel extends JXPanel {
     }
     // --
     private final Logger log = Logger.getLogger(PointPanel.class.getName());
-    private HashSet<PointSource> points = new HashSet<PointSource>();
-    private HashSet<PointSource> highlight = new HashSet<PointSource>();
+    private HashSet<PointSource> points = new HashSet<>();
+    private HashSet<PointSource> highlight = new HashSet<>();
     private int pointSize = 6; // pixel
     private Painter painter = new DefaultPainter();
 
@@ -78,11 +78,11 @@ public class PointPanel extends JXPanel {
         }
 
         // calculate distance to all points
-        ArrayList<SimpleEntry<Double, PointSource>> list = new ArrayList<SimpleEntry<Double, PointSource>>();
+        ArrayList<SimpleEntry<Double, PointSource>> list = new ArrayList<>();
         for (PointSource p2 : points) {
             Point p1 = pointSourceToPaintCoordinates(p2);
             double currDist = query.distance(p1);
-            list.add(new SimpleEntry<Double, PointSource>(currDist, p2));
+            list.add(new SimpleEntry<>(currDist, p2));
         }
         // sort list
         Collections.sort(list, new Comparator<SimpleEntry<Double, PointSource>>() {
@@ -93,7 +93,7 @@ public class PointPanel extends JXPanel {
             }
         });
         // get top k and extract points allone
-        ArrayList<PointSource> result = new ArrayList<PointSource>();
+        ArrayList<PointSource> result = new ArrayList<>();
         for (int i = 0; i < k; i++) {
             result.add(list.get(i).getValue());
         }
@@ -112,7 +112,7 @@ public class PointPanel extends JXPanel {
         }
 
         // calculate distance to all points
-        ArrayList<PointSource> list = new ArrayList<PointSource>();
+        ArrayList<PointSource> list = new ArrayList<>();
         for (PointSource p2 : points) {
             Point p1 = pointSourceToPaintCoordinates(p2);
             double currDist = query.distance(p1);
