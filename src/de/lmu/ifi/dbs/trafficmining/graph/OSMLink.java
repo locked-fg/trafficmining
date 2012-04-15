@@ -89,9 +89,9 @@ public class OSMLink<N extends OSMNode> extends Link<N> {
     }
 
     /**
-     * Returns an immutable list of detailed nodes.
+     * Returns an immutable list of detailed nodes incl. start and end node.
      *
-     * @return
+     * @return list of nodes or empty list
      */
     public List<N> getNodes() {
         if (ns == null) {

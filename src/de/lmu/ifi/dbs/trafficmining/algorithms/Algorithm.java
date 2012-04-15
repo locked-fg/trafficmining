@@ -42,7 +42,7 @@ public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
     private int nodesInPaths(List<? extends Path> list) {
         HashSet set = new HashSet();
         for (Path path : list) {
-            set.addAll(path.getNodes());
+            set.addAll(path.getParentNodes());
         }
         return set.size();
     }

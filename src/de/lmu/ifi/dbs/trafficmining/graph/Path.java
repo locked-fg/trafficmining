@@ -120,16 +120,26 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
         return endNode;
     }
 
+    /**
+     * Returns the parent path object of this path
+     *
+     * @return previous path element
+     */
     public P getParent() {
         return previousPath;
     }
 
+    /**
+     * Returns the link that belongs to this path. May be null!
+     *
+     * @return link object representing this path or null
+     */
     public L getLink() {
         return link;
     }
 
     protected List<P> getPathSegments() {
-        List<P> p = new ArrayList<P>();
+        List<P> p = new ArrayList<>();
         P tmp = (P) this;
         while (tmp != null) {
             p.add(tmp);
@@ -140,10 +150,16 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
     }
 
     /**
-     * @return List of nodes from begin to end ignoring the links!
+     * Iterates through all parents of this path and gathers all Nodes returned
+     * by getLast().
+     *
+     * Keep the case in mind where two nodes are connected by more than one
+     * link!
+     *
+     * @return List of getLast() nodes
      */
-    public List<N> getNodes() {
-        List<N> nodes = new ArrayList<N>(hops);
+    public List<N> getParentNodes() {
+        List<N> nodes = new ArrayList<>(hops);
         Path<P, N, L> p = this;
         while (p != null) {
             nodes.add(p.getLast());
@@ -180,7 +196,7 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
 
     @Override
     public String toString() {
-        List<N> nodes = getNodes();
+        List<N> nodes = getParentNodes();
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < nodes.size(); i++) {
             sb.append(nodes.get(i).toString());
@@ -193,6 +209,6 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
 
     @Override
     public Iterator<N> iterator() {
-        return getNodes().iterator();
+        return getParentNodes().iterator();
     }
 }

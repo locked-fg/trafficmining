@@ -130,7 +130,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         log.log(Level.FINE, "found {0} skylines", resultList.size());
         AbstractResult res = buildResult();
         for (OSMComplexPath aPath : resultList) {
-            getStatistics().putPath(aPath, OSMUtils.getPathInfos(aPath.getNodes()));
+            getStatistics().putPath(aPath, OSMUtils.getPathInfos(aPath.getParentNodes()));
             res.addResult(aPath, filterCost(aPath.getCost(), weights));
         }
         this.result = res;
