@@ -1173,7 +1173,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         fileMenu.add(loadGraphItem);
 
         autoloadMenuItem.setSelected(true);
-        autoloadMenuItem.setText("autoload graph next time");
+        autoloadMenuItem.setText("Reload last graph upon start");
         autoloadMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 autoloadMenuItemActionPerformed(evt);
@@ -1182,12 +1182,12 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         fileMenu.add(autoloadMenuItem);
 
         useWhitelistMenuItem.setSelected(true);
-        useWhitelistMenuItem.setText("use whitelist for osm graph tags");
+        useWhitelistMenuItem.setText("Only load whitelisted osm tags");
         fileMenu.add(useWhitelistMenuItem);
 
         paintGraphMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         paintGraphMenuItem.setSelected(true);
-        paintGraphMenuItem.setText("paint Graph");
+        paintGraphMenuItem.setText("Paint graph");
         paintGraphMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 paintGraphMenuItemActionPerformed(evt);
@@ -1196,7 +1196,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         fileMenu.add(paintGraphMenuItem);
 
         visitedNodesItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_V, java.awt.event.InputEvent.CTRL_MASK));
-        visitedNodesItem.setText("paint visited nodes");
+        visitedNodesItem.setText("Paint visited nodes");
         visitedNodesItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 visitedNodesItemActionPerformed(evt);
