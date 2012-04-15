@@ -1,6 +1,7 @@
-package de.lmu.ifi.dbs.trafficmining.algorithms;
+package de.lmu.ifi.dbs.trafficmining.algorithms.demo;
 
 import de.lmu.ifi.dbs.trafficmining.Statistics;
+import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;

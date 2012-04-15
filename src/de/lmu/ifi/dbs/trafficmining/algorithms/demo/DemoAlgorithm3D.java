@@ -1,19 +1,21 @@
-package de.lmu.ifi.dbs.trafficmining.algorithms;
+package de.lmu.ifi.dbs.trafficmining.algorithms.demo;
 
 import de.lmu.ifi.dbs.trafficmining.Statistics;
+import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.trafficmining.result.Simplex2Result;
+import de.lmu.ifi.dbs.trafficmining.result.Simplex3Result;
 import java.util.List;
 
-public class DemoAlgorithm2D extends Algorithm<OSMNode, Graph, Path> {
+public class DemoAlgorithm3D extends Algorithm<OSMNode, Graph, Path> {
 
-    public ATTRIBS myAttribs = ATTRIBS.SPEED;
+    public ATTRIBS myAttribs = ATTRIBS.DISTANCE;
+
 
     public enum ATTRIBS {
 
-        SPEED, HEIGHT
+        DISTANCE, SPEED, HEIGHT
     }
 
     public ATTRIBS getMyAttribs() {
@@ -21,8 +23,11 @@ public class DemoAlgorithm2D extends Algorithm<OSMNode, Graph, Path> {
     }
 
     public void setMyAttribs(ATTRIBS myAttribs) {
-        this.myAttribs = myAttribs;
+     this.myAttribs = myAttribs;
     }
+
+    
+    
 
     @Override
     public Statistics getStatistics() {
@@ -34,14 +39,14 @@ public class DemoAlgorithm2D extends Algorithm<OSMNode, Graph, Path> {
     }
 
     @Override
-    public Simplex2Result getResult() {
-        Simplex2Result s2result = new Simplex2Result();
+    public Simplex3Result getResult() {
+        Simplex3Result s3result = new Simplex3Result();
         List<OSMNode> nodes = getNodes();
-        Path p = new Path(nodes.get(0), nodes.get(nodes.size() - 1));
-
-        s2result.addResult(p, new double[]{150d, 10d});
+        Path p = new Path(nodes.get(0), nodes.get(nodes.size()-1));
+        
+        s3result.addResult(p, new double[]{150d, 5d, 6d});
         OSMNode start = nodes.get(0);
-        OSMNode end = nodes.get(nodes.size() - 1);
+        OSMNode end = nodes.get(nodes.size()-1);
         OSMNode intermediate = new OSMNode(-1);
         double lat = (start.getLat() + end.getLat()) / 2;
         double lon = (start.getLon() + end.getLon()) / 2;
@@ -51,23 +56,23 @@ public class DemoAlgorithm2D extends Algorithm<OSMNode, Graph, Path> {
 
         Path p2 = new Path(start, intermediate);
         p2 = new Path(p2, end);
-        s2result.addResult(p2, new double[]{170d, 5d});
+        s3result.addResult(p2, new double[]{170d, 4d, 7d});
 
-        s2result.setUnits(new String[]{"SPEED", "HEIGHT"});
-        s2result.setAttributes(new String[]{"SPEED", "HEIGHT"});
-        return s2result;
+        s3result.setUnits(new String[] {"DISTANCE", "SPEED", "HEIGHT"});
+        s3result.setAttributes(new String[] {"DISTANCE", "SPEED", "HEIGHT"});
+        return s3result;
     }
 
     @Override
     public void run() {
 //        if (selected.size() == 0) {
-//            System.err.println("not 2 attribs selected");
+//            System.err.println("not 3 attribs selected");
 //        }
         System.out.println("doing nothing");
     }
 
     @Override
     public String getName() {
-        return "Demo algorithm 2D";
+        return "Demo algorithm 3D";
     }
 }
