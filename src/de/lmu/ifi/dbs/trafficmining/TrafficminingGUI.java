@@ -1389,7 +1389,7 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl2D simplexControl2D;
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl3D simplexControl3D;
     private javax.swing.JLabel statusbarLabel;
-    private static javax.swing.JCheckBoxMenuItem useWhitelistMenuItem;
+    private javax.swing.JCheckBoxMenuItem useWhitelistMenuItem;
     private javax.swing.JSplitPane verticalSplitPane;
     private javax.swing.JCheckBoxMenuItem visitedNodesItem;
     // End of variables declaration//GEN-END:variables
