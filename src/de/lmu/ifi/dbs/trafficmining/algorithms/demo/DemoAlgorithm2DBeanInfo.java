@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.trafficmining.algorithms;
+package de.lmu.ifi.dbs.trafficmining.algorithms.demo;
 
 import de.lmu.ifi.dbs.beansUI.EnumPropertyDescriptor;
 import java.beans.BeanDescriptor;
@@ -12,11 +12,11 @@ import java.util.logging.Logger;
  *
  * @author graf
  */
-public class DemoAlgorithm3DBeanInfo extends SimpleBeanInfo {
+public class DemoAlgorithm2DBeanInfo extends SimpleBeanInfo {
 
-    private static final Logger log = Logger.getLogger(DemoAlgorithm3DBeanInfo.class.getName());
+    private static final Logger log = Logger.getLogger(DemoAlgorithm2DBeanInfo.class.getName());
 
-    public DemoAlgorithm3DBeanInfo() {
+    public DemoAlgorithm2DBeanInfo() {
         super();
     }
 
@@ -29,7 +29,7 @@ public class DemoAlgorithm3DBeanInfo extends SimpleBeanInfo {
     public PropertyDescriptor[] getPropertyDescriptors() {
         try {
             return new PropertyDescriptor[]{
-                        new EnumPropertyDescriptor("myAttribs", DemoAlgorithm3D.class, DemoAlgorithm3D.ATTRIBS.class)};
+                        new EnumPropertyDescriptor("myAttribs", DemoAlgorithm2D.class, DemoAlgorithm2D.ATTRIBS.class),};
         } catch (IntrospectionException ex) {
             log.log(Level.SEVERE, null, ex);
             return null;
