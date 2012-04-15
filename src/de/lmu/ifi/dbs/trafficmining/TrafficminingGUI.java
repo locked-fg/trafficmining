@@ -359,7 +359,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             map.calculateZoomFrom(geo_set);
         }
         jXMapKit.repaint();
-        jToggleButton_editNodes.setEnabled(true);
+        editNodeButton.setEnabled(true);
 
         clearNodeListModel();
         resetSimplexResultsClustersHighlightedPaths();
@@ -517,10 +517,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             return;
         }
 
-        if (jToggleButton_editNodes.isSelected()) {
-            jToggleButton_editNodes.doClick();
+        if (editNodeButton.isSelected()) {
+            editNodeButton.doClick();
         }
-        jToggleButton_editNodes.setEnabled(false);
+        editNodeButton.setEnabled(false);
 
         // cancel possibly running algorithm
         if (calculator != null && !calculator.isDone()) {
@@ -542,7 +542,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             log.log(Level.SEVERE, null, ex);
             busyLabel.setBusy(false);
         } finally {
-            jToggleButton_editNodes.setEnabled(true);
+            editNodeButton.setEnabled(true);
         }
     }
 
@@ -859,14 +859,14 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void toggleEditNodes() {
-        if (jToggleButton_editNodes.isSelected()) {
-            jButton_deleteAllNodes.setEnabled(true);
-            jButton_adressSearch.setEnabled(true);
+        if (editNodeButton.isSelected()) {
+            clearButton.setEnabled(true);
+            adressSearchButton.setEnabled(true);
             jList_nodes.setModel(model_wp);
             map.addMouseListener(nodeSetMouseAdapter);
         } else {
-            jButton_deleteAllNodes.setEnabled(false);
-            jButton_adressSearch.setEnabled(false);
+            clearButton.setEnabled(false);
+            adressSearchButton.setEnabled(false);
             map.removeMouseListener(nodeSetMouseAdapter);
         }
     }
@@ -898,16 +898,16 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         busyLabel = new org.jdesktop.swingx.JXBusyLabel();
         algorithmComboBox = new javax.swing.JComboBox();
         configureButton = new javax.swing.JButton();
-        jPanel_nodes = new javax.swing.JPanel();
+        waypointPanel = new javax.swing.JPanel();
         jScrollPane_nodes = new javax.swing.JScrollPane();
         jList_nodes = new javax.swing.JList();
-        jToggleButton_editNodes = new javax.swing.JToggleButton();
-        jButton_deleteAllNodes = new javax.swing.JButton();
-        jButton_adressSearch = new javax.swing.JButton();
-        jTabbedPane_flat_tree = new javax.swing.JTabbedPane();
-        javax.swing.JScrollPane resultTableScrollPane = new javax.swing.JScrollPane();
+        editNodeButton = new javax.swing.JToggleButton();
+        clearButton = new javax.swing.JButton();
+        adressSearchButton = new javax.swing.JButton();
+        restultTabPanel = new javax.swing.JTabbedPane();
+        javax.swing.JScrollPane resultListTab = new javax.swing.JScrollPane();
         resultTable = new javax.swing.JTable();
-        jScrollPane_tree = new javax.swing.JScrollPane();
+        relustClusterTreeTab = new javax.swing.JScrollPane();
         jTree_cluster = new javax.swing.JTree();
         javax.swing.JButton showStatisticsButton = new javax.swing.JButton();
         simplexContainer = new javax.swing.JPanel();
@@ -1008,13 +1008,13 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1.0;
         leftPanel.add(algorithmPanel, gridBagConstraints);
 
-        jPanel_nodes.setBorder(javax.swing.BorderFactory.createTitledBorder("Waypoints"));
-        jPanel_nodes.setLayout(new java.awt.GridBagLayout());
+        waypointPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Waypoints"));
+        waypointPanel.setLayout(new java.awt.GridBagLayout());
 
         jScrollPane_nodes.setAutoscrolls(true);
 
@@ -1034,75 +1034,75 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 1.0;
-        jPanel_nodes.add(jScrollPane_nodes, gridBagConstraints);
+        waypointPanel.add(jScrollPane_nodes, gridBagConstraints);
 
-        jToggleButton_editNodes.setText("edit");
-        jToggleButton_editNodes.setEnabled(false);
-        jToggleButton_editNodes.addActionListener(new java.awt.event.ActionListener() {
+        editNodeButton.setText("Edit");
+        editNodeButton.setEnabled(false);
+        editNodeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jToggleButton_editNodesActionPerformed(evt);
+                editNodeButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel_nodes.add(jToggleButton_editNodes, gridBagConstraints);
+        waypointPanel.add(editNodeButton, gridBagConstraints);
 
-        jButton_deleteAllNodes.setText("clear");
-        jButton_deleteAllNodes.setEnabled(false);
-        jButton_deleteAllNodes.addActionListener(new java.awt.event.ActionListener() {
+        clearButton.setText("Clear");
+        clearButton.setEnabled(false);
+        clearButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_deleteAllNodesActionPerformed(evt);
+                clearButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 2;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel_nodes.add(jButton_deleteAllNodes, gridBagConstraints);
+        waypointPanel.add(clearButton, gridBagConstraints);
 
-        jButton_adressSearch.setText("address");
-        jButton_adressSearch.setEnabled(false);
-        jButton_adressSearch.addActionListener(new java.awt.event.ActionListener() {
+        adressSearchButton.setText("Search by Address");
+        adressSearchButton.setEnabled(false);
+        adressSearchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton_adressSearchActionPerformed(evt);
+                adressSearchButtonActionPerformed(evt);
             }
         });
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 3;
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        jPanel_nodes.add(jButton_adressSearch, gridBagConstraints);
+        waypointPanel.add(adressSearchButton, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
+        gridBagConstraints.gridy = 0;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.25;
-        leftPanel.add(jPanel_nodes, gridBagConstraints);
+        leftPanel.add(waypointPanel, gridBagConstraints);
 
-        jTabbedPane_flat_tree.setBorder(javax.swing.BorderFactory.createTitledBorder("Routes"));
+        restultTabPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Result routes"));
 
-        resultTableScrollPane.setPreferredSize(new java.awt.Dimension(150, 150));
+        resultListTab.setPreferredSize(new java.awt.Dimension(150, 150));
 
         resultTable.setAutoCreateRowSorter(true);
         resultTable.setModel(resultTableModel);
         resultTable.setPreferredSize(null);
         resultTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        resultTableScrollPane.setViewportView(resultTable);
+        resultListTab.setViewportView(resultTable);
 
-        jTabbedPane_flat_tree.addTab("List", resultTableScrollPane);
+        restultTabPanel.addTab("List", resultListTab);
 
-        jScrollPane_tree.setPreferredSize(new java.awt.Dimension(150, 150));
+        relustClusterTreeTab.setPreferredSize(new java.awt.Dimension(150, 150));
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
         jTree_cluster.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
         jTree_cluster.setPreferredSize(null);
-        jScrollPane_tree.setViewportView(jTree_cluster);
+        relustClusterTreeTab.setViewportView(jTree_cluster);
 
-        jTabbedPane_flat_tree.addTab("Clustered", jScrollPane_tree);
+        restultTabPanel.addTab("Clustered", relustClusterTreeTab);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1110,7 +1110,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.weighty = 0.4;
-        leftPanel.add(jTabbedPane_flat_tree, gridBagConstraints);
+        leftPanel.add(restultTabPanel, gridBagConstraints);
 
         showStatisticsButton.setText("show Statistics");
         showStatisticsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -1322,17 +1322,17 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         });
     }//GEN-LAST:event_configureButtonActionPerformed
 
-    private void jToggleButton_editNodesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton_editNodesActionPerformed
+    private void editNodeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editNodeButtonActionPerformed
         toggleEditNodes();
-    }//GEN-LAST:event_jToggleButton_editNodesActionPerformed
+    }//GEN-LAST:event_editNodeButtonActionPerformed
 
-    private void jButton_deleteAllNodesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_deleteAllNodesActionPerformed
+    private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
         clearNodeListModel();
-    }//GEN-LAST:event_jButton_deleteAllNodesActionPerformed
+    }//GEN-LAST:event_clearButtonActionPerformed
 
-    private void jButton_adressSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton_adressSearchActionPerformed
+    private void adressSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adressSearchButtonActionPerformed
         openSeekWindow();
-    }//GEN-LAST:event_jButton_adressSearchActionPerformed
+    }//GEN-LAST:event_adressSearchButtonActionPerformed
 
     private void jCheckBoxMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem2ActionPerformed
         if (jCheckBoxMenuItem2.isSelected()) {
@@ -1357,29 +1357,28 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     ad.setVisible(true);
 }//GEN-LAST:event_aboutMenuItemActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton adressSearchButton;
     private javax.swing.DefaultComboBoxModel algorithmBoxModel;
     private javax.swing.JComboBox algorithmComboBox;
     private javax.swing.JCheckBoxMenuItem autoloadMenuItem;
     private org.jdesktop.swingx.JXBusyLabel busyLabel;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JButton clearButton;
     private javax.swing.JMenu clusterMenu;
     private javax.swing.JButton configureButton;
+    private javax.swing.JToggleButton editNodeButton;
     private javax.swing.JMenuItem importPbfMenuItem;
-    private javax.swing.JButton jButton_adressSearch;
-    private javax.swing.JButton jButton_deleteAllNodes;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
     private javax.swing.JList jList_nodes;
     private javax.swing.JMenu jMenu_tileservers;
-    private javax.swing.JPanel jPanel_nodes;
     private javax.swing.JScrollPane jScrollPane_nodes;
-    private javax.swing.JScrollPane jScrollPane_tree;
-    private javax.swing.JTabbedPane jTabbedPane_flat_tree;
-    private javax.swing.JToggleButton jToggleButton_editNodes;
     private javax.swing.JTree jTree_cluster;
     private org.jdesktop.swingx.JXMapKit jXMapKit;
     private javax.swing.JPanel leftPanel;
     private javax.swing.JCheckBoxMenuItem paintGraphMenuItem;
+    private javax.swing.JScrollPane relustClusterTreeTab;
+    private javax.swing.JTabbedPane restultTabPanel;
     private javax.swing.JTable resultTable;
     private javax.swing.table.DefaultTableModel resultTableModel;
     private javax.swing.JPanel rightPanel;
@@ -1392,6 +1391,7 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JCheckBoxMenuItem useWhitelistMenuItem;
     private javax.swing.JSplitPane verticalSplitPane;
     private javax.swing.JCheckBoxMenuItem visitedNodesItem;
+    private javax.swing.JPanel waypointPanel;
     // End of variables declaration//GEN-END:variables
 
     public static void main(String args[]) throws Exception {
