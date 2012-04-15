@@ -32,7 +32,7 @@ public class Route implements ExtendedClusterObject {
         this.id = id;
         this.p = p;
         this.units = units;
-        this.costs = new ArrayList<Double>();
+        this.costs = new ArrayList<>();
         this.costs.addAll(Arrays.asList(costs));
     }
 

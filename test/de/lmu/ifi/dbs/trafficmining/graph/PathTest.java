@@ -21,12 +21,12 @@ public class PathTest {
     @Test
     public void testGetNodes1() {
         // test regular path
-        List<Node> nodeList = new ArrayList<Node>();
+        List<Node> nodeList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             nodeList.add(new Node(i));
         }
         // build path
-        Path<Path, Node, Link> path = new Path<Path, Node, Link>(nodeList.get(0), nodeList.get(1), 1, null);
+        Path<Path, Node, Link> path = new Path<>(nodeList.get(0), nodeList.get(1), 1, null);
         // add remaining nodes
         for (int i = 2; i < nodeList.size(); i++) {
             path = new Path(path, nodeList.get(i));
@@ -39,7 +39,7 @@ public class PathTest {
         // test path with length 1
         Node start = new Node(0);
         Node end = new Node(1);
-        Path<Path, Node, Link> path = new Path<Path, Node, Link>(start, end, 1, null);
+        Path<Path, Node, Link> path = new Path<>(start, end, 1, null);
         assertEquals(1, path.getLength());
         assertNull(path.getParent());
     }

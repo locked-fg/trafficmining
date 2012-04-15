@@ -17,7 +17,7 @@ public class StringListPropertyDescriptor extends PropertyDescriptor {
 
     public StringListPropertyDescriptor(String propertyName, Class<?> beanClass, List<String> options) throws IntrospectionException {
         super(propertyName, beanClass);
-        this.options = Collections.unmodifiableList(new ArrayList<String>(options));
+        this.options = Collections.unmodifiableList(new ArrayList<>(options));
     }
 
     @Override

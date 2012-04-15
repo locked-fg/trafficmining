@@ -20,9 +20,9 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
     private Dimension formerDimension = null; // indicates resize of the panel
 //    private Color coDomainBackground = new Color(220, 220, 220); // bg of the rounded triangle
     // -
-    private HashMap<PointSource, MappedPoint> points = new HashMap<PointSource, MappedPoint>();
-    private HashMap<MappedPoint, PointSource> pointsBack = new HashMap<MappedPoint, PointSource>();
-    private HashMap<PointSource, MappedPoint> highlight = new HashMap<PointSource, MappedPoint>();
+    private HashMap<PointSource, MappedPoint> points = new HashMap<>();
+    private HashMap<MappedPoint, PointSource> pointsBack = new HashMap<>();
+    private HashMap<PointSource, MappedPoint> highlight = new HashMap<>();
     // -
     // A,B on y = 0 is uncool because zero weights of C cause negative coordinates
     // final double a_x = 0;
@@ -77,7 +77,7 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
 
     @Override
     public List<PointSource> getSourceFor(List<PointSource> eventSource) {
-        List<PointSource> out = new ArrayList<PointSource>();
+        List<PointSource> out = new ArrayList<>();
         for (PointSource in : eventSource) {
             PointSource outP = getSourceFor(in);
             if (outP != null) {

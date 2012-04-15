@@ -11,7 +11,7 @@ public class OSMSubSkyline<N extends OSMNode<?>>    {
     private final N endNode;
     private final float mintodest;
     private final OSMApproximation minDist;
-    private final List<OSMComplexPath> skyline = new ArrayList<OSMComplexPath>();
+    private final List<OSMComplexPath> skyline = new ArrayList<>();
     private float preference;
 
     public OSMSubSkyline(OSMComplexPath<N, ?> first, float[] pref, OSMApproximation mD, N dest, Map<N, NodeWrapper<N>> embedding) {
@@ -51,7 +51,7 @@ public class OSMSubSkyline<N extends OSMNode<?>>    {
     }
 
     public void update(OSMComplexPath p, float[] weights) {
-        List<OSMComplexPath> delList = new ArrayList<OSMComplexPath>();
+        List<OSMComplexPath> delList = new ArrayList<>();
         for (OSMComplexPath skyPath : skyline) {
             if (samePath(p, skyPath)) {
                 return;

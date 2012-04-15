@@ -20,13 +20,13 @@ public class SingleLinkClusteringWithPreprocessing implements
 
     private ArrayList<ExtendedClusterObject> seedlist = null;
     private Cluster result = null;
-    private List<RouteDistance> distlist = new ArrayList<RouteDistance>();
+    private List<RouteDistance> distlist = new ArrayList<>();
     private RouteDistance activeDist = null;
     private PriorityQueue priorityqueue = null;
     private static final Logger log = Logger.getLogger(SingleLinkClusteringWithPreprocessing.class.getName());
 
     public SingleLinkClusteringWithPreprocessing() {
-        seedlist = new ArrayList<ExtendedClusterObject>();
+        seedlist = new ArrayList<>();
         result = null;
         distlist.add(new IterativeDistWithHashing());
         activeDist = distlist.get(0);
@@ -46,7 +46,7 @@ public class SingleLinkClusteringWithPreprocessing implements
                 counter++;
                 entry = (Entry<Path, double[]>) iterator1.next();
                 costs = entry.getValue();
-                costlist = new ArrayList<Double>();
+                costlist = new ArrayList<>();
                 for (double d : costs) {
                     costlist.add(d);
                 }
@@ -142,7 +142,7 @@ public class SingleLinkClusteringWithPreprocessing implements
         log.fine("Creating PriorityQueue...");
         if (!(seedlist.isEmpty())) {
             int limit = seedlist.size() * (seedlist.size()) / 2;
-            priorityqueue = new PriorityQueue<Point>(true, limit);
+            priorityqueue = new PriorityQueue<>(true, limit);
             for (int i = 0; i < seedlist.size(); i++) {
                 for (int j = i + 1; j < seedlist.size(); j++) {
                     priorityqueue.addIfBetter(activeDist.getDist(((Route) seedlist.get(i)).getComplexPath(), ((Route) seedlist.get(j)).getComplexPath()), new Point(i, j), limit);

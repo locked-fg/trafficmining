@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Cluster implements ExtendedClusterObject {
 
-    private ArrayList<ExtendedClusterObject> items = new ArrayList<ExtendedClusterObject>();
+    private ArrayList<ExtendedClusterObject> items = new ArrayList<>();
     private int id;
 
     public Cluster(int id) {
@@ -61,7 +61,7 @@ public class Cluster implements ExtendedClusterObject {
     }
 
     public List<Route> getRoutes() {
-        ArrayList<Route> list = new ArrayList<Route>();
+        ArrayList<Route> list = new ArrayList<>();
         for (ExtendedClusterObject o : items) {
             if (o instanceof Route) {
                 list.add((Route) o);
@@ -148,7 +148,7 @@ public class Cluster implements ExtendedClusterObject {
 
     @Override
     public List<Double> getMinCosts() {
-        List<Double> minCosts = new ArrayList<Double>();
+        List<Double> minCosts = new ArrayList<>();
         List<Double> tmp = null;
         for (int i = 0; i < getUnits().size(); i++) {
             minCosts.add(Double.MAX_VALUE);
@@ -166,7 +166,7 @@ public class Cluster implements ExtendedClusterObject {
 
     @Override
     public List<Double> getMaxCosts() {
-        List<Double> maxCosts = new ArrayList<Double>();
+        List<Double> maxCosts = new ArrayList<>();
         List<Double> tmp = null;
         for (int i = 0; i < getUnits().size(); i++) {
             maxCosts.add(Double.MIN_VALUE);

@@ -14,7 +14,7 @@ public class SimplexControl2D extends JXPanel implements SimplexControl {
     /** Creates new form SimplexControl2D */
     public SimplexControl2D() {
         initComponents();
-        List<String> names = new ArrayList<String>(2);
+        List<String> names = new ArrayList<>(2);
         names.add("x");
         names.add("y");
         setAttributNames(names);
@@ -57,7 +57,7 @@ public class SimplexControl2D extends JXPanel implements SimplexControl {
 
     @Override
     public List<PointSource> getSourceFor(List<PointSource> eventSource) {
-        List<PointSource> out = new ArrayList<PointSource>();
+        List<PointSource> out = new ArrayList<>();
         for (PointSource in : eventSource) {
             PointSource p = getSourceFor(in);
             if (p != null) {

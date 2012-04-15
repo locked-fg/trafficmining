@@ -68,7 +68,7 @@ public class OSMComplexPath<N extends OSMNode<L>, L extends OSMLink<N>>
      */
 //    @Override
     public OSMComplexPath reverse() {
-        List<OSMComplexPath> subPaths = new ArrayList<OSMComplexPath>(this.getLength());
+        List<OSMComplexPath> subPaths = new ArrayList<>(this.getLength());
         OSMComplexPath<N, L> p = (OSMComplexPath<N, L>) getParent();
         while (p != null) {
             subPaths.add(p);
@@ -79,9 +79,9 @@ public class OSMComplexPath<N extends OSMNode<L>, L extends OSMLink<N>>
         for (OSMComplexPath<N, L> subPath : subPaths) {
             float[] aktCosts = Arrays2.sub(loc_cost, subPath.cost, null);
             if (result == null) {
-                result = new OSMComplexPath<N, L>(getLast(), subPath.getLast(), aktCosts);
+                result = new OSMComplexPath<>(getLast(), subPath.getLast(), aktCosts);
             } else {
-                result = new OSMComplexPath<N, L>(result, subPath.getLast(), aktCosts);
+                result = new OSMComplexPath<>(result, subPath.getLast(), aktCosts);
             }
             loc_cost = subPath.cost;
         }
@@ -116,7 +116,7 @@ public class OSMComplexPath<N extends OSMNode<L>, L extends OSMLink<N>>
             for (int d = 0; d < aktCost.length; d++) {
                 aktCost[d] += appendCost[d] - other.cost[d];
             }
-            newPath = new OSMComplexPath<N, L>(newPath, other.getLast(), aktCost);
+            newPath = new OSMComplexPath<>(newPath, other.getLast(), aktCost);
             other = other.getParent();
         }
         return newPath;
