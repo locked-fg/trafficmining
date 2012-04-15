@@ -76,8 +76,8 @@ public class IterativeDistWithHashing implements RouteDistanceWithPruning {
 
     @Override
     public double getDist(Path referenceRoute, Path newRoute, double pruningdist) {
-        List<Node> nodes0 = referenceRoute.getNodes();
-        List<Node> nodes1 = newRoute.getNodes();
+        List<Node> nodes0 = referenceRoute.getParentNodes();
+        List<Node> nodes1 = newRoute.getParentNodes();
         int start[] = {0, 0};
         int stop[] = {0, 0};
         double dist = 0;
@@ -153,8 +153,8 @@ public class IterativeDistWithHashing implements RouteDistanceWithPruning {
 
     private void createNodeTable(Path route0, Path route1) {
         table.clear();
-        addHashMap(route0.getNodes());
-        addHashMap(route1.getNodes());
+        addHashMap(route0.getParentNodes());
+        addHashMap(route1.getParentNodes());
     }
 
     private void addHashMap(List<Node> list) {

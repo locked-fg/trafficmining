@@ -486,7 +486,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         if (items.isEmpty()) {
             pathPainter.clear();
         } else {
-            List<Path<?, ? extends OSMNode, ?>> pathList = new ArrayList<>();
+            List<Path<?, ? extends OSMNode, ? extends OSMLink>> pathList = new ArrayList<>();
             for (SimplexResultEntry resultEntry : items) {
                 pathList.add(resultEntry.getPath());
                 list.add(resultEntry);

@@ -31,7 +31,7 @@ public class PathTest {
         for (int i = 2; i < nodeList.size(); i++) {
             path = new Path(path, nodeList.get(i));
         }
-        assertEquals(nodeList, path.getNodes());
+        assertEquals(nodeList, path.getParentNodes());
     }
 
     @Test

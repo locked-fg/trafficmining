@@ -1,5 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.graphpainter;
 
+import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
@@ -20,19 +21,23 @@ import org.jdesktop.swingx.painter.AbstractPainter;
  */
 public class PathPainter extends AbstractPainter<JXMapViewer> {
 
+    private final int nodeSize = 2;
+    private final int halfNodeSize = 1;
+    private final int arrowSize = 5;
+    private final double pi4 = Math.PI / 4;
     private final Color color = Color.blue;
-    private List<Path<?, ? extends OSMNode, ?>> paths;
+    private List<Path<?, ? extends OSMNode, ? extends OSMLink>> paths;
 
-    public void clear(){
+    public void clear() {
         paths = Collections.EMPTY_LIST;
     }
 
-    public void setPath(Path<?, ? extends OSMNode, ?> path) {
+    public void setPath(Path<?, ? extends OSMNode, ? extends OSMLink> path) {
         this.paths = new ArrayList<>(1);
         this.paths.add(path);
     }
 
-    public void setPath(List<Path<?, ? extends OSMNode, ?>> pathList) {
+    public void setPath(List<Path<?, ? extends OSMNode, ? extends OSMLink>> pathList) {
         this.paths = pathList;
     }
 
@@ -47,118 +52,132 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
         g.setColor(color);
         TileFactory tf = map.getTileFactory();
 
-        for (Path<?, ? extends OSMNode, ?> path : paths) {
+        for (Path<?, ? extends OSMNode, ? extends OSMLink> path : paths) {
             paintPath(path, tf, zoom, vp, g);
         }
     }
 
-    protected void paintPath(Path<?, ? extends OSMNode, ?> path, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
-        List<? extends OSMNode> list = path.getNodes();
-        for (int i = 0; i < list.size() - 1; i++) {
-            // paint link from 1st to 2nd node
-            OSMNode srcNode = list.get(i);
-            OSMNode dstNode = list.get(i + 1);
-            // one of them in viewport?
-            Point2D srcPoint = tf.geoToPixel(srcNode.getGeoPosition(), zoom);
-            Point2D dstPoint = tf.geoToPixel(dstNode.getGeoPosition(), zoom);
-            if (!vp.contains(srcPoint) && !vp.contains(dstPoint)) { // none in viewport
-                continue;
-            }
-            {
-                // paint nodes as little dots
-                int x = (int) (srcPoint.getX() - vp.getX());
-                int y = (int) (srcPoint.getY() - vp.getY());
-                g.drawOval(x - 1, y - 1, 2, 2);
-                x = (int) (dstPoint.getX() - vp.getX());
-                y = (int) (dstPoint.getY() - vp.getY());
-                g.drawOval(x - 1, y - 1, 2, 2);
+    protected void paintPath(Path<?, ? extends OSMNode, ? extends OSMLink> path, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
+        Path last;
+        List<OSMNode> nodeList = new ArrayList<>();
+        do {
+            nodeList.clear();
+            if (inViewPort(path, tf, zoom, vp)) {
+                // paint last node (first one will be painted in next iteration)
+                paintMainNode(path.getLast(), tf, zoom, vp, g);
+
+                // paint link nodes
+                OSMLink link = path.getLink();
+                if (link != null) {
+                    nodeList.addAll(link.getNodes());
+                    if (nodeList.isEmpty()) {
+                        nodeList.addAll(listFromPath(path));
+                    }
+                } else {
+                    nodeList.addAll(listFromPath(path));
+                }
+                if (!path.getLast().equals(nodeList.get(nodeList.size() - 1))) {
+                    Collections.reverse(nodeList);
+                }
+                paintLink(nodeList, tf, zoom, vp, g);
             }
 
-            // get ordered link between the nodes
-            List<OSMNode> nodes = OSMUtils.orderedNodesBetween(srcNode, dstNode);
-            
-            // paint
-            Point2D src, dst;
-            int x1, y1;
-            int x2, y2;
-            int dx, dy;
-            double pi4 = Math.PI / 4;
-            src = tf.geoToPixel(nodes.get(0).getGeoPosition(), zoom);
-            for (int j = 1; j < nodes.size(); j++) {
-                dst = tf.geoToPixel(nodes.get(j).getGeoPosition(), zoom);
-                // draw line between points
-                x1 = (int) (src.getX() - vp.getX());
-                y1 = (int) (src.getY() - vp.getY());
-                x2 = (int) (dst.getX() - vp.getX());
-                y2 = (int) (dst.getY() - vp.getY());
-                g.drawLine(x1, y1, x2, y2);
-                
-                // draw arrow at target point
-                dx = x1 - x2;
-                dy = y1 - y2;
-                double theta = Math.atan2(dy, dx); // -pi;pi
-                dx = (int) (5 * Math.cos(theta + pi4));
-                dy = (int) (5 * Math.sin(theta + pi4));
-                g.drawLine(x2, y2, x2 + dx, y2 + dy);
-                dx = (int) (5 * Math.cos(theta - pi4));
-                dy = (int) (5 * Math.sin(theta - pi4));
-                g.drawLine(x2, y2, x2 + dx, y2 + dy);
-                src = dst;
-            }
+            last = path;
+            path = path.getParent();
+        } while (path != null);
+        paintMainNode((OSMNode) last.getFirst(), tf, zoom, vp, g);
+    }
+
+    private void paintLink(List<OSMNode> nodes, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
+        Point2D src, dst;
+        int x1, y1;
+        int x2, y2;
+        int dx, dy;
+
+        src = tf.geoToPixel(nodes.get(0).getGeoPosition(), zoom);
+        x1 = (int) (src.getX() - vp.getX());
+        y1 = (int) (src.getY() - vp.getY());
+        for (int j = 1; j < nodes.size(); j++) {
+            dst = tf.geoToPixel(nodes.get(j).getGeoPosition(), zoom);
+
+            // draw line between points
+            x2 = (int) (dst.getX() - vp.getX());
+            y2 = (int) (dst.getY() - vp.getY());
+            g.drawLine(x1, y1, x2, y2);
+
+            // draw arrow at target point
+            dx = x1 - x2;
+            dy = y1 - y2;
+            drawArrow(x2, y2, dx, dy, g);
+
+            //
+            x1 = x2;
+            y1 = y2;
         }
-//        List<? extends OSMNode> list = path.getNodes();
-//        for (int i = 0; i < list.size() - 1; i++) {
-//            // paint link from 1st to 2nd node
-//            OSMNode srcNode = list.get(i);
-//            OSMNode dstNode = list.get(i + 1);
-//            // one of them in viewport?
-//            Point2D srcPoint = tf.geoToPixel(srcNode.getGeoPosition(), zoom);
-//            Point2D dstPoint = tf.geoToPixel(dstNode.getGeoPosition(), zoom);
-//            if (!vp.contains(srcPoint) && !vp.contains(dstPoint)) { // none in viewport
-//                continue;
-//            }
-//            {
-//                // paint nodes as little dots
-//                int x = (int) (srcPoint.getX() - vp.getX());
-//                int y = (int) (srcPoint.getY() - vp.getY());
-//                g.drawOval(x - 1, y - 1, 2, 2);
-//                x = (int) (dstPoint.getX() - vp.getX());
-//                y = (int) (dstPoint.getY() - vp.getY());
-//                g.drawOval(x - 1, y - 1, 2, 2);
-//            }
-//
-//            // get ordered link between the nodes
-//            List<OSMNode> nodes = OSMUtils.orderedNodesBetween(srcNode, dstNode);
-//            
-//            // paint
-//            Point2D src, dst;
-//            int x1, y1;
-//            int x2, y2;
-//            int dx, dy;
-//            double pi4 = Math.PI / 4;
-//            src = tf.geoToPixel(nodes.get(0).getGeoPosition(), zoom);
-//            for (int j = 1; j < nodes.size(); j++) {
-//                dst = tf.geoToPixel(nodes.get(j).getGeoPosition(), zoom);
-//                // draw line between points
-//                x1 = (int) (src.getX() - vp.getX());
-//                y1 = (int) (src.getY() - vp.getY());
-//                x2 = (int) (dst.getX() - vp.getX());
-//                y2 = (int) (dst.getY() - vp.getY());
-//                g.drawLine(x1, y1, x2, y2);
-//                
-//                // draw arrow at target point
-//                dx = x1 - x2;
-//                dy = y1 - y2;
-//                double theta = Math.atan2(dy, dx); // -pi;pi
-//                dx = (int) (5 * Math.cos(theta + pi4));
-//                dy = (int) (5 * Math.sin(theta + pi4));
-//                g.drawLine(x2, y2, x2 + dx, y2 + dy);
-//                dx = (int) (5 * Math.cos(theta - pi4));
-//                dy = (int) (5 * Math.sin(theta - pi4));
-//                g.drawLine(x2, y2, x2 + dx, y2 + dy);
-//                src = dst;
-//            }
-//        }
+    }
+
+    /**
+     * Draws a little arrow at (posX,posY) showing ina direction that comes from
+     * (dx,dy)
+     *
+     * @param posX x-location to draw
+     * @param posY y-location to draw
+     * @param dx delta x to determine the angle
+     * @param dy delta y to determine the angle
+     * @param graphics graphics to draw on
+     */
+    private void drawArrow(int posX, int posY, int dx, int dy, Graphics2D graphics) {
+        double theta = Math.atan2(dy, dx); // -pi;pi
+        dx = (int) (arrowSize * Math.cos(theta + pi4));
+        dy = (int) (arrowSize * Math.sin(theta + pi4));
+        graphics.drawLine(posX, posY, posX + dx, posY + dy);
+
+        dx = (int) (arrowSize * Math.cos(theta - pi4));
+        dy = (int) (arrowSize * Math.sin(theta - pi4));
+        graphics.drawLine(posX, posY, posX + dx, posY + dy);
+    }
+
+    /**
+     * Paints the start and end nodes for a path
+     *
+     * @param node
+     * @param tf
+     * @param zoom
+     * @param vp
+     * @param g
+     */
+    private void paintMainNode(OSMNode node, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
+        Point2D srcPoint = tf.geoToPixel(node.getGeoPosition(), zoom);
+        int x = (int) (srcPoint.getX() - vp.getX());
+        int y = (int) (srcPoint.getY() - vp.getY());
+        g.drawOval(x - halfNodeSize, y - halfNodeSize, nodeSize, nodeSize);
+    }
+
+    /**
+     * Test if at least one node of the path is within the viewport
+     *
+     * @param path
+     * @param tf
+     * @param zoom
+     * @param vp
+     * @return true if both are in the viewport, false otherwise
+     */
+    private boolean inViewPort(Path<?, ? extends OSMNode, ? extends OSMLink> path, TileFactory tf, int zoom, Rectangle2D vp) {
+        Point2D srcPoint = tf.geoToPixel(path.getFirst().getGeoPosition(), zoom);
+        if (vp.contains(srcPoint)) {
+            return true;
+        }
+        Point2D dstPoint = tf.geoToPixel(path.getLast().getGeoPosition(), zoom);
+        if (vp.contains(dstPoint)) {
+            return true;
+        }
+        return false;
+    }
+
+    private List<OSMNode> listFromPath(Path<?, ? extends OSMNode, ? extends OSMLink> path) {
+        List<OSMNode> nodeList = new ArrayList<>(2);
+        nodeList.add(path.getFirst());
+        nodeList.add(path.getLast());
+        return nodeList;
     }
 }
-
