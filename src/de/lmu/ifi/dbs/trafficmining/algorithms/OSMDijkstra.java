@@ -23,8 +23,6 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
     private static final Logger log = Logger.getLogger(OSMDijkstra.class.getName());
     public ATTRIBS myAttribs = ATTRIBS.FASTEST;
     // Results
-//    private Simplex1Result s1 = new Simplex1Result();
-//    private HashMap<N, WeightedPath> visited = new HashMap<N, WeightedPath>();
     private Simplex1Result s1;
     private HashMap<N, WeightedPath> visited;
 
@@ -141,7 +139,7 @@ public class OSMDijkstra<N extends OSMNode<L>, L extends OSMLink<N>>
         List<N> nodes = getNodes();
         WeightedPath path = simpleShortestPath(nodes.get(0), nodes.get(nodes.size() - 1));
         if (path != null) {
-            getStatistics().putPath(path, OSMUtils.getPathInfos(path.getNodes()));
+            getStatistics().putPath(path, OSMUtils.getPathInfos(path.getParentNodes()));
         }
 
         // fill result
