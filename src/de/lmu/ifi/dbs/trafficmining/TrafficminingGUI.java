@@ -920,12 +920,14 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         statusbarLabel = new javax.swing.JLabel();
         javax.swing.JMenuBar menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
+        importPbfMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem loadGraphItem = new javax.swing.JMenuItem();
         autoloadMenuItem = new javax.swing.JCheckBoxMenuItem();
         useWhitelistMenuItem = new javax.swing.JCheckBoxMenuItem();
+        javax.swing.JPopupMenu.Separator jSeparator = new javax.swing.JPopupMenu.Separator();
         paintGraphMenuItem = new javax.swing.JCheckBoxMenuItem();
         visitedNodesItem = new javax.swing.JCheckBoxMenuItem();
-        importPbfMenuItem = new javax.swing.JMenuItem();
+        javax.swing.JPopupMenu.Separator jSeparator1 = new javax.swing.JPopupMenu.Separator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         clusterMenu = new javax.swing.JMenu();
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
@@ -1167,6 +1169,14 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
 
+        importPbfMenuItem.setText("Import PBF");
+        importPbfMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importPbfMenuItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(importPbfMenuItem);
+
         loadGraphItem.addActionListener(loadAction);
         loadGraphItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         loadGraphItem.setText("Load Graph");
@@ -1184,6 +1194,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         useWhitelistMenuItem.setSelected(true);
         useWhitelistMenuItem.setText("Only load whitelisted osm tags");
         fileMenu.add(useWhitelistMenuItem);
+        fileMenu.add(jSeparator);
 
         paintGraphMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_P, java.awt.event.InputEvent.CTRL_MASK));
         paintGraphMenuItem.setSelected(true);
@@ -1203,14 +1214,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             }
         });
         fileMenu.add(visitedNodesItem);
-
-        importPbfMenuItem.setText("Import PBF");
-        importPbfMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                importPbfMenuItemActionPerformed(evt);
-            }
-        });
-        fileMenu.add(importPbfMenuItem);
+        fileMenu.add(jSeparator1);
 
         exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         exitMenuItem.setMnemonic('x');
@@ -1243,7 +1247,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         menuBar.add(clusterMenu);
 
         jMenu_tileservers.setMnemonic('T');
-        jMenu_tileservers.setText("Tileservers");
+        jMenu_tileservers.setText("Map View");
         menuBar.add(jMenu_tileservers);
 
         aboutMenu.setMnemonic('a');
