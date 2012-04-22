@@ -121,6 +121,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
         progressBar = new javax.swing.JProgressBar();
         javax.swing.Box.Filler filler = new javax.swing.Box.Filler(new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 32767));
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
+        javax.swing.JButton closeButton = new javax.swing.JButton();
         javax.swing.JPanel mapPanel = new javax.swing.JPanel();
         mapKit = new org.jdesktop.swingx.JXMapKit();
 
@@ -144,7 +145,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         loaderPanel.add(pbfLabel, gridBagConstraints);
 
         pbfFilenameLabel.setEditable(false);
-        pbfFilenameLabel.setText("input.osm.pbf");
         pbfFilenameLabel.setMinimumSize(new java.awt.Dimension(150, 20));
         pbfFilenameLabel.setPreferredSize(new java.awt.Dimension(150, 20));
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -222,6 +222,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
 
         srtmCheckbox.setSelected(true);
         srtmCheckbox.setToolTipText("<html>\nUse SRTM?<br>\nyes or no\n</html>");
+        srtmCheckbox.setEnabled(false);
         srtmCheckbox.setMaximumSize(new java.awt.Dimension(26, 21));
         srtmCheckbox.setMinimumSize(new java.awt.Dimension(26, 21));
         srtmCheckbox.setPreferredSize(new java.awt.Dimension(26, 21));
@@ -418,6 +419,19 @@ public class PbfImportFrame extends javax.swing.JFrame {
         gridBagConstraints.weighty = 1.0;
         leftPanel.add(filler1, gridBagConstraints);
 
+        closeButton.setText("Close");
+        closeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                closeButtonActionPerformed(evt);
+            }
+        });
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
+        gridBagConstraints.insets = new java.awt.Insets(18, 0, 0, 0);
+        leftPanel.add(closeButton, gridBagConstraints);
+
         splitPane.setLeftComponent(leftPanel);
 
         mapPanel.setPreferredSize(new java.awt.Dimension(800, 600));
@@ -525,6 +539,10 @@ private void setSrtmDirButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
     doImport();
 }//GEN-LAST:event_importButtonActionPerformed
+
+    private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+        dispose();
+    }//GEN-LAST:event_closeButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JFormattedTextField bottomField;
     private javax.swing.JButton importButton;
@@ -646,7 +664,7 @@ class SelectionPainter extends MouseAdapter implements Painter<JXMapViewer> {
         Rectangle viewPort = map.getViewportBounds();
         topLeft.translate(viewPort.x, viewPort.y);
         bottomRight.translate(viewPort.x, viewPort.y);
-        
+
         GeoPosition topLeftGeo = map.getTileFactory().pixelToGeo(topLeft, map.getZoom());
         GeoPosition bottomRightGeo = map.getTileFactory().pixelToGeo(bottomRight, map.getZoom());
 
