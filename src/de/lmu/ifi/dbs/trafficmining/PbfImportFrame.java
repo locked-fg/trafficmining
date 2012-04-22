@@ -105,17 +105,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         srtmCheckbox = new javax.swing.JCheckBox();
         srtmDirectoryLabel = new javax.swing.JFormattedTextField();
         setSrtmDirButton = new javax.swing.JButton();
-        javax.swing.JPanel selectionPanel = new javax.swing.JPanel();
-        javax.swing.Box.Filler leftFiller = new javax.swing.Box.Filler(new java.awt.Dimension(26, 0), new java.awt.Dimension(26, 0), new java.awt.Dimension(21, 32767));
-        javax.swing.JLabel topLabel = new javax.swing.JLabel();
-        topField = new javax.swing.JFormattedTextField();
-        javax.swing.JLabel leftLabel = new javax.swing.JLabel();
-        leftField = new javax.swing.JFormattedTextField();
-        javax.swing.JLabel rightLabel = new javax.swing.JLabel();
-        rightField = new javax.swing.JFormattedTextField();
-        javax.swing.JLabel bottomLabel = new javax.swing.JLabel();
-        bottomField = new javax.swing.JFormattedTextField();
-        javax.swing.Box.Filler rightFiller = new javax.swing.Box.Filler(new java.awt.Dimension(65, 0), new java.awt.Dimension(65, 0), new java.awt.Dimension(45, 32767));
         javax.swing.JPanel progressPanel = new javax.swing.JPanel();
         importButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
@@ -133,7 +122,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
         loaderPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Loader"));
         loaderPanel.setLayout(new java.awt.GridBagLayout());
 
-        pbfLabel.setText("PBF input");
+        pbfLabel.setText("PBF source");
         pbfLabel.setMaximumSize(new java.awt.Dimension(90, 15));
         pbfLabel.setMinimumSize(new java.awt.Dimension(90, 15));
         pbfLabel.setPreferredSize(new java.awt.Dimension(90, 15));
@@ -265,120 +254,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.weightx = 1.0;
         leftPanel.add(loaderPanel, gridBagConstraints);
-
-        selectionPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Selection"));
-        selectionPanel.setLayout(new java.awt.GridBagLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        selectionPanel.add(leftFiller, gridBagConstraints);
-
-        topLabel.setText("Top (Latitude)");
-        topLabel.setMaximumSize(new java.awt.Dimension(90, 15));
-        topLabel.setMinimumSize(new java.awt.Dimension(90, 15));
-        topLabel.setPreferredSize(new java.awt.Dimension(90, 15));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        selectionPanel.add(topLabel, gridBagConstraints);
-
-        topField.setEditable(false);
-        topField.setMaximumSize(new java.awt.Dimension(138, 20));
-        topField.setMinimumSize(new java.awt.Dimension(138, 20));
-        topField.setPreferredSize(new java.awt.Dimension(138, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 0, 1, 0);
-        selectionPanel.add(topField, gridBagConstraints);
-
-        leftLabel.setText("Left (Longitude)");
-        leftLabel.setMaximumSize(new java.awt.Dimension(90, 15));
-        leftLabel.setMinimumSize(new java.awt.Dimension(90, 15));
-        leftLabel.setPreferredSize(new java.awt.Dimension(90, 15));
-        leftLabel.setRequestFocusEnabled(false);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        selectionPanel.add(leftLabel, gridBagConstraints);
-
-        leftField.setEditable(false);
-        leftField.setMaximumSize(new java.awt.Dimension(138, 20));
-        leftField.setMinimumSize(new java.awt.Dimension(138, 20));
-        leftField.setPreferredSize(new java.awt.Dimension(138, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 0, 1, 0);
-        selectionPanel.add(leftField, gridBagConstraints);
-
-        rightLabel.setText("Right (Longitude)");
-        rightLabel.setMaximumSize(new java.awt.Dimension(90, 15));
-        rightLabel.setMinimumSize(new java.awt.Dimension(90, 15));
-        rightLabel.setPreferredSize(new java.awt.Dimension(90, 15));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        selectionPanel.add(rightLabel, gridBagConstraints);
-
-        rightField.setEditable(false);
-        rightField.setMaximumSize(new java.awt.Dimension(138, 20));
-        rightField.setMinimumSize(new java.awt.Dimension(138, 20));
-        rightField.setPreferredSize(new java.awt.Dimension(138, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 0, 1, 0);
-        selectionPanel.add(rightField, gridBagConstraints);
-
-        bottomLabel.setText("Bottom (Latitude)");
-        bottomLabel.setMaximumSize(new java.awt.Dimension(90, 15));
-        bottomLabel.setMinimumSize(new java.awt.Dimension(90, 15));
-        bottomLabel.setPreferredSize(new java.awt.Dimension(90, 15));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        selectionPanel.add(bottomLabel, gridBagConstraints);
-
-        bottomField.setEditable(false);
-        bottomField.setMaximumSize(new java.awt.Dimension(138, 20));
-        bottomField.setMinimumSize(new java.awt.Dimension(138, 20));
-        bottomField.setPreferredSize(new java.awt.Dimension(138, 20));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 0, 1, 0);
-        selectionPanel.add(bottomField, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridheight = 4;
-        selectionPanel.add(rightFiller, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
-        gridBagConstraints.weightx = 1.0;
-        leftPanel.add(selectionPanel, gridBagConstraints);
 
         progressPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Progress"));
         progressPanel.setLayout(new java.awt.GridBagLayout());
@@ -550,20 +425,16 @@ private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
         dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JFormattedTextField bottomField;
     private javax.swing.JButton importButton;
-    private javax.swing.JFormattedTextField leftField;
     private org.jdesktop.swingx.JXMapKit mapKit;
     private javax.swing.JFormattedTextField osmFilenameLabel;
     private javax.swing.JFormattedTextField pbfFilenameLabel;
     private javax.swing.JProgressBar progressBar;
-    private javax.swing.JFormattedTextField rightField;
     private javax.swing.JButton setInputFileButton;
     private javax.swing.JButton setOutputFileButton;
     private javax.swing.JButton setSrtmDirButton;
     private javax.swing.JCheckBox srtmCheckbox;
     private javax.swing.JFormattedTextField srtmDirectoryLabel;
-    private javax.swing.JFormattedTextField topField;
     // End of variables declaration//GEN-END:variables
 }
 
