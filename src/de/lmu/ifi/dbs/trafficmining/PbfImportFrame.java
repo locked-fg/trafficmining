@@ -64,7 +64,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         if (worker.getState() == SwingWorker.StateValue.DONE) {
-                            busyLabel.setBusy(false);
                             importButton.setText("run");
                             progressBar.setToolTipText("");
                             progressBar.setIndeterminate(false);
@@ -76,7 +75,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
                 worker.execute();
 
                 progressBar.setIndeterminate(true);
-                busyLabel.setBusy(true);
                 importButton.setText("stop");
             }
         } catch (IOException ex) {
@@ -119,7 +117,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         bottomField = new javax.swing.JFormattedTextField();
         javax.swing.Box.Filler rightFiller = new javax.swing.Box.Filler(new java.awt.Dimension(65, 0), new java.awt.Dimension(65, 0), new java.awt.Dimension(45, 32767));
         javax.swing.JPanel progressPanel = new javax.swing.JPanel();
-        busyLabel = new org.jdesktop.swingx.JXBusyLabel();
         importButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
         javax.swing.Box.Filler filler = new javax.swing.Box.Filler(new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 32767));
@@ -380,12 +377,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
 
         progressPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Progress"));
         progressPanel.setLayout(new java.awt.GridBagLayout());
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        progressPanel.add(busyLabel, gridBagConstraints);
 
         importButton.setText("import");
         importButton.setMaximumSize(null);
@@ -476,16 +467,12 @@ public class PbfImportFrame extends javax.swing.JFrame {
     }
 
     private void useBounds() {
-        busyLabel.setBusy(false);
-
         Painter boundsPainter = new MyRectanglePainter(pbfBounds, new Color(0, 0, 255, 30), Color.BLUE);
         compoundPainter.setPainters(boundsPainter, selectionPainter);
 
         map.setOverlayPainter(compoundPainter);
         map.setZoom(1);
         map.calculateZoomFrom(pbfBounds.toSet());
-        map.invalidate();
-        map.revalidate();
         map.repaint();
     }
 
@@ -540,7 +527,6 @@ private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
 }//GEN-LAST:event_importButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JFormattedTextField bottomField;
-    private org.jdesktop.swingx.JXBusyLabel busyLabel;
     private javax.swing.JButton importButton;
     private javax.swing.JFormattedTextField leftField;
     private org.jdesktop.swingx.JXMapKit mapKit;
