@@ -25,7 +25,7 @@ import java.util.zip.ZipFile;
  */
 public class PluginLoader<T> {
 
-    static final Logger log = Logger.getLogger(PluginLoader.class.getName());
+    private static final Logger log = Logger.getLogger(PluginLoader.class.getName());
     private final File pluginDir;
     private final URLClassLoader classLoader;
     private final List<File> jars;
@@ -39,11 +39,14 @@ public class PluginLoader<T> {
         if (!pluginDir.exists() || !pluginDir.isDirectory()) {
             throw new IOException("given file does not exist or is not a dir: " + pluginDir.getAbsolutePath());
         }
+        log.log(Level.FINE, "start scanning for plug ins in {0}", pluginDir.getAbsolutePath());
         this.pluginDir = pluginDir;
         this.pluginClass = pluginClass;
 
         // scan dir for JARs
         jars = scanForJars();
+        log.log(Level.FINE, "found {0} jars for investigation", jars.size());
+
         classLoader = new URLClassLoader(files2Urls(jars));
 
         // scan each URL for plugins and put them in the map
@@ -54,8 +57,7 @@ public class PluginLoader<T> {
         }
     }
 
-    private List<Class<T>> scanForPlugins(File f) throws
-            IOException {
+    private List<Class<T>> scanForPlugins(File f) throws IOException {
         List<Class<T>> list = new ArrayList<>();
         ZipFile jar = new ZipFile(f);
         for (Enumeration entries = jar.entries(); entries.hasMoreElements();) {
@@ -118,18 +120,9 @@ public class PluginLoader<T> {
     }
 
     /**
-     * 
      * @return List of all found algorithmic jar/zips
      */
     public List<Entry<Class<T>, File>> getMap() {
         return map;
     }
-//    public static void main(String[] args) throws Exception {
-//        File pluginDir = new File("C://Dokumente und Einstellungen//graf//workspace//Plugins//dist//");
-//        PluginLoader<Plugin> loader = new PluginLoader<Plugin>(pluginDir, Plugin.class);
-//        for (Class<Plugin> key : loader.map.keySet()) {
-//            System.out.println(key.getClass().getName() + " > " + loader.map.get(key) + ": ");
-//            key.newInstance().foo();
-//        }
-//    }
 }
