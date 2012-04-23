@@ -138,48 +138,6 @@ public class OSMUtils {
         return nodes;
     }
 
-    /**
-     * Returns an ordered list of nodes that represent the link between the 2
-     * given nodes.
-     *
-     * This method is deprecated as the result is not necessarily the desired
-     * result in cases where there are 2 links from the source to the
-     * destination node.
-     *
-     * @param srcNode
-     * @param dstNode
-     * @return
-     * @deprecated
-     */
-    @Deprecated
-    public static List<OSMNode> orderedNodesBetween(OSMNode srcNode, OSMNode dstNode) {
-        List<OSMNode> nodes = new ArrayList<>();
-        //        OSMLink link = (OSMLink) srcNode.getLinksTo(dstNode);
-        List<OSMLink> links = srcNode.getLinksTo(dstNode);
-        if (links.isEmpty()) {
-            nodes.add(srcNode);
-            nodes.add(dstNode);
-            return nodes;
-        }
-
-        if (links.size() > 1) {
-            log.log(Level.WARNING, "the given nodes are connected by {0} "
-                    + "links. Nodes of just one of them are returned.", links.size());
-        }
-
-        nodes.addAll(links.get(0).getNodes());
-        if (nodes.isEmpty()) {
-            nodes.add(srcNode);
-            nodes.add(dstNode);
-            return nodes;
-        }
-
-        if (!nodes.get(0).equals(srcNode)) {
-            Collections.reverse(nodes);
-        }
-        return nodes;
-    }
-
     public static Rectangle2D getViewport(JXMapViewer map) {
         //figure out which waypoints are within this map viewport
         //so, get the bounds
@@ -205,7 +163,7 @@ public class OSMUtils {
     }
 
     public static Map<PATH_ATTRIBUTES, String> getPathInfos(List<OSMNode<OSMLink>> nodes) {
-//        int crossings = 0; // http://wiki.openstreetmap.org/wiki/Key:crossing
+        // int crossings = 0; // http://wiki.openstreetmap.org/wiki/Key:crossing
         int nodecount = 0; // nodes with degree > 2
         int trafficsignals = 0; // traffic signals
         OSMNode<OSMLink> start = nodes.get(0);
