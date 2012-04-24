@@ -1400,12 +1400,9 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 
     public static void main(String args[]) throws Exception {
         try (InputStream is = TrafficminingGUI.class.getResourceAsStream("/logging.properties")) {
-            if (is != null) {
-                LogManager.getLogManager().readConfiguration(is);
-                is.close();
-            }
+            LogManager.getLogManager().readConfiguration(is);
         } catch (IOException ex) {
-            log.log(Level.SEVERE, "ERROR: {0}\nlogging.properties not found inside jar!", ex);
+            log.log(Level.SEVERE, "ERROR: {0}\nlogging.properties not found inside jar!", ex.getMessage());
         }
         UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
