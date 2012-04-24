@@ -38,6 +38,28 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
     private final double pi4 = Math.PI / 4;
     private final int arrowSize = 5;
 
+    public GraphPainter() {
+        try {
+            File zoomToLinkFile = new File(TrafficminingProperties.ZOOM_WHITELIST_FILE);
+            Properties prop = new Properties();
+            prop.load(new BufferedReader(new FileReader(zoomToLinkFile)));
+            log.log(Level.FINE, "Using zoom config: {0} / Zoomlevels found: {1}",
+                    new Object[]{zoomToLinkFile.getAbsolutePath(), prop.keySet().size()});
+
+            for (Map.Entry<Object, Object> entry : prop.entrySet()) {
+                Integer zoomlevel = Integer.parseInt((String) entry.getKey());
+                String temp = (String) entry.getValue();
+                String[] temp_ar = temp.trim().split(";");
+                List<String> list = Arrays.asList(temp_ar);
+                zoomToLinkWhitelist.put(zoomlevel, list);
+                log.log(Level.FINE, "{0} -> {1}", new Object[]{zoomlevel, list});
+            }
+        } catch (IOException | NumberFormatException e) {
+            log.info("A error occured due parsing zoom config, using no zoom config at all");
+            zoomToLinkWhitelist.clear();
+        }
+    }
+
     public void setGraph(OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph) {
         this.graph = graph;
         this.geo2pixel.clear();
@@ -199,26 +221,5 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         Point2D a = toPixel(link.getSource(), tf, zoom);
         Point2D b = toPixel(link.getTarget(), tf, zoom);
         return (int) a.distance(b);
-    }
-
-    public GraphPainter() {
-        try {
-            File zoomToLinkFile = new File(TrafficminingProperties.ZOOM_WHITELIST_FILE);
-            Properties prop = new Properties();
-            prop.load(new BufferedReader(new FileReader(zoomToLinkFile)));
-            log.log(Level.INFO, "Using zoom config: {0}", zoomToLinkFile.getAbsolutePath());
-            log.log(Level.FINE, "Zoomlevels found: {0}", prop.keySet().size());
-            for (Map.Entry<Object, Object> entry : prop.entrySet()) {
-                Integer zoomlevel = Integer.parseInt((String) entry.getKey());
-                String temp = (String) entry.getValue();
-                String[] temp_ar = temp.trim().split(";");
-                List<String> list = Arrays.asList(temp_ar);
-                zoomToLinkWhitelist.put(zoomlevel, list);
-                log.log(Level.FINE, "{0} -> {1}", new Object[]{zoomlevel, list});
-            }
-        } catch (IOException | NumberFormatException e) {
-            log.info("A error occured due parsing zoom config, using no zoom config at all");
-            zoomToLinkWhitelist.clear();
-        }
     }
 }
