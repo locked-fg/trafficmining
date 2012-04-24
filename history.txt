@@ -1,0 +1,11 @@
+History of changes:
+
+trunk:
+    * OpenCycleMap integrated as MapProvider
+    * replaced SwingX-WS with a newer release
+
+2011: v2  MARiO: Multi Attribute Routing in Open Street Map
+    Symposium on Spatial and Temporal Databases (SSTD)
+
+2010: v1  PAROS: Pareto Optimal Route Selection,
+    International Conference on Management of Data (SIGMOD)
