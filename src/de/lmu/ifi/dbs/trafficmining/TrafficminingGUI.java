@@ -50,8 +50,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private static final Logger log = Logger.getLogger(TrafficminingGUI.class.getName());
     private final TrafficminingProperties properties;
     // map result type -> layout name
-    private final Map<Class, String> resultToLayoutName; // cardlayout
-    private final Map<Class, SimplexControl> resultToSimplexControl;
     private final MouseAdapter nodeSetMouseAdapter = new MapToNodeList();
     private final OSMNodeListModel model_wp = new OSMNodeListModel();
     private final GraphPainter graphPainter = new GraphPainter();
@@ -60,44 +58,83 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private final NodePainter visitedNodesPainter = new NodePainter();
     private final Map<Integer, SimplexResultEntry> results = new HashMap<>();
     private final WaypointPainter<JXMapViewer> startEndPainter = new WaypointPainter<>();
+    private final JXMapViewer map;
     // -
+    private Map<Class, String> resultToLayoutName; // cardlayout
+    private Map<Class, SimplexControl> resultToSimplexControl;
+    //
     private Result result;
     private Statistics statistics;
     private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
     private LoadGraphWorker loadGraphWorker;
     private AlgorithmWorker calculator;
-    private PbfImportFrame pbfImportFrame;
     private StatisticsFrame statisticsFrame;
     private Algorithm currentAlgorithm;
     // fields used for the post processing of nodes
-    private ClusterTreeModel clusterModel;
-    private Cluster clusterTree;
+    private Cluster cluster;
     private HashMap<String, TileServer> tileservers = new HashMap<>();
     private TileServer tileServer;
-    private JXMapViewer map;
 
-    public TrafficminingGUI() {
+    public TrafficminingGUI() throws IOException {
         log.info("start");
         initComponents();
-        map = jXMapKit.getMainMap();
 
-        try {
-            properties = new TrafficminingProperties();
-        } catch (IOException ex) {
-            log.log(Level.SEVERE, null, ex);
-            throw new IllegalStateException(ex.getMessage(), ex);
-        }
-        pbfImportFrame = new PbfImportFrame();
-
-        loadAlgorithmComboBox();
-
-        createTileServer();
-
-        restoreLastMapPosition();
-
-        refreshPainters();
         setLocationRelativeTo(null);
 
+        map = jXMapKit.getMainMap();
+        properties = new TrafficminingProperties();
+        initAlgorithmComboBox();
+        initTileServers();
+        initResultBindings();
+        initClusterComponents();
+
+        restoreLastMapPosition();
+        refreshPainters();
+        loadRecentGraph();
+
+        resultTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                reloadStatisticsData();
+                highlightResult();
+            }
+        });
+    }
+
+    private void initClusterComponents() {
+        // FIXME : check clustering
+        clusterTree.setModel(new ClusterTreeModel(cluster));
+        clusterTree.addTreeSelectionListener(new TreeSelectionListener() {
+
+            @Override
+            public void valueChanged(TreeSelectionEvent evt) {
+                TreePath path = evt.getNewLeadSelectionPath();
+                if (!(path == null)) {
+                    highlightClusteredRoutes(path.getLastPathComponent());
+                }
+            }
+        });
+        ToolTipManager.sharedInstance().registerComponent(clusterTree);
+        clusterTree.setCellRenderer(new ClusterTreeCellRenderer());
+    }
+
+    private void loadRecentGraph() {
+        String dir = properties.getProperty(TrafficminingProperties.lru_graph_dir);
+        String file = properties.getProperty(TrafficminingProperties.lru_graph_file);
+        boolean autoLoadGraph = properties.getBoolean(TrafficminingProperties.autoload_graph, false);
+        autoloadMenuItem.setSelected(autoLoadGraph);
+        if (autoLoadGraph && dir != null && file != null) {
+            try {
+                File osmXml = new File(new File(dir), file);
+                loadGraphFromFile(osmXml, loadAction);
+            } catch (Exception e) {
+                log.log(Level.SEVERE, "Failed loading recent graph", e);
+            }
+        }
+    }
+
+    private void initResultBindings() {
         // fill the resultTo*- maps
         Map<Class, String> mapToLayoutName = new HashMap<>();
         mapToLayoutName.put(Simplex1Result.class, "simplex1d");
@@ -117,53 +154,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         simplexControl1D.addMouseListener(new SimplexHighlighter(resultTable));
         simplexControl2D.addMouseListener(new SimplexHighlighter(resultTable));
         simplexControl3D.addMouseListener(new SimplexHighlighter(resultTable));
-
-        // load recent graph
-        if (properties.getFile(TrafficminingProperties.plugin_dir) == null) {
-            properties.setProperty(TrafficminingProperties.plugin_dir, new File("./"));
-            properties.save();
-        }
-
-        String lrud = properties.getProperty(TrafficminingProperties.lru_graph_dir);
-        String lruf = properties.getProperty(TrafficminingProperties.lru_graph_file);
-        boolean autoLoadGraph = properties.getBoolean(TrafficminingProperties.autoload_graph, false);
-        autoloadMenuItem.setSelected(autoLoadGraph);
-        if (autoLoadGraph && lrud != null && lruf != null) {
-            try {
-                File osmXml = new File(new File(lrud), lruf);
-                loadGraphFromFile(osmXml, loadAction);
-            } catch (Exception e) {
-                log.log(Level.SEVERE, "", e);
-            }
-        }
-
-        resultTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
-            @Override
-            public void valueChanged(ListSelectionEvent e) {
-                reloadStatisticsData();
-                highlightResult();
-            }
-        });
-
-        // FIXME : check clustering
-        clusterModel = new ClusterTreeModel(clusterTree);
-        jTree_cluster.setModel(clusterModel);
-        jTree_cluster.addTreeSelectionListener(new TreeSelectionListener() {
-
-            @Override
-            public void valueChanged(TreeSelectionEvent evt) {
-                TreePath path = evt.getNewLeadSelectionPath();
-                if (!(path == null)) {
-                    highlightClusteredRoutes(path.getLastPathComponent());
-                }
-            }
-        });
-        ToolTipManager.sharedInstance().registerComponent(jTree_cluster);
-        jTree_cluster.setCellRenderer(new ClusterTreeCellRenderer());
     }
 
-    private void createTileServer() {
+    private void initTileServers() {
         try {
             TileServerFactory tileServerFactory = new TileServerFactory();
             tileServerFactory.load();
@@ -191,7 +184,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             final TileServer ts = tileservers.get(key);
             JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(key);
             group.add(menuItem);
-            jMenu_tileservers.add(menuItem);
+            tileserverMenu.add(menuItem);
             menuItem.setSelected(ts.equals(tileServer));
             menuItem.addActionListener(new ActionListener() {
 
@@ -237,17 +230,16 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             SingleLinkClusteringWithPreprocessing skyclus = new SingleLinkClusteringWithPreprocessing();
             skyclus.setInput(result);
             skyclus.start();
-            clusterTree = skyclus.getResult();
+            cluster = skyclus.getResult();
             updateClusterTree();
         }
     }
 
     private void updateClusterTree() {
         log.fine("Update ClusterTree...");
-        if (!(clusterTree == null)) {
-            clusterModel = new ClusterTreeModel(clusterTree);
-            jTree_cluster.setModel(clusterModel);
-            jTree_cluster.updateUI();
+        if (cluster != null) {
+            clusterTree.setModel(new ClusterTreeModel(cluster));
+            clusterTree.updateUI();
         }
     }
 
@@ -376,8 +368,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         results.clear();
 
         // reset clusters
-        clusterModel = null;
-        jTree_cluster.setModel(clusterModel);
+        clusterTree.setModel(null);
 
         // reset highlighted paths
         pathPainter.clear();
@@ -413,7 +404,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    private void loadAlgorithmComboBox() {
+    private void initAlgorithmComboBox() {
         File pluginDir = properties.getFile(TrafficminingProperties.plugin_dir);
         new ComboboxLoader(algorithmBoxModel, pluginDir).load();
         if (algorithmBoxModel.getSize() > 0) {
@@ -877,9 +868,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void openPBFWindow() {
-        pbfImportFrame.setMapTileServer(tileServer);
-        pbfImportFrame.setLocationRelativeTo(null);
-        pbfImportFrame.setVisible(true);
+        PbfImportFrame frame = new PbfImportFrame();
+        frame.setMapTileServer(tileServer);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
     }
 
     @SuppressWarnings("unchecked")
@@ -908,7 +900,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         javax.swing.JScrollPane resultListTab = new javax.swing.JScrollPane();
         resultTable = new javax.swing.JTable();
         relustClusterTreeTab = new javax.swing.JScrollPane();
-        jTree_cluster = new javax.swing.JTree();
+        clusterTree = new javax.swing.JTree();
         javax.swing.JButton showStatisticsButton = new javax.swing.JButton();
         simplexContainer = new javax.swing.JPanel();
         simplexControl1D = new de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl1D();
@@ -929,10 +921,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         visitedNodesItem = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JPopupMenu.Separator jSeparator1 = new javax.swing.JPopupMenu.Separator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
-        clusterMenu = new javax.swing.JMenu();
-        jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
-        jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
-        jMenu_tileservers = new javax.swing.JMenu();
+        tileserverMenu = new javax.swing.JMenu();
         javax.swing.JMenu aboutMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
 
@@ -1100,9 +1089,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         relustClusterTreeTab.setPreferredSize(new java.awt.Dimension(150, 150));
 
         javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
-        jTree_cluster.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-        jTree_cluster.setPreferredSize(null);
-        relustClusterTreeTab.setViewportView(jTree_cluster);
+        clusterTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        clusterTree.setPreferredSize(null);
+        relustClusterTreeTab.setViewportView(clusterTree);
 
         restultTabPanel.addTab("Clustered", relustClusterTreeTab);
 
@@ -1228,27 +1217,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         menuBar.add(fileMenu);
 
-        clusterMenu.setMnemonic('c');
-        clusterMenu.setText("Cluster");
-        clusterMenu.setEnabled(false);
-
-        jCheckBoxMenuItem1.setSelected(true);
-        jCheckBoxMenuItem1.setText("jCheckBoxMenuItem1");
-        clusterMenu.add(jCheckBoxMenuItem1);
-
-        jCheckBoxMenuItem2.setText("TEST CLUSTERING");
-        jCheckBoxMenuItem2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jCheckBoxMenuItem2ActionPerformed(evt);
-            }
-        });
-        clusterMenu.add(jCheckBoxMenuItem2);
-
-        menuBar.add(clusterMenu);
-
-        jMenu_tileservers.setMnemonic('T');
-        jMenu_tileservers.setText("Map View");
-        menuBar.add(jMenu_tileservers);
+        tileserverMenu.setMnemonic('T');
+        tileserverMenu.setText("Map View");
+        menuBar.add(tileserverMenu);
 
         aboutMenu.setMnemonic('a');
         aboutMenu.setText("About");
@@ -1338,12 +1309,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         openSeekWindow();
     }//GEN-LAST:event_adressSearchButtonActionPerformed
 
-    private void jCheckBoxMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem2ActionPerformed
-        if (jCheckBoxMenuItem2.isSelected()) {
-            startClustering();
-        }
-    }//GEN-LAST:event_jCheckBoxMenuItem2ActionPerformed
-
     private void jList_nodesKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jList_nodesKeyReleased
         if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
             deleteSelectedNodes();
@@ -1368,16 +1333,12 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private org.jdesktop.swingx.JXBusyLabel busyLabel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton clearButton;
-    private javax.swing.JMenu clusterMenu;
+    private javax.swing.JTree clusterTree;
     private javax.swing.JButton configureButton;
     private javax.swing.JToggleButton editNodeButton;
     private javax.swing.JMenuItem importPbfMenuItem;
-    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
-    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
     private javax.swing.JList jList_nodes;
-    private javax.swing.JMenu jMenu_tileservers;
     private javax.swing.JScrollPane jScrollPane_nodes;
-    private javax.swing.JTree jTree_cluster;
     private org.jdesktop.swingx.JXMapKit jXMapKit;
     private javax.swing.JPanel leftPanel;
     private javax.swing.JCheckBoxMenuItem paintGraphMenuItem;
@@ -1392,6 +1353,7 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl2D simplexControl2D;
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl3D simplexControl3D;
     private javax.swing.JLabel statusbarLabel;
+    private javax.swing.JMenu tileserverMenu;
     private javax.swing.JCheckBoxMenuItem useWhitelistMenuItem;
     private javax.swing.JSplitPane verticalSplitPane;
     private javax.swing.JCheckBoxMenuItem visitedNodesItem;
@@ -1410,8 +1372,13 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 
             @Override
             public void run() {
-                TrafficminingGUI d = new TrafficminingGUI();
-                d.setVisible(true);
+                try {
+                    TrafficminingGUI d = new TrafficminingGUI();
+                    d.setVisible(true);
+                } catch (Throwable ex) {
+                    Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    System.exit(1);
+                }
             }
         });
     }
