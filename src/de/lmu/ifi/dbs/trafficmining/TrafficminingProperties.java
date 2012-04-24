@@ -35,7 +35,6 @@ public class TrafficminingProperties {
     public TrafficminingProperties() throws IOException {
         File propFile = new File(SETTINGS_FILE);
         if (!propFile.exists()) {
-
             String home = System.getProperty("user.home");
             if (home != null) {
                 File base = new File(home);
