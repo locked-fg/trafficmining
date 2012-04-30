@@ -156,7 +156,6 @@
                 <Component class="javax.swing.JFormattedTextField" name="osmFilenameLabel">
                   <Properties>
                     <Property name="editable" type="boolean" value="false"/>
-                    <Property name="text" type="java.lang.String" value="output.osm"/>
                     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[150, 20]"/>
                     </Property>
@@ -218,9 +217,7 @@
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="srtmCheckbox">
                   <Properties>
-                    <Property name="selected" type="boolean" value="true"/>
                     <Property name="toolTipText" type="java.lang.String" value="&lt;html&gt;&#xa;Use SRTM?&lt;br&gt;&#xa;yes or no&#xa;&lt;/html&gt;"/>
-                    <Property name="enabled" type="boolean" value="false"/>
                     <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[26, 21]"/>
                     </Property>
@@ -240,7 +237,6 @@
                 <Component class="javax.swing.JFormattedTextField" name="srtmDirectoryLabel">
                   <Properties>
                     <Property name="editable" type="boolean" value="false"/>
-                    <Property name="text" type="java.lang.String" value="./srtm"/>
                     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="[150, 20]"/>
                     </Property>
@@ -300,15 +296,12 @@
               <SubComponents>
                 <Component class="javax.swing.JButton" name="importButton">
                   <Properties>
-                    <Property name="text" type="java.lang.String" value="import"/>
-                    <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="null"/>
-                    </Property>
+                    <Property name="text" type="java.lang.String" value="convert"/>
                     <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                       <Dimension value="null"/>
                     </Property>
                     <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[65, 20]"/>
+                      <Dimension value="[75, 20]"/>
                     </Property>
                   </Properties>
                   <Events>
