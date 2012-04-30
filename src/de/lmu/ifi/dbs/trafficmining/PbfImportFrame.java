@@ -53,7 +53,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
         try {
             if (worker != null) {
                 worker.cancel(true);
-                importButton.setText("import");
+                importButton.setText("convert");
                 worker = null;
             } else {
                 worker = new PbfOsmLoader(pbfFile, osmFile, srtmFile,
@@ -63,8 +63,9 @@ public class PbfImportFrame extends javax.swing.JFrame {
 
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
-                        if (worker.getState() == SwingWorker.StateValue.DONE) {
-                            importButton.setText("run");
+                        SwingWorker sw = (SwingWorker) evt.getSource();
+                        if (sw.getState() == SwingWorker.StateValue.DONE) {
+                            importButton.setText("convert");
                             progressBar.setToolTipText("");
                             progressBar.setIndeterminate(false);
                             worker = null;
@@ -73,7 +74,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
                 });
 
                 worker.execute();
-
                 progressBar.setIndeterminate(true);
                 importButton.setText("stop");
             }
@@ -171,7 +171,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         loaderPanel.add(osmLabel, gridBagConstraints);
 
         osmFilenameLabel.setEditable(false);
-        osmFilenameLabel.setText("output.osm");
         osmFilenameLabel.setMinimumSize(new java.awt.Dimension(150, 20));
         osmFilenameLabel.setOpaque(false);
         osmFilenameLabel.setPreferredSize(new java.awt.Dimension(150, 20));
@@ -209,9 +208,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         loaderPanel.add(srtmLabel, gridBagConstraints);
 
-        srtmCheckbox.setSelected(true);
         srtmCheckbox.setToolTipText("<html>\nUse SRTM?<br>\nyes or no\n</html>");
-        srtmCheckbox.setEnabled(false);
         srtmCheckbox.setMaximumSize(new java.awt.Dimension(26, 21));
         srtmCheckbox.setMinimumSize(new java.awt.Dimension(26, 21));
         srtmCheckbox.setPreferredSize(new java.awt.Dimension(26, 21));
@@ -221,7 +218,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         loaderPanel.add(srtmCheckbox, gridBagConstraints);
 
         srtmDirectoryLabel.setEditable(false);
-        srtmDirectoryLabel.setText("./srtm");
         srtmDirectoryLabel.setMinimumSize(new java.awt.Dimension(150, 20));
         srtmDirectoryLabel.setPreferredSize(new java.awt.Dimension(150, 20));
         gridBagConstraints = new java.awt.GridBagConstraints();
@@ -258,10 +254,9 @@ public class PbfImportFrame extends javax.swing.JFrame {
         progressPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Progress"));
         progressPanel.setLayout(new java.awt.GridBagLayout());
 
-        importButton.setText("import");
-        importButton.setMaximumSize(null);
+        importButton.setText("convert");
         importButton.setMinimumSize(null);
-        importButton.setPreferredSize(new java.awt.Dimension(65, 20));
+        importButton.setPreferredSize(new java.awt.Dimension(75, 20));
         importButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 importButtonActionPerformed(evt);
