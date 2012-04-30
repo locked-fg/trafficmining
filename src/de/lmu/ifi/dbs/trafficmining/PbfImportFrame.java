@@ -106,10 +106,11 @@ public class PbfImportFrame extends javax.swing.JFrame {
         srtmDirectoryLabel = new javax.swing.JFormattedTextField();
         setSrtmDirButton = new javax.swing.JButton();
         javax.swing.JPanel progressPanel = new javax.swing.JPanel();
-        importButton = new javax.swing.JButton();
         progressBar = new javax.swing.JProgressBar();
         javax.swing.Box.Filler filler = new javax.swing.Box.Filler(new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 32767));
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
+        jPanel1 = new javax.swing.JPanel();
+        importButton = new javax.swing.JButton();
         javax.swing.JButton closeButton = new javax.swing.JButton();
         javax.swing.JPanel mapPanel = new javax.swing.JPanel();
         mapKit = new org.jdesktop.swingx.JXMapKit();
@@ -245,7 +246,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
+        gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTH;
         gridBagConstraints.weightx = 1.0;
@@ -253,20 +254,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
 
         progressPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Progress"));
         progressPanel.setLayout(new java.awt.GridBagLayout());
-
-        importButton.setText("convert");
-        importButton.setMinimumSize(null);
-        importButton.setPreferredSize(new java.awt.Dimension(75, 20));
-        importButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                importButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        progressPanel.add(importButton, gridBagConstraints);
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
@@ -295,18 +282,29 @@ public class PbfImportFrame extends javax.swing.JFrame {
         gridBagConstraints.weighty = 1.0;
         leftPanel.add(filler1, gridBagConstraints);
 
-        closeButton.setText("Close");
+        importButton.setText("Ok");
+        importButton.setPreferredSize(null);
+        importButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importButtonActionPerformed(evt);
+            }
+        });
+        jPanel1.add(importButton);
+
+        closeButton.setText("Cancel");
         closeButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 closeButtonActionPerformed(evt);
             }
         });
+        jPanel1.add(closeButton);
+
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 3;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.PAGE_START;
-        gridBagConstraints.insets = new java.awt.Insets(18, 0, 0, 0);
-        leftPanel.add(closeButton, gridBagConstraints);
+        leftPanel.add(jPanel1, gridBagConstraints);
 
         splitPane.setLeftComponent(leftPanel);
 
@@ -421,6 +419,7 @@ private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     }//GEN-LAST:event_closeButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton importButton;
+    private javax.swing.JPanel jPanel1;
     private org.jdesktop.swingx.JXMapKit mapKit;
     private javax.swing.JFormattedTextField osmFilenameLabel;
     private javax.swing.JFormattedTextField pbfFilenameLabel;
