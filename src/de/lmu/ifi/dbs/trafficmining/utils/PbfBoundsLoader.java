@@ -3,42 +3,39 @@ package de.lmu.ifi.dbs.trafficmining.utils;
 import crosby.binary.osmosis.OsmosisReader;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import org.openstreetmap.osmosis.core.container.v0_6.*;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import org.openstreetmap.osmosis.core.task.v0_6.SinkSource;
 
-/**
- *
- * @author Franz
- */
 public class PbfBoundsLoader {
 
-    public final static String EVT_BOUNDS = "BOUNDS";
+    public final static String EVT_BOUNDS = "BOUNDS_LOADED";
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    private final Thread thread;
+    private final File pbf;
     private MapBounds mapBounds;
 
-    public PbfBoundsLoader(File pbf) throws FileNotFoundException {
-        
-        OsmosisReader pbfReader = new OsmosisReader(new BufferedInputStream(new FileInputStream(pbf)));
-        pbfReader.setSink(new OSMEntityWorker());
+    public PbfBoundsLoader(File pbf) {
+        this.pbf = pbf;
+    }
 
-        thread = new Thread(pbfReader);
+    public void loadAsync() throws FileNotFoundException {
+        OsmosisReader pbfReader = new OsmosisReader(new BufferedFileInputStream(pbf));
+        final Thread thread = new Thread(pbfReader);
+
+        pbfReader.setSink(new EntitiyProcessorAdapter() {
+
+            @Override
+            public void process(BoundContainer boundContainer) {
+                mapBounds = new MapBounds(boundContainer.getEntity());
+                thread.interrupt();
+                pcs.firePropertyChange(EVT_BOUNDS, null, mapBounds);
+            }
+        });
+
         thread.setDaemon(true);
-    }
-
-    public void loadAsync() {
         thread.start();
-    }
-
-    private void setBound(MapBounds bounds) {
-        mapBounds = bounds;
-        thread.interrupt();
-        pcs.firePropertyChange(EVT_BOUNDS, null, mapBounds);
     }
 
     public MapBounds getMapBounds() {
@@ -48,45 +45,46 @@ public class PbfBoundsLoader {
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         pcs.addPropertyChangeListener(listener);
     }
+}
 
-    class OSMEntityWorker implements SinkSource, EntityProcessor {
+/**
+ * Adapter class to provide default implementations for sink and entity
+ * processor
+ *
+ * @author Franz
+ */
+class EntitiyProcessorAdapter implements SinkSource, EntityProcessor {
 
-        public void addPropertyChangeListener(PropertyChangeListener listener) {
-            pcs.addPropertyChangeListener(listener);
-        }
+    @Override
+    public void process(EntityContainer ec) {
+        ec.process(this);
+    }
 
-        @Override
-        public void process(EntityContainer entityContainer) {
-            entityContainer.process(this);
-        }
+    @Override
+    public void complete() {
+    }
 
-        @Override
-        public void process(BoundContainer boundContainer) {
-            setBound(new MapBounds(boundContainer.getEntity()));
-        }
+    @Override
+    public void release() {
+    }
 
-        @Override
-        public void process(NodeContainer container) {
-        }
+    @Override
+    public void setSink(Sink sink) {
+    }
 
-        @Override
-        public void process(WayContainer container) {
-        }
+    @Override
+    public void process(BoundContainer bc) {
+    }
 
-        @Override
-        public void process(RelationContainer container) {
-        }
+    @Override
+    public void process(NodeContainer nc) {
+    }
 
-        @Override
-        public void complete() {
-        }
+    @Override
+    public void process(WayContainer wc) {
+    }
 
-        @Override
-        public void release() {
-        }
-
-        @Override
-        public void setSink(Sink sink) {
-        }
+    @Override
+    public void process(RelationContainer rc) {
     }
 }
