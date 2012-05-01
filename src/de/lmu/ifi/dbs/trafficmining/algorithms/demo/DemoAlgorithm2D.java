@@ -61,9 +61,6 @@ public class DemoAlgorithm2D extends Algorithm<OSMNode, Graph, Path> {
 
     @Override
     public void run() {
-//        if (selected.size() == 0) {
-//            System.err.println("not 2 attribs selected");
-//        }
         System.out.println("doing nothing");
     }
 

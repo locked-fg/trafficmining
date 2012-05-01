@@ -27,11 +27,6 @@ public class DemoAlgorithm1D extends Algorithm<OSMNode, Graph, Path> {
     }
 
     public void setAttribs(List<String> attribs) {
-//        String s = "";
-//        for (String ss : myListOptions) {
-//            s += ss+"|";
-//        }
-//        System.out.println("set: " + s);
         this.attribs = attribs;
     }
 
