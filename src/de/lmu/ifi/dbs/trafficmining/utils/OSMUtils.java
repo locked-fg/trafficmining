@@ -163,7 +163,7 @@ public class OSMUtils {
     }
 
     public static Map<PATH_ATTRIBUTES, String> getPathInfos(List<OSMNode<OSMLink>> nodes) {
-//        int crossings = 0; // http://wiki.openstreetmap.org/wiki/Key:crossing
+        // int crossings = 0; // http://wiki.openstreetmap.org/wiki/Key:crossing
         int nodecount = 0; // nodes with degree > 2
         int trafficsignals = 0; // traffic signals
         OSMNode<OSMLink> start = nodes.get(0);
