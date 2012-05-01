@@ -25,9 +25,8 @@ import org.jdesktop.swingx.painter.Painter;
 
 public class PbfImportFrame extends javax.swing.JFrame {
 
+    public final String EVT_GRAPH_LOADED = "EVT_GRAPH_LOADED";
     private final MapSelectionPainter selectionPainter = new MapSelectionPainter();
-    private final CompoundPainter compoundPainter = new CompoundPainter();
-    private JFileChooser fileChooser = null;
     private JXMapViewer map = null;
     private String recentlyUsedDirectory = "";
     private PbfOsmLoader worker = null;
@@ -35,7 +34,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
     private File pbfFile;
     private File osmFile;
     private File srtmFile;
-    public final String EVT_GRAPH_LOADED = "EVT_GRAPH_LOADED";
     private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     /**
@@ -387,9 +385,9 @@ public class PbfImportFrame extends javax.swing.JFrame {
 
         Color area = new Color(0, 0, 255, 30);
         Painter boundsPainter = new MapBoundsPainter(pbfBounds, area, Color.BLUE);
-        compoundPainter.setPainters(boundsPainter, selectionPainter);
 
-        map.setOverlayPainter(compoundPainter);
+        CompoundPainter painters = new CompoundPainter<>(boundsPainter, selectionPainter);
+        map.setOverlayPainter(painters);
         map.setZoom(1);
         map.calculateZoomFrom(pbfBounds.toSet());
         map.repaint();
@@ -397,7 +395,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
 
     private File showFilechooser(final String suffix, final String description,
             final boolean fileOnly, JFormattedTextField target) {
-        fileChooser = new JFileChooser(recentlyUsedDirectory);
+        JFileChooser fileChooser = new JFileChooser(recentlyUsedDirectory);
         fileChooser.setMultiSelectionEnabled(false);
 
         if (!fileOnly) {
