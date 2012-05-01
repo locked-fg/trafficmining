@@ -6,9 +6,9 @@ import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.trafficmining.graphpainter.GraphPainter;
-import de.lmu.ifi.dbs.trafficmining.graphpainter.NodePainter;
-import de.lmu.ifi.dbs.trafficmining.graphpainter.PathPainter;
+import de.lmu.ifi.dbs.trafficmining.painter.GraphPainter;
+import de.lmu.ifi.dbs.trafficmining.painter.NodePainter;
+import de.lmu.ifi.dbs.trafficmining.painter.PathPainter;
 import de.lmu.ifi.dbs.trafficmining.result.*;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl;
@@ -127,7 +127,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         if (autoLoadGraph && dir != null && file != null) {
             try {
                 File osmXml = new File(new File(dir), file);
-                loadGraphFromFile(osmXml, loadAction);
+                loadGraphFromFile(osmXml);
             } catch (Exception e) {
                 log.log(Level.SEVERE, "Failed loading recent graph", e);
             }
@@ -656,7 +656,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         currentAlgorithm.setNodes(model_wp.getNodes());
     }
 
-    private void loadGraphFromFile(File sourceFile, LoadGraphAction listener) {
+    private void loadGraphFromFile(File sourceFile) {
         log.fine("starting load graph worker");
         boolean useTagWhitelist = false;
         if (useWhitelistMenuItem.isSelected()) {
@@ -668,8 +668,13 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
 
         loadGraphWorker = new LoadGraphWorker(sourceFile, useTagWhitelist);
-        loadGraphWorker.addPropertyChangeListener(listener);
+        loadGraphWorker.addPropertyChangeListener(new LoadGraphListener(this));
         loadGraphWorker.execute();
+    }
+
+    void setGraph(OSMGraph graph) {
+        this.graph = graph;
+        graphLoaded();
     }
 
     /**
@@ -680,7 +685,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      *
      * @TODO extract class
      */
-    class LoadGraphAction implements ActionListener, PropertyChangeListener {
+    class LoadGraphAction implements ActionListener {
 
         @Override
         public void actionPerformed(final ActionEvent evt) {
@@ -706,7 +711,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
                 @Override
                 public String getDescription() {
-                    return "*.osm - OpenStreetMap";
+                    return "*.osm";
                 }
             });
 
@@ -717,43 +722,19 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 lruDir = chooser.getCurrentDirectory().getAbsolutePath();
                 properties.setProperty(TrafficminingProperties.lru_graph_dir, lruDir);
                 log.log(Level.FINE, "saving least recently used dir: {0}", lruDir);
+
                 // setting lru file
                 String lruFile = chooser.getSelectedFile().getName();
                 properties.setProperty(TrafficminingProperties.lru_graph_file, lruFile);
                 log.log(Level.FINE, "saving least recently used file: {0}", lruFile);
                 properties.save();
-
-
-                if (chooser.getSelectedFiles().length > 1) {
-                    JOptionPane.showInternalMessageDialog(getContentPane(), "You must not load more than one *.osm file!");
-                    return;
-                }
+                busyLabel.setBusy(true);
 
                 try {
-                    busyLabel.setBusy(true);
-                    loadGraphFromFile(chooser.getSelectedFile(), this);
+                    loadGraphFromFile(chooser.getSelectedFile());
                 } catch (Throwable t) {
                     log.log(Level.SEVERE, "couldn't init graph loader:", t.getMessage());
                     JOptionPane.showInternalMessageDialog(getContentPane(), t.getMessage());
-                }
-            }
-        }
-
-        /**
-         * Method that is called as soon as the graphloader task has finished
-         *
-         * @param evt
-         */
-        @Override
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
-                try {
-                    if (!loadGraphWorker.isCancelled()) {
-                        graph = loadGraphWorker.get();
-                        graphLoaded();
-                    }
-                } catch (InterruptedException | ExecutionException ex) {
-                    log.log(Level.SEVERE, null, ex);
                 }
             }
         }
@@ -872,6 +853,17 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         frame.setMapTileServer(tileServer);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
+        frame.addOsmLoadListener(new PropertyChangeListener() {
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                File osmFile = (File) evt.getNewValue();
+                if (osmFile.exists() && osmFile.length() > 0) {
+                    loadGraphFromFile(osmFile);
+                }
+            }
+        });
+
     }
 
     @SuppressWarnings("unchecked")
@@ -1381,6 +1373,35 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
                 }
             }
         });
+    }
+}
+
+class LoadGraphListener implements PropertyChangeListener {
+
+    private static final Logger log = Logger.getLogger(LoadGraphListener.class.getName());
+    private final TrafficminingGUI ui;
+
+    public LoadGraphListener(TrafficminingGUI ui) {
+        this.ui = ui;
+    }
+
+    /**
+     * Method that is called as soon as the graphloader task has finished
+     *
+     * @param evt
+     */
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        LoadGraphWorker sw = (LoadGraphWorker) evt.getSource();
+        if (evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
+            try {
+                if (!sw.isCancelled()) {
+                    ui.setGraph(sw.get());
+                }
+            } catch (InterruptedException | ExecutionException ex) {
+                log.log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }
 

@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.trafficmining.graphpainter;
+package de.lmu.ifi.dbs.trafficmining.painter;
 
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;

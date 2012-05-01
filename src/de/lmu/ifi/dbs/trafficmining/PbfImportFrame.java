@@ -1,18 +1,16 @@
 package de.lmu.ifi.dbs.trafficmining;
 
+import de.lmu.ifi.dbs.trafficmining.painter.MapBoundsPainter;
+import de.lmu.ifi.dbs.trafficmining.painter.MapSelectionPainter;
 import de.lmu.ifi.dbs.trafficmining.utils.MapBounds;
 import de.lmu.ifi.dbs.trafficmining.utils.PbfBoundsLoader;
 import de.lmu.ifi.dbs.trafficmining.utils.PbfOsmLoader;
 import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.Point2D;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -22,13 +20,12 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.DefaultTileFactory;
-import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.painter.CompoundPainter;
 import org.jdesktop.swingx.painter.Painter;
 
 public class PbfImportFrame extends javax.swing.JFrame {
 
-    private final SelectionPainter selectionPainter = new SelectionPainter();
+    private final MapSelectionPainter selectionPainter = new MapSelectionPainter();
     private final CompoundPainter compoundPainter = new CompoundPainter();
     private JFileChooser fileChooser = null;
     private JXMapViewer map = null;
@@ -38,6 +35,8 @@ public class PbfImportFrame extends javax.swing.JFrame {
     private File pbfFile;
     private File osmFile;
     private File srtmFile;
+    public final String EVT_GRAPH_LOADED = "EVT_GRAPH_LOADED";
+    private PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
     /**
      * Creates new form NewJFrame
@@ -49,7 +48,11 @@ public class PbfImportFrame extends javax.swing.JFrame {
         map.addMouseMotionListener(selectionPainter);
     }
 
-    private void doImport() {
+    public void addOsmLoadListener(PropertyChangeListener listener) {
+        pcs.addPropertyChangeListener(listener);
+    }
+
+    private void convert() {
         try {
             if (worker != null) {
                 worker.cancel(true);
@@ -57,8 +60,8 @@ public class PbfImportFrame extends javax.swing.JFrame {
                 worker = null;
             } else {
                 worker = new PbfOsmLoader(pbfFile, osmFile, srtmFile,
-                        selectionPainter.getBounds(),
-                        srtmCheckbox.isSelected());
+                        selectionPainter.getBounds(), srtmCheckbox.isSelected());
+                // manage progress bar
                 worker.addPropertyChangeListener(new PropertyChangeListener() {
 
                     @Override
@@ -66,9 +69,21 @@ public class PbfImportFrame extends javax.swing.JFrame {
                         SwingWorker sw = (SwingWorker) evt.getSource();
                         if (sw.getState() == SwingWorker.StateValue.DONE) {
                             importButton.setText("convert");
-                            progressBar.setToolTipText("");
                             progressBar.setIndeterminate(false);
                             worker = null;
+                        }
+                    }
+                });
+                // fire property change if according checkbox is selected
+                worker.addPropertyChangeListener(new PropertyChangeListener() {
+
+                    @Override
+                    public void propertyChange(PropertyChangeEvent evt) {
+                        SwingWorker sw = (SwingWorker) evt.getSource();
+                        if (sw.getState() == SwingWorker.StateValue.DONE
+                                && autoLoadCheckBox.isSelected()) {
+                            pcs.firePropertyChange(EVT_GRAPH_LOADED, null, osmFile);
+                            dispose();
                         }
                     }
                 });
@@ -101,22 +116,24 @@ public class PbfImportFrame extends javax.swing.JFrame {
         javax.swing.JLabel osmLabel = new javax.swing.JLabel();
         osmFilenameLabel = new javax.swing.JFormattedTextField();
         setOutputFileButton = new javax.swing.JButton();
-        javax.swing.JLabel srtmLabel = new javax.swing.JLabel();
         srtmCheckbox = new javax.swing.JCheckBox();
         srtmDirectoryLabel = new javax.swing.JFormattedTextField();
         setSrtmDirButton = new javax.swing.JButton();
+        autoLoadCheckBox = new javax.swing.JCheckBox();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
         javax.swing.JPanel progressPanel = new javax.swing.JPanel();
         progressBar = new javax.swing.JProgressBar();
         javax.swing.Box.Filler filler = new javax.swing.Box.Filler(new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 0), new java.awt.Dimension(5, 32767));
         javax.swing.Box.Filler filler1 = new javax.swing.Box.Filler(new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 0), new java.awt.Dimension(0, 32767));
-        jPanel1 = new javax.swing.JPanel();
+        javax.swing.JPanel jPanel1 = new javax.swing.JPanel();
         importButton = new javax.swing.JButton();
         javax.swing.JButton closeButton = new javax.swing.JButton();
         javax.swing.JPanel mapPanel = new javax.swing.JPanel();
         mapKit = new org.jdesktop.swingx.JXMapKit();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Import PBF");
+        setTitle("Convert PBF");
 
         leftPanel.setLayout(new java.awt.GridBagLayout());
 
@@ -198,17 +215,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         loaderPanel.add(setOutputFileButton, gridBagConstraints);
 
-        srtmLabel.setText("SRTM directory");
-        srtmLabel.setMaximumSize(new java.awt.Dimension(90, 15));
-        srtmLabel.setMinimumSize(new java.awt.Dimension(90, 15));
-        srtmLabel.setPreferredSize(new java.awt.Dimension(90, 15));
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
-        loaderPanel.add(srtmLabel, gridBagConstraints);
-
         srtmCheckbox.setToolTipText("<html>\nUse SRTM?<br>\nyes or no\n</html>");
         srtmCheckbox.setMaximumSize(new java.awt.Dimension(26, 21));
         srtmCheckbox.setMinimumSize(new java.awt.Dimension(26, 21));
@@ -216,6 +222,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
         loaderPanel.add(srtmCheckbox, gridBagConstraints);
 
         srtmDirectoryLabel.setEditable(false);
@@ -243,6 +250,28 @@ public class PbfImportFrame extends javax.swing.JFrame {
         gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
         loaderPanel.add(setSrtmDirButton, gridBagConstraints);
+
+        autoLoadCheckBox.setSelected(true);
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
+        loaderPanel.add(autoLoadCheckBox, gridBagConstraints);
+
+        jLabel1.setText("SRTM directory");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        loaderPanel.add(jLabel1, gridBagConstraints);
+
+        jLabel2.setText("load graph after conversion");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 1;
+        gridBagConstraints.gridy = 3;
+        gridBagConstraints.gridwidth = 2;
+        gridBagConstraints.anchor = java.awt.GridBagConstraints.LINE_START;
+        loaderPanel.add(jLabel2, gridBagConstraints);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -343,19 +372,21 @@ public class PbfImportFrame extends javax.swing.JFrame {
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getPropertyName().equals(PbfBoundsLoader.EVT_BOUNDS)) {
-                        pbfBounds = loader.getMapBounds();
-                        useBounds();
+                        setBounds(loader.getMapBounds());
                     }
                 }
             });
             loader.loadAsync();
-        } catch (IOException ex) {
+        } catch (FileNotFoundException ex) {
             Logger.getLogger(PbfImportFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    private void useBounds() {
-        Painter boundsPainter = new MyRectanglePainter(pbfBounds, new Color(0, 0, 255, 30), Color.BLUE);
+    private void setBounds(MapBounds bounds) {
+        this.pbfBounds = bounds;
+
+        Color area = new Color(0, 0, 255, 30);
+        Painter boundsPainter = new MapBoundsPainter(pbfBounds, area, Color.BLUE);
         compoundPainter.setPainters(boundsPainter, selectionPainter);
 
         map.setOverlayPainter(compoundPainter);
@@ -411,15 +442,15 @@ private void setSrtmDirButtonActionPerformed(java.awt.event.ActionEvent evt) {//
 }//GEN-LAST:event_setSrtmDirButtonActionPerformed
 
 private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importButtonActionPerformed
-    doImport();
+    convert();
 }//GEN-LAST:event_importButtonActionPerformed
 
     private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
         dispose();
     }//GEN-LAST:event_closeButtonActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JCheckBox autoLoadCheckBox;
     private javax.swing.JButton importButton;
-    private javax.swing.JPanel jPanel1;
     private org.jdesktop.swingx.JXMapKit mapKit;
     private javax.swing.JFormattedTextField osmFilenameLabel;
     private javax.swing.JFormattedTextField pbfFilenameLabel;
@@ -430,115 +461,4 @@ private void importButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-
     private javax.swing.JCheckBox srtmCheckbox;
     private javax.swing.JFormattedTextField srtmDirectoryLabel;
     // End of variables declaration//GEN-END:variables
-}
-
-class MyRectanglePainter implements Painter<JXMapViewer> {
-
-    private final MapBounds bounds;
-    private final Color area;
-    private final Color border;
-
-    MyRectanglePainter(MapBounds bounds, Color area, Color border) {
-        this.bounds = bounds;
-        this.area = area;
-        this.border = border;
-    }
-
-    @Override
-    public void paint(Graphics2D g, JXMapViewer map, int i, int i1) {
-        Point2D topLeft = map.getTileFactory().geoToPixel(new GeoPosition(bounds.top, bounds.left), map.getZoom());
-        Point2D bottomRight = map.getTileFactory().geoToPixel(new GeoPosition(bounds.bottom, bounds.right), map.getZoom());
-
-        int x = (int) topLeft.getX();
-        int y = (int) topLeft.getY();
-        int w = (int) Math.abs(bottomRight.getX() - topLeft.getX());
-        int h = (int) Math.abs(bottomRight.getY() - topLeft.getY());
-
-        Rectangle r = new Rectangle(x, y, w, h);
-
-        Rectangle viewPort = map.getViewportBounds();
-        g.translate(-viewPort.x, -viewPort.y);
-        if (area != null) {
-            g.setColor(area);
-            g.fill(r);
-        }
-        if (border != null) {
-            g.setColor(border);
-            g.draw(r);
-        }
-    }
-}
-
-class SelectionPainter extends MouseAdapter implements Painter<JXMapViewer> {
-
-    private Rectangle paintRectangle, start, end;
-    private MapBounds bounds;
-    private Color borderColor = new Color(0, 0, 200);
-    private Color regionColor = new Color(0, 0, 200, 100);
-
-    public SelectionPainter() {
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        if (e.getButton() != MouseEvent.BUTTON1) {
-            paintRectangle = null;
-            start = null;
-        } else {
-            start = new Rectangle(e.getPoint());
-            ((JXMapViewer) e.getSource()).setPanEnabled(false);
-        }
-    }
-
-    @Override
-    public void mouseDragged(MouseEvent e) {
-        if (start != null) {
-            end = new Rectangle(e.getPoint());
-            paintRectangle = start.union(end);
-            updateBounds(((JXMapViewer) e.getSource()));
-        }
-        ((JXMapViewer) e.getSource()).repaint();
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        if (start == null) {
-            return;
-        }
-        end = new Rectangle(e.getPoint());
-        paintRectangle = start.union(end);
-        updateBounds(((JXMapViewer) e.getSource()));
-
-        ((JXMapViewer) e.getSource()).setPanEnabled(true);
-        ((JXMapViewer) e.getSource()).repaint();
-    }
-
-    @Override
-    public void paint(Graphics2D gd, JXMapViewer map, int i, int i1) {
-        if (paintRectangle != null) {
-            gd.setColor(regionColor);
-            gd.fillRect(paintRectangle.x, paintRectangle.y, paintRectangle.width, paintRectangle.height);
-            gd.setColor(borderColor);
-            gd.drawRect(paintRectangle.x, paintRectangle.y, paintRectangle.width, paintRectangle.height);
-        }
-    }
-
-    public MapBounds getBounds() {
-        return bounds;
-    }
-
-    private void updateBounds(JXMapViewer map) {
-        Point topLeft = new Point(paintRectangle.x, paintRectangle.y);
-        Point bottomRight = new Point(paintRectangle.x + paintRectangle.width,
-                paintRectangle.y + paintRectangle.height);
-
-        Rectangle viewPort = map.getViewportBounds();
-        topLeft.translate(viewPort.x, viewPort.y);
-        bottomRight.translate(viewPort.x, viewPort.y);
-
-        GeoPosition topLeftGeo = map.getTileFactory().pixelToGeo(topLeft, map.getZoom());
-        GeoPosition bottomRightGeo = map.getTileFactory().pixelToGeo(bottomRight, map.getZoom());
-
-        bounds = new MapBounds(topLeftGeo, bottomRightGeo);
-    }
 }
