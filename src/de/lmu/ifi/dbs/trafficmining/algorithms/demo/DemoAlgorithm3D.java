@@ -12,7 +12,6 @@ public class DemoAlgorithm3D extends Algorithm<OSMNode, Graph, Path> {
 
     public ATTRIBS myAttribs = ATTRIBS.DISTANCE;
 
-
     public enum ATTRIBS {
 
         DISTANCE, SPEED, HEIGHT
@@ -23,11 +22,8 @@ public class DemoAlgorithm3D extends Algorithm<OSMNode, Graph, Path> {
     }
 
     public void setMyAttribs(ATTRIBS myAttribs) {
-     this.myAttribs = myAttribs;
+        this.myAttribs = myAttribs;
     }
-
-    
-    
 
     @Override
     public Statistics getStatistics() {
@@ -42,11 +38,11 @@ public class DemoAlgorithm3D extends Algorithm<OSMNode, Graph, Path> {
     public Simplex3Result getResult() {
         Simplex3Result s3result = new Simplex3Result();
         List<OSMNode> nodes = getNodes();
-        Path p = new Path(nodes.get(0), nodes.get(nodes.size()-1));
-        
+        Path p = new Path(nodes.get(0), nodes.get(nodes.size() - 1));
+
         s3result.addResult(p, new double[]{150d, 5d, 6d});
         OSMNode start = nodes.get(0);
-        OSMNode end = nodes.get(nodes.size()-1);
+        OSMNode end = nodes.get(nodes.size() - 1);
         OSMNode intermediate = new OSMNode(-1);
         double lat = (start.getLat() + end.getLat()) / 2;
         double lon = (start.getLon() + end.getLon()) / 2;
@@ -58,16 +54,13 @@ public class DemoAlgorithm3D extends Algorithm<OSMNode, Graph, Path> {
         p2 = new Path(p2, end);
         s3result.addResult(p2, new double[]{170d, 4d, 7d});
 
-        s3result.setUnits(new String[] {"DISTANCE", "SPEED", "HEIGHT"});
-        s3result.setAttributes(new String[] {"DISTANCE", "SPEED", "HEIGHT"});
+        s3result.setUnits(new String[]{"DISTANCE", "SPEED", "HEIGHT"});
+        s3result.setAttributes(new String[]{"DISTANCE", "SPEED", "HEIGHT"});
         return s3result;
     }
 
     @Override
     public void run() {
-//        if (selected.size() == 0) {
-//            System.err.println("not 3 attribs selected");
-//        }
         System.out.println("doing nothing");
     }
 
