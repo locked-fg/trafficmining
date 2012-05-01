@@ -3,9 +3,10 @@ package de.lmu.ifi.dbs.trafficmining.utils;
 import crosby.binary.osmosis.OsmosisReader;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import org.openstreetmap.osmosis.core.container.v0_6.*;
 import org.openstreetmap.osmosis.core.task.v0_6.Sink;
 import org.openstreetmap.osmosis.core.task.v0_6.SinkSource;
@@ -18,15 +19,14 @@ public class PbfBoundsLoader {
 
     public final static String EVT_BOUNDS = "BOUNDS";
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    private final FileInputStream inputStream;
-    private final OsmosisReader pbfReader;
     private final Thread thread;
     private MapBounds mapBounds;
 
     public PbfBoundsLoader(File pbf) throws FileNotFoundException {
-        inputStream = new FileInputStream(pbf);
-        pbfReader = new OsmosisReader(new BufferedInputStream(inputStream));
+        
+        OsmosisReader pbfReader = new OsmosisReader(new BufferedInputStream(new FileInputStream(pbf)));
         pbfReader.setSink(new OSMEntityWorker());
+
         thread = new Thread(pbfReader);
         thread.setDaemon(true);
     }
@@ -37,12 +37,7 @@ public class PbfBoundsLoader {
 
     private void setBound(MapBounds bounds) {
         mapBounds = bounds;
-//        try {
-            thread.interrupt();
-//            inputStream.close();
-//        } catch (IOException | NullPointerException i) {
-////             ignore this exception
-//        }
+        thread.interrupt();
         pcs.firePropertyChange(EVT_BOUNDS, null, mapBounds);
     }
 
