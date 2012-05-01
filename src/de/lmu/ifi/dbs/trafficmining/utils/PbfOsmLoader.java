@@ -82,7 +82,7 @@ public class PbfOsmLoader extends SwingWorker {
 
             pbfReader.run();
         } catch (IOException ex) {
-            Logger.getLogger(PbfOsmLoader.class.getName()).log(Level.SEVERE, null, ex);
+            log.log(Level.SEVERE, null, ex);
         }
         return null;
     }
