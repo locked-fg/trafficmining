@@ -30,8 +30,8 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
     private static final Logger log = Logger.getLogger(GraphPainter.class.getName());
     private static final String LINK_PAINT_ATTRIBUTE = "highway";
     private HashMap<Integer, List<String>> zoomToLinkWhitelist = new HashMap<>();
-    private final Color color = Color.red;
-    private final Color colorOneWay = new Color(0, 100, 0);
+    private final Color wayColor = Color.red;
+    private final Color oneWayCOlor = new Color(0, 100, 0);
     private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
     private WeakHashMap<OSMNode, Point2D> geo2pixel = new WeakHashMap<>(1000);
     private int lastZoom = -1;
@@ -97,7 +97,7 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
                 for (OSMLink<OSMNode> link : node.getLinks()) {
                     if (processedLinks.add(link) && isPaintable(link, zoom)) {
                         painted = true;
-                        g.setColor(link.isOneway() ? colorOneWay : color);
+                        g.setColor(link.isOneway() ? oneWayCOlor : wayColor);
                         paintLink(nodes, link, g, tf, zoom, vp2);
                     }
                 }
