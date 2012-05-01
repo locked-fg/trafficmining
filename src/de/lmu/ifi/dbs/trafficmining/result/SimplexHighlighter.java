@@ -1,4 +1,3 @@
-
 package de.lmu.ifi.dbs.trafficmining.result;
 
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel;
@@ -12,10 +11,6 @@ import java.util.List;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 
-/**
- *
- * @author greil
- */
 /**
  * Link the clicks on the simplexcontrols' paintpanels with the selection of the
  * result list
