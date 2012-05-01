@@ -912,8 +912,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         statusbarLabel = new javax.swing.JLabel();
         javax.swing.JMenuBar menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
-        importPbfMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem loadGraphItem = new javax.swing.JMenuItem();
+        importPbfMenuItem = new javax.swing.JMenuItem();
         autoloadMenuItem = new javax.swing.JCheckBoxMenuItem();
         useWhitelistMenuItem = new javax.swing.JCheckBoxMenuItem();
         javax.swing.JPopupMenu.Separator jSeparator = new javax.swing.JPopupMenu.Separator();
@@ -1158,18 +1158,18 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
 
-        importPbfMenuItem.setText("Import PBF");
+        loadGraphItem.addActionListener(loadAction);
+        loadGraphItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
+        loadGraphItem.setText("Load Graph");
+        fileMenu.add(loadGraphItem);
+
+        importPbfMenuItem.setText("Convert PBF");
         importPbfMenuItem.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 importPbfMenuItemActionPerformed(evt);
             }
         });
         fileMenu.add(importPbfMenuItem);
-
-        loadGraphItem.addActionListener(loadAction);
-        loadGraphItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
-        loadGraphItem.setText("Load Graph");
-        fileMenu.add(loadGraphItem);
 
         autoloadMenuItem.setSelected(true);
         autoloadMenuItem.setText("Reload last graph upon start");
@@ -1181,7 +1181,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         fileMenu.add(autoloadMenuItem);
 
         useWhitelistMenuItem.setSelected(true);
-        useWhitelistMenuItem.setText("Only load whitelisted osm tags");
+        useWhitelistMenuItem.setText("Only load whitelisted tags");
         fileMenu.add(useWhitelistMenuItem);
         fileMenu.add(jSeparator);
 
