@@ -52,13 +52,15 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     // map result type -> layout name
     private final MouseAdapter nodeSetMouseAdapter = new MapToNodeList();
     private final OSMNodeListModel model_wp = new OSMNodeListModel();
+    //
     private final GraphPainter graphPainter = new GraphPainter();
     private final PathPainter pathPainter = new PathPainter();
-    private final LoadGraphAction loadAction = new LoadGraphAction();
     private final NodePainter visitedNodesPainter = new NodePainter();
-    private final Map<Integer, SimplexResultEntry> results = new HashMap<>();
     private final WaypointPainter<JXMapViewer> startEndPainter = new WaypointPainter<>();
+    //
+    private final LoadGraphAction loadAction = new LoadGraphAction();
     private final JXMapViewer map;
+    private final Map<Integer, SimplexResultEntry> results = new HashMap<>();
     // -
     private Map<Class, String> resultToLayoutName; // cardlayout
     private Map<Class, SimplexControl> resultToSimplexControl;
@@ -70,7 +72,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private AlgorithmWorker calculator;
     private StatisticsFrame statisticsFrame;
     private Algorithm currentAlgorithm;
-    // fields used for the post processing of nodes
     private Cluster cluster;
     private HashMap<String, TileServer> tileservers = new HashMap<>();
     private TileServer tileServer;
@@ -197,9 +198,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    private boolean setTileServer(TileServer tileServer) {
+    private void setTileServer(TileServer tileServer) {
         if (this.tileServer == tileServer) {
-            return true;
         }
 
         if (tileServer.getTileFactory() != null) {
@@ -209,7 +209,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                         "Tileserver \"" + tileServer.getBaseURL() + "\" seems to be broken."
                         + "\nPlease re-check all properties.",
                         "Tileserver is broken.", JOptionPane.ERROR_MESSAGE);
-                return false;
             }
         } else {
             JOptionPane.showMessageDialog(
@@ -217,12 +216,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                     "Tileserver \"" + tileServer.getBaseURL() + "\" has no own TileFactory set up."
                     + "\nPlease re-check your code and enable it.",
                     "Tileserver not initialized.", JOptionPane.ERROR_MESSAGE);
-            return false;
         }
 
         this.tileServer = tileServer;
         map.setTileFactory(tileServer.getTileFactory());
-        return true;
     }
 
     private void startClustering() {
