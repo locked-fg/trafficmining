@@ -55,30 +55,6 @@ public class Route implements ExtendedClusterObject {
         return units;
     }
 
-//    @Override
-//    public double getCost(String unit) {
-//        if(!costs.isEmpty() && units.contains(unit)){
-//            return costs.get(units.indexOf(unit));
-//        }
-//        else{
-//            return 0;
-//        }
-//    }
-//
-//    @Override
-//    public double getCost(int id) {
-//        if(!costs.isEmpty() && id<costs.size()){
-//            return costs.get(id);
-//        }
-//        else{
-//            return 0;
-//        }
-//    }
-//
-//    @Override
-//    public List<Double> getCosts() {
-//        return costs;
-//    }
     @Override
     public List<Double> getMinCosts() {
         return costs;
