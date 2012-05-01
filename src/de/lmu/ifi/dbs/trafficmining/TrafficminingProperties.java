@@ -53,7 +53,7 @@ public class TrafficminingProperties {
             } else {
                 propFile = new File(SETTINGS_FILE);
             }
-            
+
             propFile.getParentFile().mkdirs();
             propFile.createNewFile();
         }
@@ -111,7 +111,9 @@ public class TrafficminingProperties {
     }
 
     public String setProperty(String key, String value) {
-        return pc.setProperty(key, value);
+        String prev = pc.setProperty(key, value);
+        save();
+        return prev;
     }
 
     public synchronized void save() {

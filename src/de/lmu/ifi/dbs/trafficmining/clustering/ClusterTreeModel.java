@@ -16,6 +16,9 @@ public class ClusterTreeModel implements TreeModel{
         this.root = root;
     }
 
+    public ClusterTreeModel() {
+    }
+
     @Override
     public Object getRoot() {
         return root;
