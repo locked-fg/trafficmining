@@ -9,7 +9,7 @@ import java.util.List;
  *
  * @author skurtz
  */
-public class IterativeDistWithHashing implements RouteDistanceWithPruning {
+class IterativeDistWithHashing implements RouteDistanceWithPruning {
 
     private double splitWeight = 1;
     private double splitBasis = 0.5;
