@@ -13,9 +13,15 @@ import de.lmu.ifi.dbs.utilities.MutablePriorityObject;
 import de.lmu.ifi.dbs.utilities.UpdatablePriorityQueue;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * simple A* search algorithm
+ *
+ * @author Franz
+ * @param <N>
+ * @param <L>
+ */
 public class AStar<N extends OSMNode<L>, L extends OSMLink<N>>
         extends Algorithm<N, OSMGraph<N, L>, Path> {
 
