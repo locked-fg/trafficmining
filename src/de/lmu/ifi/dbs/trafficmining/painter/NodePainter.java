@@ -16,9 +16,10 @@ import org.jdesktop.swingx.painter.AbstractPainter;
 
 public class NodePainter extends AbstractPainter<JXMapViewer> {
 
-    private final Color colorFill = Color.GREEN;
-    private final Color colorBorder = Color.DARK_GRAY;
+    private final Color colorFill = new Color(0, 200, 0, 180);
+    private final Color colorBorder = new Color(100, 100, 100, 100);
     private List<OSMNode> nodes;
+    private final int size = 8;
 
     public NodePainter() {
         setAntialiasing(true);
@@ -42,6 +43,7 @@ public class NodePainter extends AbstractPainter<JXMapViewer> {
 
         TileFactory tf = map.getTileFactory();
 
+        int halfSize = size / 2;
         for (OSMNode node : nodes) {
             Point2D srcPoint = tf.geoToPixel(node.getGeoPosition(), zoom);
             if (!vp.contains(srcPoint)) {
@@ -50,11 +52,10 @@ public class NodePainter extends AbstractPainter<JXMapViewer> {
             // paint nodes as little dots
             int x = (int) (srcPoint.getX() - vp.getX());
             int y = (int) (srcPoint.getY() - vp.getY());
-            g.setColor(colorBorder);
-            g.drawOval(x - 4, y - 4, 8, 8);
             g.setColor(colorFill);
-            g.fillOval(x - 3, y - 3, 6, 6);
+            g.fillOval(x - halfSize, y - halfSize, size, size);
+            g.setColor(colorBorder);
+            g.drawOval(x - halfSize, y - halfSize, size, size);
         }
     }
 }
-
