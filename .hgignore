@@ -4,3 +4,4 @@
 \.rej$
 \.conflict\~$
 ^java0\.log$
+^release$
