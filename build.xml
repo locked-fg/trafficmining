@@ -74,8 +74,8 @@
     <target name="-post-jar">
         <copy file="trafficmining.properties" todir="${dist.dir}" />
         <copy file="speeds.properties" todir="${dist.dir}" />
-         <copy file="whitelist-tags.properties" todir="${dist.dir}" />
-         <copy file="whitelist-zoom.properties" todir="${dist.dir}" />
+        <copy file="whitelist-tags.properties" todir="${dist.dir}" />
+        <copy file="whitelist-zoom.properties" todir="${dist.dir}" />
         <antcall target="-build-plugins"/>
     </target>
 
@@ -86,6 +86,24 @@
                 <include name="de/lmu/ifi/dbs/trafficmining/algorithms/"/>
             </fileset>
         </jar>
+    </target>
+    
+    <!-- prepare release files -->
+    <target name="release" depends="clean,jar,-javadoc-build">
+        <delete dir="release/" />
+        <mkdir dir="release/" />
+        <zip destfile="release/trafficmining_x.x.x-MARiO-api.zip"
+             basedir="${dist.dir}" 
+             includes="javadoc/**" 
+             level="9"/>
+        <zip destfile="release/trafficmining_x.x.x-MARiO-src.zip"
+             basedir="./" 
+             includes="${src.dir}/**,${test.test.dir}/**" 
+             level="9"/>
+        <zip destfile="release/trafficmining_x.x.x-MARiO.zip"
+             basedir="${dist.dir}"
+             excludes="javadoc/**"
+             level="9"/>
     </target>
 
 </project>
