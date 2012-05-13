@@ -89,21 +89,17 @@
     </target>
     
     <!-- prepare release files -->
-    <target name="release" depends="clean,jar,-javadoc-build">
-        <delete dir="release/" />
-        <mkdir dir="release/" />
-        <zip destfile="release/trafficmining_x.x.x-MARiO-api.zip"
+    <target name="release" depends="-javadoc-build">
+        <delete dir="${release.dir}" />
+        <mkdir dir="${release.dir}" />
+        <zip destfile="${release.dir}/${application.title}_x.x.x-api.zip"
              basedir="${dist.dir}" 
-             includes="javadoc/**" 
-             level="9"/>
-        <zip destfile="release/trafficmining_x.x.x-MARiO-src.zip"
+             includes="javadoc/**" />
+        <zip destfile="${release.dir}/${application.title}_x.x.x-src.zip"
              basedir="./" 
-             includes="${src.dir}/**,${test.test.dir}/**" 
-             level="9"/>
-        <zip destfile="release/trafficmining_x.x.x-MARiO.zip"
+             includes="${src.dir}/**,${test.src.dir}/**" />
+        <zip destfile="${release.dir}/${application.title}_x.x.x.zip"
              basedir="${dist.dir}"
-             excludes="javadoc/**"
-             level="9"/>
+             excludes="javadoc/**" />
     </target>
-
 </project>
