@@ -12,6 +12,7 @@ import de.lmu.ifi.dbs.trafficmining.painter.PathPainter;
 import de.lmu.ifi.dbs.trafficmining.result.*;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl;
+import de.lmu.ifi.dbs.trafficmining.ui.EnableTileserverAction;
 import de.lmu.ifi.dbs.trafficmining.ui.MapToNodeList;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import de.lmu.ifi.dbs.trafficmining.utils.PluginLoader;
@@ -105,18 +106,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(key);
             tileserverMenu.add(menuItem);
             menuItem.setSelected(key.equals(mapWrapper.currentTileserverName()));
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    try {
-                        mapWrapper.setTileServer(key);
-                        repaint();
-                        TileServerFactory.get().setDefaultServer(key);
-                    } catch (IOException ex) {
-                        log.log(Level.SEVERE, null, ex);
-                    }
-                }
-            });
+            menuItem.addActionListener(new EnableTileserverAction(key, mapWrapper));
             group.add(menuItem);
         }
     }
