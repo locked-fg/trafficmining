@@ -20,7 +20,7 @@ import org.jdesktop.swingx.mapviewer.WaypointPainter;
 public class MapToNodeList extends MouseAdapter {
 
     private final OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
-    private final OSMNodeListModel nodeListModel;
+    private final NodeListModel nodeListModel;
     private final JList nodeWaypointList;
     private final WaypointPainter<JXMapViewer> startEndPainter;
 
@@ -28,7 +28,7 @@ public class MapToNodeList extends MouseAdapter {
             JList waypointList, WaypointPainter<JXMapViewer> startEndPainter) {
         this.graph = graph;
         this.nodeWaypointList = waypointList;
-        this.nodeListModel = (OSMNodeListModel) this.nodeWaypointList.getModel();
+        this.nodeListModel = (NodeListModel) this.nodeWaypointList.getModel();
         this.startEndPainter = startEndPainter;
     }
 

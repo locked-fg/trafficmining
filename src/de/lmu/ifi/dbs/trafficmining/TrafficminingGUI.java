@@ -743,7 +743,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         algorithmBoxModel = new javax.swing.DefaultComboBoxModel();
         resultTableModel = new de.lmu.ifi.dbs.trafficmining.ui.ReadOnlyTableModel();
-        osmNodeListModel1 = new de.lmu.ifi.dbs.trafficmining.ui.OSMNodeListModel();
+        osmNodeListModel1 = new de.lmu.ifi.dbs.trafficmining.ui.NodeListModel();
         javax.swing.JSplitPane horizontalSplit = new javax.swing.JSplitPane();
         verticalSplitPane = new javax.swing.JSplitPane();
         leftPanel = new javax.swing.JPanel();
@@ -1200,7 +1200,7 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JPanel leftPanel;
     private de.lmu.ifi.dbs.trafficmining.ui.MapWrapper mapWrapper;
     private javax.swing.JList nodeWaypointList;
-    private de.lmu.ifi.dbs.trafficmining.ui.OSMNodeListModel osmNodeListModel1;
+    private de.lmu.ifi.dbs.trafficmining.ui.NodeListModel osmNodeListModel1;
     private javax.swing.JCheckBoxMenuItem paintGraphMenuItem;
     private javax.swing.JScrollPane relustClusterTreeTab;
     private javax.swing.JTabbedPane restultTabPanel;
