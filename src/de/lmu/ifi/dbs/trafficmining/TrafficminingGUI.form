@@ -6,10 +6,10 @@
     </Component>
     <Component class="javax.swing.table.DefaultTableModel" name="resultTableModel">
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new de.lmu.ifi.dbs.trafficmining.ReadOnlyTableModel()"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new de.lmu.ifi.dbs.trafficmining.ui.ReadOnlyTableModel()"/>
       </AuxValues>
     </Component>
-    <Component class="de.lmu.ifi.dbs.trafficmining.OSMNodeListModel" name="osmNodeListModel1">
+    <Component class="de.lmu.ifi.dbs.trafficmining.ui.OSMNodeListModel" name="osmNodeListModel1">
     </Component>
     <Menu class="javax.swing.JMenuBar" name="menuBar">
       <AuxValues>

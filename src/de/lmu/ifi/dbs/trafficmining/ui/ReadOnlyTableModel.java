@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.trafficmining;
+package de.lmu.ifi.dbs.trafficmining.ui;
 
 import javax.swing.table.DefaultTableModel;
 

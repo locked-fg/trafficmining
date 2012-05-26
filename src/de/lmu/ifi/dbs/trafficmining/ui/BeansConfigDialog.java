@@ -1,5 +1,5 @@
 
-package de.lmu.ifi.dbs.trafficmining;
+package de.lmu.ifi.dbs.trafficmining.ui;
 
 /**
  *
