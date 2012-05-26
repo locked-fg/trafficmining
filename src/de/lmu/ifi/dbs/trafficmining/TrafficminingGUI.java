@@ -1,5 +1,11 @@
 package de.lmu.ifi.dbs.trafficmining;
 
+import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboBoxElement;
+import de.lmu.ifi.dbs.trafficmining.ui.PbfImportFrame;
+import de.lmu.ifi.dbs.trafficmining.ui.StatisticsFrame;
+import de.lmu.ifi.dbs.trafficmining.ui.SeekPositionFrame;
+import de.lmu.ifi.dbs.trafficmining.ui.BeansConfigDialog;
+import de.lmu.ifi.dbs.trafficmining.ui.AboutDialog;
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import de.lmu.ifi.dbs.trafficmining.clustering.*;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
@@ -736,8 +742,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         java.awt.GridBagConstraints gridBagConstraints;
 
         algorithmBoxModel = new javax.swing.DefaultComboBoxModel();
-        resultTableModel = new de.lmu.ifi.dbs.trafficmining.ReadOnlyTableModel();
-        osmNodeListModel1 = new de.lmu.ifi.dbs.trafficmining.OSMNodeListModel();
+        resultTableModel = new de.lmu.ifi.dbs.trafficmining.ui.ReadOnlyTableModel();
+        osmNodeListModel1 = new de.lmu.ifi.dbs.trafficmining.ui.OSMNodeListModel();
         javax.swing.JSplitPane horizontalSplit = new javax.swing.JSplitPane();
         verticalSplitPane = new javax.swing.JSplitPane();
         leftPanel = new javax.swing.JPanel();
@@ -1194,7 +1200,7 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JPanel leftPanel;
     private de.lmu.ifi.dbs.trafficmining.ui.MapWrapper mapWrapper;
     private javax.swing.JList nodeWaypointList;
-    private de.lmu.ifi.dbs.trafficmining.OSMNodeListModel osmNodeListModel1;
+    private de.lmu.ifi.dbs.trafficmining.ui.OSMNodeListModel osmNodeListModel1;
     private javax.swing.JCheckBoxMenuItem paintGraphMenuItem;
     private javax.swing.JScrollPane relustClusterTreeTab;
     private javax.swing.JTabbedPane restultTabPanel;

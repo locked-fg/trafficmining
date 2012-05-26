@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.trafficmining;
+package de.lmu.ifi.dbs.trafficmining.ui;
 
 /**
  *
@@ -39,11 +39,11 @@ public class AboutDialog extends javax.swing.JDialog {
         });
         southPanel.add(closeButton);
 
-        title.setFont(new java.awt.Font("Tahoma", 1, 18));
+        title.setFont(new java.awt.Font("Tahoma", 1, 18)); // NOI18N
         title.setText("MARiO v2");
 
         textPanel.setBorder(null);
-        textPanel.setContentType("text/html");
+        textPanel.setContentType("text/html"); // NOI18N
         textPanel.setText("<html>\n  <head>\n    <b>Software created by</b>:\n  </head>\n  <body>\n    <p style=\"margin-top: 0\">\n      Franz Graf<br>\n      Ludwig-Maximilians-Universität München<br>\n      Institut für Informatik<br>\n      Lehrstuhl für Datenbanksysteme<br>\n      Öttingenstraße 67, München<br>\n      Germany<br>\n      <br>\n      Project Website: http://code.google.com/p/trafficmining<br>\n     <br>\n      <b>Special thanks to</b>:<br>\n      Robert Greil<br>\n      Fang Zeng<br>\n    </p>\n  </body>\n</html>");
         textPanel.setOpaque(false);
         scrollPanel.setViewportView(textPanel);

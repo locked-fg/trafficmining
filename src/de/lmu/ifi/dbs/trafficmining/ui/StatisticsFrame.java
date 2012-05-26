@@ -1,5 +1,6 @@
-package de.lmu.ifi.dbs.trafficmining;
+package de.lmu.ifi.dbs.trafficmining.ui;
 
+import de.lmu.ifi.dbs.trafficmining.Statistics;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -96,7 +97,7 @@ public class StatisticsFrame extends javax.swing.JFrame {
 
         jPanel1.setLayout(new java.awt.BorderLayout());
 
-        generalHead.setFont(new java.awt.Font("Tahoma", 1, 11));
+        generalHead.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         generalHead.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         generalHead.setText("General Statistics");
         jPanel1.add(generalHead, java.awt.BorderLayout.PAGE_START);
@@ -110,7 +111,7 @@ public class StatisticsFrame extends javax.swing.JFrame {
 
         jPanel2.setLayout(new java.awt.BorderLayout());
 
-        pathHead.setFont(new java.awt.Font("Tahoma", 1, 11));
+        pathHead.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
         pathHead.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         pathHead.setText("Path Statistics");
         jPanel2.add(pathHead, java.awt.BorderLayout.PAGE_START);
