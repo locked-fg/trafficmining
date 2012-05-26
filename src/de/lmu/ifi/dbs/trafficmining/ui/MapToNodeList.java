@@ -26,10 +26,9 @@ public class MapToNodeList extends MouseAdapter {
     private final WaypointPainter<JXMapViewer> startEndPainter;
 
     public MapToNodeList(OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph,
-            JList nodeWaypointList,
-            WaypointPainter<JXMapViewer> startEndPainter) {
+            JList waypointList, WaypointPainter<JXMapViewer> startEndPainter) {
         this.graph = graph;
-        this.nodeWaypointList = nodeWaypointList;
+        this.nodeWaypointList = waypointList;
         this.nodeListModel = (OSMNodeListModel) this.nodeWaypointList.getModel();
         this.startEndPainter = startEndPainter;
     }
