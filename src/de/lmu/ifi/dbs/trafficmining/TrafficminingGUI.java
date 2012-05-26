@@ -54,7 +54,12 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private static final Logger log = Logger.getLogger(TrafficminingGUI.class.getName());
     private final TrafficminingProperties properties;
-    // map result type -> layout name
+    /**
+     * Mouselistener that is used to set the waypoints for the algorithm.
+     *
+     * The field is just needed to remove the listener after the waypoints have
+     * been set.
+     */
     private MouseListener waypointSetter;
     //
     private final GraphPainter graphPainter = new GraphPainter();
@@ -574,15 +579,22 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         if (loadGraphWorker != null) {
             loadGraphWorker.cancel(true);
         }
-        loadGraphWorker = new LoadGraphWorker(sourceFile, useTagWhitelist);
-        loadGraphWorker.addPropertyChangeListener(new LoadGraphListener(this));
+
+        loadGraphWorker = new LoadGraphWorker(sourceFile, useTagWhitelist) {
+            @Override
+            protected void done() {
+                if (!isCancelled() && !Thread.interrupted()) {
+                    try {
+                        graph = get();
+                        graphLoaded();
+                    } catch (InterruptedException | ExecutionException ex) {
+                        Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+            }
+        };
         busyLabel.setBusy(true);
         loadGraphWorker.execute();
-    }
-
-    void setGraph(OSMGraph graph) {
-        this.graph = graph;
-        graphLoaded();
     }
 
     /**
@@ -711,6 +723,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             clearButton.setEnabled(false);
             adressSearchButton.setEnabled(false);
             mapWrapper.removeMouseListener(waypointSetter);
+            waypointSetter = null;
         }
     }
 
@@ -1241,33 +1254,3 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
         });
     }
 }
-
-class LoadGraphListener implements PropertyChangeListener {
-
-    private static final Logger log = Logger.getLogger(LoadGraphListener.class.getName());
-    private final TrafficminingGUI ui;
-
-    public LoadGraphListener(TrafficminingGUI ui) {
-        this.ui = ui;
-    }
-
-    /**
-     * Method that is called as soon as the graphloader task has finished
-     *
-     * @param evt
-     */
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        LoadGraphWorker sw = (LoadGraphWorker) evt.getSource();
-        if (evt.getNewValue().equals(SwingWorker.StateValue.DONE)) {
-            try {
-                if (!sw.isCancelled()) {
-                    ui.setGraph(sw.get());
-                }
-            } catch (InterruptedException | ExecutionException ex) {
-                log.log(Level.SEVERE, null, ex);
-            }
-        }
-    }
-}
-
