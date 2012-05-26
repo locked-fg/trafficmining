@@ -1,11 +1,5 @@
 package de.lmu.ifi.dbs.trafficmining;
 
-import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboBoxElement;
-import de.lmu.ifi.dbs.trafficmining.ui.PbfImportFrame;
-import de.lmu.ifi.dbs.trafficmining.ui.StatisticsFrame;
-import de.lmu.ifi.dbs.trafficmining.ui.SeekPositionFrame;
-import de.lmu.ifi.dbs.trafficmining.ui.BeansConfigDialog;
-import de.lmu.ifi.dbs.trafficmining.ui.AboutDialog;
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import de.lmu.ifi.dbs.trafficmining.clustering.*;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
@@ -18,10 +12,16 @@ import de.lmu.ifi.dbs.trafficmining.painter.PathPainter;
 import de.lmu.ifi.dbs.trafficmining.result.*;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl;
+import de.lmu.ifi.dbs.trafficmining.ui.AboutDialog;
+import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboBoxElement;
+import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboboxLoader;
+import de.lmu.ifi.dbs.trafficmining.ui.BeansConfigDialog;
 import de.lmu.ifi.dbs.trafficmining.ui.EnableTileserverAction;
 import de.lmu.ifi.dbs.trafficmining.ui.MapToNodeList;
+import de.lmu.ifi.dbs.trafficmining.ui.PbfImportFrame;
+import de.lmu.ifi.dbs.trafficmining.ui.SeekPositionFrame;
+import de.lmu.ifi.dbs.trafficmining.ui.StatisticsFrame;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
-import de.lmu.ifi.dbs.trafficmining.utils.PluginLoader;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import java.awt.CardLayout;
 import java.awt.event.*;
@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
@@ -322,7 +321,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private void initAlgorithmComboBox() {
         File pluginDir = properties.getFile(TrafficminingProperties.plugin_dir);
-        new ComboboxLoader(algorithmBoxModel, pluginDir).load();
+        new AlgorithmComboboxLoader(algorithmBoxModel, pluginDir).load();
         if (algorithmBoxModel.getSize() > 0) {
             configureButton.setEnabled(true);
             searchButton.setEnabled(true);
@@ -1272,47 +1271,3 @@ class LoadGraphListener implements PropertyChangeListener {
     }
 }
 
-class ComboboxLoader {
-
-    private final static Logger logger = Logger.getLogger(ComboboxLoader.class.getName());
-    private final DefaultComboBoxModel model;
-    private final File pluginDir;
-
-    ComboboxLoader(DefaultComboBoxModel algorithmBoxModel, File pluginDir) {
-        this.model = algorithmBoxModel;
-        this.pluginDir = pluginDir;
-    }
-
-    void load() {
-        try {
-            model.removeAllElements();
-            if (pluginDir == null) {
-                logger.log(Level.INFO, "plugin.dir null");
-                return;
-            }
-            if (!pluginDir.exists() || !pluginDir.canRead()) {
-                logger.log(Level.INFO, "plugin.dir set but does not exist or is not readable: {0}", pluginDir);
-                return;
-            }
-
-            PluginLoader<Algorithm> pluginLoader = new PluginLoader<>(pluginDir, Algorithm.class);
-            List<Entry<Class<Algorithm>, File>> map = pluginLoader.getMap();
-            List<AlgorithmComboBoxElement> list = new ArrayList<>();
-            for (Entry<Class<Algorithm>, File> entry : map) {
-                try {
-                    // FIXME: check length of strings and use substrings if too long
-                    // reason: too long string will break the GridBagLayout
-                    list.add(new AlgorithmComboBoxElement(entry.getValue(), entry.getKey()));
-                } catch (InstantiationException ex) {
-                    logger.log(Level.SEVERE, "tried to instanciate an uninstanciable class", ex);
-                }
-            }
-            Collections.sort(list);
-            for (AlgorithmComboBoxElement elem : list) {
-                model.addElement(elem);
-            }
-        } catch (IOException | IllegalAccessException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }
-    }
-}
