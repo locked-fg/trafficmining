@@ -31,7 +31,7 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
     private final List<String> tagWhitelist;
 
     /**
-     * Initialize the worker.
+     * Initializes the worker.
      *
      * A whitelist file can be handed over to the worker IF whitelisting should
      * occur. This whitelist file is a simple properties file with a key
