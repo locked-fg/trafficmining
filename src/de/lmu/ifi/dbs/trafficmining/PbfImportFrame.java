@@ -25,6 +25,7 @@ import org.jdesktop.swingx.painter.Painter;
 
 public class PbfImportFrame extends javax.swing.JFrame {
 
+    static final Logger log = Logger.getLogger(PbfImportFrame.class.getName());
     public final String EVT_GRAPH_LOADED = "EVT_GRAPH_LOADED";
     private final MapSelectionPainter selectionPainter = new MapSelectionPainter();
     private JXMapViewer map = null;
@@ -44,6 +45,14 @@ public class PbfImportFrame extends javax.swing.JFrame {
         map = mapKit.getMainMap();
         map.addMouseListener(selectionPainter);
         map.addMouseMotionListener(selectionPainter);
+
+        try {
+            TileServer defaultServer = TileServerFactory.get().getDefaultServer();
+            setMapTileServer(defaultServer);
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, null, ex);
+        }
+
     }
 
     public void addOsmLoadListener(PropertyChangeListener listener) {
@@ -61,7 +70,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
                         selectionPainter.getBounds(), srtmCheckbox.isSelected());
                 // manage progress bar
                 worker.addPropertyChangeListener(new PropertyChangeListener() {
-
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         SwingWorker sw = (SwingWorker) evt.getSource();
@@ -74,7 +82,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
                 });
                 // fire property change if according checkbox is selected
                 worker.addPropertyChangeListener(new PropertyChangeListener() {
-
                     @Override
                     public void propertyChange(PropertyChangeEvent evt) {
                         SwingWorker sw = (SwingWorker) evt.getSource();
@@ -355,7 +362,7 @@ public class PbfImportFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public void setMapTileServer(TileServer ts) {
+    private void setMapTileServer(TileServer ts) {
         map.setTileFactory(ts.getTileFactory());
         ((DefaultTileFactory) map.getTileFactory()).setThreadPoolSize(8);
         map.setRestrictOutsidePanning(true);
@@ -366,7 +373,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
         try {
             final PbfBoundsLoader loader = new PbfBoundsLoader(pbfFile);
             loader.addPropertyChangeListener(new PropertyChangeListener() {
-
                 @Override
                 public void propertyChange(PropertyChangeEvent evt) {
                     if (evt.getPropertyName().equals(PbfBoundsLoader.EVT_BOUNDS)) {
@@ -402,7 +408,6 @@ public class PbfImportFrame extends javax.swing.JFrame {
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         } else {
             fileChooser.setFileFilter(new FileFilter() {
-
                 @Override
                 public boolean accept(File f) {
                     return f.isDirectory() || f.getName().toLowerCase().endsWith(suffix);

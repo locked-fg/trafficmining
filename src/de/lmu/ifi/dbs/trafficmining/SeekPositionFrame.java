@@ -3,7 +3,10 @@ package de.lmu.ifi.dbs.trafficmining;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
 import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.jdesktop.swingx.JXMapViewer;
@@ -12,6 +15,7 @@ import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 public class SeekPositionFrame extends javax.swing.JFrame {
 
+    static final Logger log = Logger.getLogger(SeekPositionFrame.class.getName());
     private final OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
     private final GeoPosition centeredGeoPos;
     private OSMNode node = null;
@@ -31,13 +35,19 @@ public class SeekPositionFrame extends javax.swing.JFrame {
     /**
      * Creates new form SeekPositionFrame
      */
-    public SeekPositionFrame(OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> g, GeoPosition center, TileServer ts) {
+    public SeekPositionFrame(OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> g, GeoPosition center) {
         initComponents();
         this.graph = g;
         this.setLocationRelativeTo(null);
         this.centeredGeoPos = center;
         map = jXMapKit.getMainMap();
-        map.setTileFactory(ts.getTileFactory());
+
+        try {
+            TileServer ts = TileServerFactory.get().getDefaultServer();
+            map.setTileFactory(ts.getTileFactory());
+        } catch (IOException ex) {
+            log.log(Level.WARNING, "tilserver could not be loaded", ex);
+        }
         ((DefaultTileFactory) map.getTileFactory()).setThreadPoolSize(8);
         map.setRestrictOutsidePanning(true);
         map.setHorizontalWrapped(false);
@@ -46,7 +56,6 @@ public class SeekPositionFrame extends javax.swing.JFrame {
 
         // getRootPane().setDefaultButton(searchButton);
         queryField.getDocument().addDocumentListener(new DocumentListener() {
-
             @Override
             public void insertUpdate(DocumentEvent e) {
                 doSearch();
@@ -62,6 +71,7 @@ public class SeekPositionFrame extends javax.swing.JFrame {
                 doSearch();
             }
         });
+
     }
 
     public OSMNode getNode() {
@@ -193,7 +203,6 @@ public class SeekPositionFrame extends javax.swing.JFrame {
 
         List<LinkWrapper> list = new ArrayList<>(hits);
         Collections.sort(list, new Comparator<LinkWrapper>() {
-
             @Override
             public int compare(LinkWrapper o1, LinkWrapper o2) {
                 int a = o1.name.compareTo(o2.name);

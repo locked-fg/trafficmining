@@ -1,12 +1,27 @@
 package de.lmu.ifi.dbs.trafficmining.ui;
 
+import de.lmu.ifi.dbs.trafficmining.TileServer;
+import de.lmu.ifi.dbs.trafficmining.TileServerFactory;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JSlider;
+import org.jdesktop.swingx.JXMapKit;
 import org.jdesktop.swingx.JXMapKit.DefaultProviders;
 import org.jdesktop.swingx.JXMapViewer;
+import org.jdesktop.swingx.mapviewer.DefaultTileFactory;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.mapviewer.TileFactory;
+import org.jdesktop.swingx.painter.Painter;
 
 /**
  * Wrapper class around the map component.
@@ -20,11 +35,95 @@ import org.jdesktop.swingx.mapviewer.TileFactory;
  */
 public class MapWrapper extends javax.swing.JPanel {
 
+    static final Logger log = Logger.getLogger(MapWrapper.class.getName());
+    private final JXMapViewer map;
+    private Map<String, TileServer> tileservers = new HashMap<>();
+    private TileServer tileServer;
+
     /**
      * Creates new form MapWrapper
      */
     public MapWrapper() {
         initComponents();
+        map = mapKit.getMainMap();
+
+        initTileServers();
+    }
+
+    private void initTileServers() {
+        try {
+            TileServerFactory tileServerFactory = TileServerFactory.get();
+            tileservers = tileServerFactory.getTileServers();
+            setTileServer(tileServerFactory.getDefaultServer());
+
+            // load more tiles in parallel
+            // MIND THE TILE USE POLICY IF USING OSM DIRECTLY
+            // http://wiki.openstreetmap.org/wiki/Tile_usage_policy
+            // FIXME put this into a property
+            ((DefaultTileFactory) map.getTileFactory()).setThreadPoolSize(3);
+            map.setRestrictOutsidePanning(true);
+            map.setHorizontalWrapped(false);
+        } catch (IOException ex) {
+            log.log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void setTileServer(String key) {
+        if (tileservers.containsKey(key)) {
+            setTileServer(tileservers.get(key));
+        }
+    }
+
+    private void setTileServer(TileServer tileServer) {
+        if (this.tileServer == tileServer) {
+        }
+
+        if (tileServer.getTileFactory() != null) {
+            if (!tileServer.isValid()) {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Tileserver \"" + tileServer.getBaseURL() + "\" seems to be broken."
+                        + "\nPlease re-check all properties.",
+                        "Tileserver is broken.", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Tileserver \"" + tileServer.getBaseURL() + "\" has no own TileFactory set up."
+                    + "\nPlease re-check your code and enable it.",
+                    "Tileserver not initialized.", JOptionPane.ERROR_MESSAGE);
+        }
+
+        this.tileServer = tileServer;
+        map.setTileFactory(tileServer.getTileFactory());
+    }
+
+    public Set<String> getTileServers() {
+        return tileservers.keySet();
+    }
+
+    public String currentTileserverName() {
+        for (Map.Entry<String, TileServer> entry : tileservers.entrySet()) {
+            if (entry.getValue().equals(tileServer)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public synchronized void addMouseListener(MouseListener l) {
+        map.addMouseListener(l);
+    }
+
+    @Override
+    public synchronized void addMouseMotionListener(MouseMotionListener l) {
+        map.addMouseMotionListener(l);
+    }
+
+    @Override
+    public synchronized void removeMouseListener(MouseListener l) {
+        map.removeMouseListener(l);
     }
 
     /**
@@ -46,6 +145,21 @@ public class MapWrapper extends javax.swing.JPanel {
     // End of variables declaration//GEN-END:variables
 
     //<editor-fold defaultstate="collapsed" desc="delegates to mapKit instance">
+    @Deprecated
+    public void setOverlayPainter(Painter overlay) {
+        map.setOverlayPainter(overlay);
+    }
+
+    @Deprecated
+    public void calculateZoomFrom(Set<GeoPosition> positions) {
+        map.calculateZoomFrom(positions);
+    }
+
+    @Deprecated
+    public int getZoom() {
+        return map.getZoom();
+    }
+
     @Deprecated
     public void setZoom(int zoom) {
         mapKit.setZoom(zoom);
