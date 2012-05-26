@@ -8,6 +8,9 @@ import java.util.Map;
 import java.util.Properties;
 
 /**
+ * The TileServerFactory manages the configures tile servers and reads the
+ * configuration from the properties file "/tileserver.properties".
+ *
  * @author Franz
  */
 public class TileServerFactory {
@@ -38,9 +41,18 @@ public class TileServerFactory {
      */
     private String defaultServer;
 
+    /**
+     * private constructor as the factory should be used as a singleton
+     */
     private TileServerFactory() {
     }
 
+    /**
+     * Returns (and if needed, creates) a Factory.
+     *
+     * @return Factory instance
+     * @throws IOException if the properties file could not be loaded
+     */
     public static TileServerFactory get() throws IOException {
         if (instance == null) {
             instance = new TileServerFactory();
@@ -49,6 +61,11 @@ public class TileServerFactory {
         return instance;
     }
 
+    /**
+     * load the configuration from the properties file
+     *
+     * @throws IOException
+     */
     private void load() throws IOException {
         Properties properties = new Properties();
         properties.load(getClass().getResourceAsStream(PROPERTIES_FILE));
@@ -89,15 +106,37 @@ public class TileServerFactory {
         }
     }
 
+    /**
+     * Obtains an unmodifiable map of tileservers.
+     *
+     * The map's keys are the aliases of the map servers.
+     *
+     * @return unmodifiable map of tileservers and their aliases
+     */
     public Map<String, TileServer> getTileServers() {
         return Collections.unmodifiableMap(tileServers);
     }
 
+    /**
+     * Returns the tileserver that was configured as default.
+     *
+     * The default server can be changed at runtime by using the alias keys of
+     * other tile servers.
+     *
+     * @return the currently active tile server
+     */
     public TileServer getDefaultServer() {
         return tileServers.get(defaultServer);
     }
 
-    void setDefaultServer(String key) {
+    /**
+     * Changes the default server to the server identified by the alias key.
+     *
+     * @param key alias of the tile server that should be used as new default
+     * server
+     * @throws IllegalArgumentException if the key is not one of the server map.
+     */
+    public void setDefaultServer(String key) {
         if (!tileServers.containsKey(key)) {
             throw new IllegalArgumentException("tileserver not vaild: " + key);
         }
