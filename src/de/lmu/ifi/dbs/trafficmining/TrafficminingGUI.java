@@ -81,7 +81,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         setLocationRelativeTo(null);
 
-        map = jXMapKit1.getMainMap();
+        map = mapWrapper.getMainMap();
         properties = new TrafficminingProperties();
         initAlgorithmComboBox();
         initTileServers();
@@ -311,10 +311,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             geo_set.add(oSMNode.getGeoPosition());
         }
         if (nodes.size() > 0) {
-            jXMapKit1.setZoom(1);
+            mapWrapper.setZoom(1);
             map.calculateZoomFrom(geo_set);
         }
-        jXMapKit1.repaint();
+        mapWrapper.repaint();
         editNodeButton.setEnabled(true);
 
         clearNodeListModel();
@@ -336,7 +336,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         // reset highlighted paths
         pathPainter.clear();
-        jXMapKit1.repaint();
+        mapWrapper.repaint();
     }
 
     private void showStatisticsFrame() {
@@ -446,7 +446,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             pathPainter.setPath(pathList);
         }
         simplexControl.setHighlight(list);
-        jXMapKit1.repaint();
+        mapWrapper.repaint();
     }
 
     private void startAndRunAlgorithm() {
@@ -563,7 +563,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         if (statistics != null && visitedNodesItem.isSelected()) {
             visitedNodesPainter.setNodes(statistics.getVisitedNodes());
         }
-        jXMapKit1.repaint();
+        mapWrapper.repaint();
     }
 
     private double[] findMaxPerColumn(Collection<double[]> entries) {
@@ -753,7 +753,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private void toggleEditNodes() {
         if (editNodeButton.isSelected()) {
-            waypointSetter = new MapToNodeList(graph, nodeWaypointList, startEndPainter);
+            waypointSetter = new MapToNodeList( graph, nodeWaypointList, startEndPainter);
             adressSearchButton.setEnabled(true);
             map.addMouseListener(waypointSetter);
         } else {
@@ -819,7 +819,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         simplexControl2D = new de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl2D();
         simplexControl3D = new de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl3D();
         rightPanel = new javax.swing.JPanel();
-        jXMapKit1 = new de.lmu.ifi.dbs.trafficmining.ui.MapWrapper();
+        mapWrapper = new de.lmu.ifi.dbs.trafficmining.ui.MapWrapper();
         javax.swing.JPanel statusBar = new javax.swing.JPanel();
         statusbarLabel = new javax.swing.JLabel();
         javax.swing.JMenuBar menuBar = new javax.swing.JMenuBar();
@@ -1046,7 +1046,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         rightPanel.setPreferredSize(new java.awt.Dimension(800, 600));
         rightPanel.setLayout(new java.awt.BorderLayout());
-        rightPanel.add(jXMapKit1, java.awt.BorderLayout.CENTER);
+        rightPanel.add(mapWrapper, java.awt.BorderLayout.CENTER);
 
         horizontalSplit.setRightComponent(rightPanel);
 
@@ -1246,8 +1246,8 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JToggleButton editNodeButton;
     private javax.swing.JMenuItem importPbfMenuItem;
     private javax.swing.JScrollPane jScrollPane_nodes;
-    private de.lmu.ifi.dbs.trafficmining.ui.MapWrapper jXMapKit1;
     private javax.swing.JPanel leftPanel;
+    private de.lmu.ifi.dbs.trafficmining.ui.MapWrapper mapWrapper;
     private javax.swing.JList nodeWaypointList;
     private de.lmu.ifi.dbs.trafficmining.OSMNodeListModel osmNodeListModel1;
     private javax.swing.JCheckBoxMenuItem paintGraphMenuItem;
