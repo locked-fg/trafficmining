@@ -38,7 +38,8 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
      * <code>tags</code> followed by a ";" separated list of tag names.
      *
      * @param osmFile the source osm file
-     * @param useTagWhitelist use tag whitelist specified at TrafficminingProperties.TAG_WHITELIST_FILE
+     * @param useTagWhitelist use tag whitelist specified at
+     * TrafficminingProperties.TAG_WHITELIST_FILE
      */
     public LoadGraphWorker(File osmFile, boolean useTagWhitelist) {
         if (!osmFile.exists() || !osmFile.canRead()) {
