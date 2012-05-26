@@ -2,7 +2,9 @@ package de.lmu.ifi.dbs.trafficmining;
 
 import de.lmu.ifi.dbs.utilities.PropertyContainer;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -10,16 +12,44 @@ import java.util.Properties;
  */
 public class TileServerFactory {
 
+    /**
+     * singleton instance
+     */
+    private static TileServerFactory instance;
+    /**
+     * Placeholder character used in the properties file. The character is being
+     * replace with the ids of the mirror servers (if configured).
+     */
     private static final String LB_PLACEHOLDER = "@";
+    /**
+     * property key that identifies the server property
+     */
     private static final String SERVERS_KEY = "servers";
+    /**
+     * path to the properties file
+     */
     private static final String PROPERTIES_FILE = "/tileserver.properties";
+    /**
+     * Map of tile servers including an alias name.
+     */
     private final HashMap<String, TileServer> tileServers = new HashMap<>();
+    /**
+     * Defines the key of the server that was set in one of the components
+     */
     private String defaultServer;
 
-    public TileServerFactory() {
+    private TileServerFactory() {
     }
 
-    public void load() throws IOException {
+    public static TileServerFactory get() throws IOException {
+        if (instance == null) {
+            instance = new TileServerFactory();
+            instance.load();
+        }
+        return instance;
+    }
+
+    private void load() throws IOException {
         Properties properties = new Properties();
         properties.load(getClass().getResourceAsStream(PROPERTIES_FILE));
         String[] servers = properties.getProperty(SERVERS_KEY).split(",");
@@ -59,11 +89,18 @@ public class TileServerFactory {
         }
     }
 
-    public HashMap<String, TileServer> getTileServers() {
-        return tileServers;
+    public Map<String, TileServer> getTileServers() {
+        return Collections.unmodifiableMap(tileServers);
     }
 
     public TileServer getDefaultServer() {
         return tileServers.get(defaultServer);
+    }
+
+    void setDefaultServer(String key) {
+        if (!tileServers.containsKey(key)) {
+            throw new IllegalArgumentException("tileserver not vaild: " + key);
+        }
+        defaultServer = key;
     }
 }

@@ -38,7 +38,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableRowSorter;
 import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXMapViewer;
-import org.jdesktop.swingx.mapviewer.DefaultTileFactory;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.mapviewer.Waypoint;
 import org.jdesktop.swingx.mapviewer.WaypointPainter;
@@ -51,7 +50,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private final TrafficminingProperties properties;
     // map result type -> layout name
     private MouseListener waypointSetter;
-//    private final OSMNodeListModel osmNodeListModel1 = new OSMNodeListModel();
     //
     private final GraphPainter graphPainter = new GraphPainter();
     private final PathPainter pathPainter = new PathPainter();
@@ -59,7 +57,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private final WaypointPainter<JXMapViewer> startEndPainter = new WaypointPainter<>();
     //
     private final LoadGraphAction loadAction = new LoadGraphAction();
-    private final JXMapViewer map;
     private final Map<Integer, SimplexResultEntry> results = new HashMap<>();
     // -
     private Map<Class, String> resultToLayoutName; // cardlayout
@@ -72,8 +69,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private AlgorithmWorker calculator;
     private StatisticsFrame statisticsFrame;
     private Algorithm currentAlgorithm;
-    private HashMap<String, TileServer> tileservers = new HashMap<>();
-    private TileServer tileServer;
 
     public TrafficminingGUI() throws IOException {
         log.info("start");
@@ -81,10 +76,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         setLocationRelativeTo(null);
 
-        map = mapWrapper.getMainMap();
         properties = new TrafficminingProperties();
         initAlgorithmComboBox();
-        initTileServers();
         initResultBindings();
         initClusterComponents();
 
@@ -99,6 +92,33 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 highlightResult();
             }
         });
+
+        TileServerFactory.get();
+        initTileServerMenu();
+    }
+
+    private void initTileServerMenu() {
+        ButtonGroup group = new ButtonGroup();
+        List<String> names = new ArrayList<>(mapWrapper.getTileServers());
+        Collections.sort(names);
+        for (final String key : names) {
+            JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(key);
+            tileserverMenu.add(menuItem);
+            menuItem.setSelected(key.equals(mapWrapper.currentTileserverName()));
+            menuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        mapWrapper.setTileServer(key);
+                        repaint();
+                        TileServerFactory.get().setDefaultServer(key);
+                    } catch (IOException ex) {
+                        log.log(Level.SEVERE, null, ex);
+                    }
+                }
+            });
+            group.add(menuItem);
+        }
     }
 
     private void initClusterComponents() {
@@ -154,70 +174,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         simplexControl3D.addMouseListener(new SimplexHighlighter(resultTable));
     }
 
-    private void initTileServers() {
-        try {
-            TileServerFactory tileServerFactory = new TileServerFactory();
-            tileServerFactory.load();
-            tileservers = tileServerFactory.getTileServers();
-            setTileServer(tileServerFactory.getDefaultServer());
-            addTileServerToMenu();
-
-            // load more tiles in parallel
-            // MIND THE TILE USE POLICY IF USING OSM DIRECTLY
-            // http://wiki.openstreetmap.org/wiki/Tile_usage_policy
-            // FIXME put this into a property
-            ((DefaultTileFactory) map.getTileFactory()).setThreadPoolSize(3);
-            map.setRestrictOutsidePanning(true);
-            map.setHorizontalWrapped(false);
-        } catch (IOException ex) {
-            log.log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void addTileServerToMenu() {
-        ButtonGroup group = new ButtonGroup();
-        List<String> names = new ArrayList<>(tileservers.keySet());
-        Collections.sort(names);
-        for (String key : names) {
-            final TileServer ts = tileservers.get(key);
-            JCheckBoxMenuItem menuItem = new JCheckBoxMenuItem(key);
-            group.add(menuItem);
-            tileserverMenu.add(menuItem);
-            menuItem.setSelected(ts.equals(tileServer));
-            menuItem.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    setTileServer(ts);
-                    repaint();
-                }
-            });
-        }
-    }
-
-    private void setTileServer(TileServer tileServer) {
-        if (this.tileServer == tileServer) {
-        }
-
-        if (tileServer.getTileFactory() != null) {
-            if (!tileServer.isValid()) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Tileserver \"" + tileServer.getBaseURL() + "\" seems to be broken."
-                        + "\nPlease re-check all properties.",
-                        "Tileserver is broken.", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            JOptionPane.showMessageDialog(
-                    null,
-                    "Tileserver \"" + tileServer.getBaseURL() + "\" has no own TileFactory set up."
-                    + "\nPlease re-check your code and enable it.",
-                    "Tileserver not initialized.", JOptionPane.ERROR_MESSAGE);
-        }
-
-        this.tileServer = tileServer;
-        map.setTileFactory(tileServer.getTileFactory());
-    }
-
     private void startClustering() {
         if (result.getResults().size() > 1) {
             SingleLinkClusteringWithPreprocessing skyclus = new SingleLinkClusteringWithPreprocessing();
@@ -254,7 +210,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             Double lat = properties.getDouble(TrafficminingProperties.map_last_center_latitude);
             Double lon = properties.getDouble(TrafficminingProperties.map_last_center_longitude);
             if (lat != null && lon != null) {
-                map.setCenterPosition(new GeoPosition(lat, lon));
+                mapWrapper.setCenterPosition(new GeoPosition(lat, lon));
             }
         } catch (NumberFormatException nfe) {
         }
@@ -287,9 +243,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     @Override
     public void dispose() {
-        GeoPosition center = map.getCenterPosition();
+        GeoPosition center = mapWrapper.getCenterPosition();
 
-        properties.setProperty(TrafficminingProperties.map_last_zoom, map.getZoom());
+        properties.setProperty(TrafficminingProperties.map_last_zoom, mapWrapper.getZoom());
         properties.setProperty(TrafficminingProperties.map_last_center_latitude, center.getLatitude());
         properties.setProperty(TrafficminingProperties.map_last_center_longitude, center.getLongitude());
         properties.save();
@@ -312,7 +268,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
         if (nodes.size() > 0) {
             mapWrapper.setZoom(1);
-            map.calculateZoomFrom(geo_set);
+            mapWrapper.calculateZoomFrom(geo_set);
         }
         mapWrapper.repaint();
         editNodeButton.setEnabled(true);
@@ -383,8 +339,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             return;
         }
 
-        GeoPosition aPosition = map.getCenterPosition();
-        final SeekPositionFrame spf = new SeekPositionFrame(this.graph, aPosition, tileServer);
+        GeoPosition aPosition = mapWrapper.getCenterPosition();
+        final SeekPositionFrame spf = new SeekPositionFrame(this.graph, aPosition);
         spf.setVisible(true);
         WindowAdapter wa = new WindowAdapter() {
             @Override
@@ -411,7 +367,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         list.add(visitedNodesPainter);
         list.add(pathPainter);
         list.add(startEndPainter);
-        map.setOverlayPainter(new CompoundPainter(list.toArray(new Painter[]{})));
+        mapWrapper.setOverlayPainter(new CompoundPainter(list.toArray(new Painter[]{})));
     }
 
     private void highlightResult() {
@@ -753,13 +709,13 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private void toggleEditNodes() {
         if (editNodeButton.isSelected()) {
-            waypointSetter = new MapToNodeList( graph, nodeWaypointList, startEndPainter);
+            waypointSetter = new MapToNodeList(graph, nodeWaypointList, startEndPainter);
             adressSearchButton.setEnabled(true);
-            map.addMouseListener(waypointSetter);
+            mapWrapper.addMouseListener(waypointSetter);
         } else {
             clearButton.setEnabled(false);
             adressSearchButton.setEnabled(false);
-            map.removeMouseListener(waypointSetter);
+            mapWrapper.removeMouseListener(waypointSetter);
         }
     }
 
@@ -770,7 +726,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private void openPBFWindow() {
         PbfImportFrame frame = new PbfImportFrame();
-        frame.setMapTileServer(tileServer);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frame.addOsmLoadListener(new PropertyChangeListener() {
