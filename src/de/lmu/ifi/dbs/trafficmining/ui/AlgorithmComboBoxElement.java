@@ -2,11 +2,11 @@ package de.lmu.ifi.dbs.trafficmining.ui;
 
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import java.io.File;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Element in a combobox
+ * Element in a combobox that represents an algorithm
+ *
  * @author graf
  */
 public class AlgorithmComboBoxElement implements Comparable<AlgorithmComboBoxElement> {
@@ -16,7 +16,6 @@ public class AlgorithmComboBoxElement implements Comparable<AlgorithmComboBoxEle
     private final Class<Algorithm> algorithm;
 
     public AlgorithmComboBoxElement(File jar, Class<Algorithm> key) throws InstantiationException, IllegalAccessException {
-        logger.log(Level.FINE, "try to instanciate " + key.getName() + " from " + jar.getAbsolutePath());
         this.name = jar.getName() + ": " + key.newInstance().getName();
         this.algorithm = key;
     }
