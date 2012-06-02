@@ -1,6 +1,8 @@
 History of changes:
 
 HEAD:
+* incorporated the SwingX-WS files directly in trafficmining and removed the 
+  annoying System.out output
 * Merged Graph and OSMGraph, Node and OsmNode, Link and OSMLink
 
 2.1.1:
