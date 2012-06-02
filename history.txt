@@ -1,5 +1,8 @@
 History of changes:
 
+HEAD:
+* Merged Graph and OSMGraph, Node and OsmNode, Link and OSMLink
+
 2.1.1:
 * Issue 19 fixed
 
