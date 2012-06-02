@@ -209,7 +209,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         try {
             Double lat = properties.getDouble(TrafficminingProperties.map_last_center_latitude);
             Double lon = properties.getDouble(TrafficminingProperties.map_last_center_longitude);
-            if (lat != null && lon != null) {
+            if (lat != null && lon != null && lat != 1 && lon != 1) {
                 mapWrapper.setCenterPosition(new GeoPosition(lat, lon));
             }
         } catch (NumberFormatException nfe) {
@@ -241,16 +241,13 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    @Override
-    public void dispose() {
+    private void saveAndShutdown() {
         GeoPosition center = mapWrapper.getCenterPosition();
 
         properties.setProperty(TrafficminingProperties.map_last_zoom, mapWrapper.getZoom());
         properties.setProperty(TrafficminingProperties.map_last_center_latitude, center.getLatitude());
         properties.setProperty(TrafficminingProperties.map_last_center_longitude, center.getLongitude());
         properties.save();
-
-        super.dispose();
     }
 
     /**
@@ -802,6 +799,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("MARiO: Multi Attribute Routing in Open Street Map");
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         horizontalSplit.setDividerLocation(275);
         horizontalSplit.setDividerSize(7);
@@ -1029,6 +1031,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         fileMenu.setMnemonic('f');
         fileMenu.setText("File");
+        fileMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                fileMenuActionPerformed(evt);
+            }
+        });
 
         loadGraphItem.addActionListener(loadAction);
         loadGraphItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
@@ -1118,7 +1125,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
-        dispose();
+        saveAndShutdown();
         System.exit(0);
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
@@ -1196,6 +1203,15 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     ad.setLocationRelativeTo(null);
     ad.setVisible(true);
 }//GEN-LAST:event_aboutMenuItemActionPerformed
+
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        saveAndShutdown();
+    }//GEN-LAST:event_formWindowClosing
+
+    private void fileMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileMenuActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_fileMenuActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton adressSearchButton;
     private javax.swing.DefaultComboBoxModel algorithmBoxModel;
