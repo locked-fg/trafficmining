@@ -34,7 +34,7 @@ import org.jdesktop.swingx.painter.Painter;
  * @author Franz
  */
 public class MapWrapper extends javax.swing.JPanel {
-
+    
     static final Logger log = Logger.getLogger(MapWrapper.class.getName());
     private final JXMapViewer map;
     private Map<String, TileServer> tileservers = new HashMap<>();
@@ -46,10 +46,12 @@ public class MapWrapper extends javax.swing.JPanel {
     public MapWrapper() {
         initComponents();
         map = mapKit.getMainMap();
-
         initTileServers();
+        map.setAddressLocation(new GeoPosition(47.75996, 11.5652));
+        map.setZoom(3);
+        map.repaint();
     }
-
+    
     private void initTileServers() {
         try {
             TileServerFactory tileServerFactory = TileServerFactory.get();
@@ -67,17 +69,17 @@ public class MapWrapper extends javax.swing.JPanel {
             log.log(Level.SEVERE, null, ex);
         }
     }
-
+    
     public void setTileServer(String key) {
         if (tileservers.containsKey(key)) {
             setTileServer(tileservers.get(key));
         }
     }
-
+    
     private void setTileServer(TileServer tileServer) {
         if (this.tileServer == tileServer) {
         }
-
+        
         if (tileServer.getTileFactory() != null) {
             if (!tileServer.isValid()) {
                 JOptionPane.showMessageDialog(
@@ -93,15 +95,15 @@ public class MapWrapper extends javax.swing.JPanel {
                     + "\nPlease re-check your code and enable it.",
                     "Tileserver not initialized.", JOptionPane.ERROR_MESSAGE);
         }
-
+        
         this.tileServer = tileServer;
         map.setTileFactory(tileServer.getTileFactory());
     }
-
+    
     public Set<String> getTileServers() {
         return tileservers.keySet();
     }
-
+    
     public String currentTileserverName() {
         for (Map.Entry<String, TileServer> entry : tileservers.entrySet()) {
             if (entry.getValue().equals(tileServer)) {
@@ -110,17 +112,17 @@ public class MapWrapper extends javax.swing.JPanel {
         }
         return null;
     }
-
+    
     @Override
     public synchronized void addMouseListener(MouseListener l) {
         map.addMouseListener(l);
     }
-
+    
     @Override
     public synchronized void addMouseMotionListener(MouseMotionListener l) {
         map.addMouseMotionListener(l);
     }
-
+    
     @Override
     public synchronized void removeMouseListener(MouseListener l) {
         map.removeMouseListener(l);
@@ -151,137 +153,137 @@ public class MapWrapper extends javax.swing.JPanel {
     public void setOverlayPainter(Painter overlay) {
         map.setOverlayPainter(overlay);
     }
-
+    
     @Deprecated
     public void calculateZoomFrom(Set<GeoPosition> positions) {
         map.calculateZoomFrom(positions);
     }
-
+    
     @Deprecated
     public int getZoom() {
         return map.getZoom();
     }
-
+    
     @Deprecated
     public void setZoom(int zoom) {
         mapKit.setZoom(zoom);
     }
-
+    
     @Deprecated
     public Action getZoomOutAction() {
         return mapKit.getZoomOutAction();
     }
-
+    
     @Deprecated
     public Action getZoomInAction() {
         return mapKit.getZoomInAction();
     }
-
+    
     @Deprecated
     public boolean isMiniMapVisible() {
         return mapKit.isMiniMapVisible();
     }
-
+    
     @Deprecated
     public void setMiniMapVisible(boolean miniMapVisible) {
         mapKit.setMiniMapVisible(miniMapVisible);
     }
-
+    
     @Deprecated
     public boolean isZoomSliderVisible() {
         return mapKit.isZoomSliderVisible();
     }
-
+    
     @Deprecated
     public void setZoomSliderVisible(boolean zoomSliderVisible) {
         mapKit.setZoomSliderVisible(zoomSliderVisible);
     }
-
+    
     @Deprecated
     public boolean isZoomButtonsVisible() {
         return mapKit.isZoomButtonsVisible();
     }
-
+    
     @Deprecated
     public void setZoomButtonsVisible(boolean zoomButtonsVisible) {
         mapKit.setZoomButtonsVisible(zoomButtonsVisible);
     }
-
+    
     @Deprecated
     public void setTileFactory(TileFactory fact) {
         mapKit.setTileFactory(fact);
     }
-
+    
     @Deprecated
     public void setCenterPosition(GeoPosition pos) {
         mapKit.setCenterPosition(pos);
     }
-
+    
     @Deprecated
     public GeoPosition getCenterPosition() {
         return mapKit.getCenterPosition();
     }
-
+    
     @Deprecated
     public GeoPosition getAddressLocation() {
         return mapKit.getAddressLocation();
     }
-
+    
     @Deprecated
     public void setAddressLocation(GeoPosition pos) {
         mapKit.setAddressLocation(pos);
     }
-
+    
     @Deprecated
     public JXMapViewer getMainMap() {
         return mapKit.getMainMap();
     }
-
+    
     @Deprecated
     public JXMapViewer getMiniMap() {
         return mapKit.getMiniMap();
     }
-
+    
     @Deprecated
     public JButton getZoomInButton() {
         return mapKit.getZoomInButton();
     }
-
+    
     @Deprecated
     public JButton getZoomOutButton() {
         return mapKit.getZoomOutButton();
     }
-
+    
     @Deprecated
     public JSlider getZoomSlider() {
         return mapKit.getZoomSlider();
     }
-
+    
     @Deprecated
     public void setAddressLocationShown(boolean b) {
         mapKit.setAddressLocationShown(b);
     }
-
+    
     @Deprecated
     public boolean isAddressLocationShown() {
         return mapKit.isAddressLocationShown();
     }
-
+    
     @Deprecated
     public void setDataProviderCreditShown(boolean b) {
         mapKit.setDataProviderCreditShown(b);
     }
-
+    
     @Deprecated
     public boolean isDataProviderCreditShown() {
         return mapKit.isDataProviderCreditShown();
     }
-
+    
     @Deprecated
     public void setDefaultProvider(DefaultProviders prov) {
         mapKit.setDefaultProvider(prov);
     }
-
+    
     @Deprecated
     public DefaultProviders getDefaultProvider() {
         return mapKit.getDefaultProvider();
