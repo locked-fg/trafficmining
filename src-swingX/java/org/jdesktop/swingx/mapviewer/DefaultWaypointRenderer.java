@@ -13,6 +13,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 import org.jdesktop.swingx.JXMapViewer;
@@ -29,9 +31,7 @@ public class DefaultWaypointRenderer implements WaypointRenderer {
         try {
             img = ImageIO.read(getClass().getResource("resources/standard_waypoint.png"));
         } catch (Exception ex) {
-            System.out.println("couldn't read standard_waypoint.png");
-            System.out.println(ex.getMessage());
-            ex.printStackTrace();
+            Logger.getLogger(DefaultWaypointRenderer.class.getName()).log(Level.WARNING, "couldn't read standard_waypoint.png", ex);
         }
     }
     

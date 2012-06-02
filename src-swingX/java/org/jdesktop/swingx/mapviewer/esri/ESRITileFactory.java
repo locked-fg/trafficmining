@@ -12,6 +12,8 @@ package org.jdesktop.swingx.mapviewer.esri;
 import java.awt.geom.Point2D;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.jdesktop.swingx.mapviewer.DefaultTileFactory;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.mapviewer.TileFactoryInfo;
@@ -57,10 +59,6 @@ public class ESRITileFactory extends DefaultTileFactory {
         }
         
         public String getTileUrl(int x, int y, int zoom) {
-//                "&usrid=&ds=&c=-117.1817|34.0556&sf=52500&fmt=&ocs=";
-            //System.out.println("getting tile at zoom: " + zoom);
-            //System.out.println("map width at zoom = " + getMapWidthInTilesAtZoom(zoom));
-            
             //provide the center point of the tile, in lat/long coords
             int tileY = y;
             int tileX = x;
@@ -83,10 +81,12 @@ public class ESRITileFactory extends DefaultTileFactory {
             BigDecimal lon = new BigDecimal(latlong.getLongitude());
             lat = lat.setScale(5, RoundingMode.DOWN);
             lon = lon.setScale(5, RoundingMode.DOWN);
-            System.out.println("Tile      : [" + tileX + ", " + tileY + "]");
-            System.out.println("Pixel     : [" + pixelX + ", " + pixelY + "]");
-            System.out.println("Lat/Long  : [" + latlong.getLatitude() + ", " + latlong.getLongitude() + "]");
-            System.out.println("Lat2/Long2: [" + lat.doubleValue() + ", " + lon.doubleValue() + "]");
+            
+            Logger logger = Logger.getLogger(ESRITileProviderInfo.class.getName());
+            logger.fine("Tile      : [" + tileX + ", " + tileY + "]");
+            logger.fine("Pixel     : [" + pixelX + ", " + pixelY + "]");
+            logger.fine("Lat/Long  : [" + latlong.getLatitude() + ", " + latlong.getLongitude() + "]");
+            logger.fine("Lat2/Long2: [" + lat.doubleValue() + ", " + lon.doubleValue() + "]");
             
             String url = baseURL +
                     "&usrid=" + factory.userId +
@@ -95,7 +95,7 @@ public class ESRITileFactory extends DefaultTileFactory {
                     "&sf=" + sf + //52500" +
                     "&fmt=" + format +
                     "&ocs=" + projection;
-            System.out.println("the URL: " + url);
+            logger.fine("the URL: " + url);
             return url;
         }
     }

@@ -14,9 +14,10 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -119,7 +120,7 @@ public class TileCache {
   }
 
   private void p(String string) {
-        //System.out.println(string);
+        Logger.getLogger(TileCache.class.getName()).log(Level.FINE, string);
   }
 
 }

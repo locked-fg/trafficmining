@@ -62,7 +62,6 @@ public class SLMapServerInfo extends TileFactoryInfo {
         
         //int width_in_tiles = (int)Math.pow(2,pyramid_top-zoom);
         int width_in_tiles = getMapWidthInTilesAtZoom(zoom);
-        //System.out.println("width in tiles = " + width_in_tiles + " x = " + tx + " y = " + ty);
         if(ty < 0) { return null; }
         if(zoom < midpoint) {
             if(ty >= width_in_tiles/2) { return null; }
@@ -71,7 +70,6 @@ public class SLMapServerInfo extends TileFactoryInfo {
         }
         
         String url = this.baseURL + "/" + zoom + "/"+ ty + "/" + tx + ".jpg";
-        //System.out.println("returning: " + url);
         return url;
     }
     

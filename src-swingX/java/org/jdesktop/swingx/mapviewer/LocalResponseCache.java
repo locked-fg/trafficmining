@@ -16,12 +16,14 @@ import java.net.URI;
 import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class LocalResponseCache extends ResponseCache {
     public static final boolean IS_CACHE_DISABLED = true;
     static {
         if (IS_CACHE_DISABLED) {
-            System.out.println("[AERITH] Cache disabled");
+            Logger.getLogger(LocalResponseCache.class.getName()).log(Level.INFO,"[AERITH] Cache disabled");
         }
     }
 

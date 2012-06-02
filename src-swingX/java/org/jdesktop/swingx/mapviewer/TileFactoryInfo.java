@@ -241,17 +241,13 @@ public class TileFactoryInfo {
      */
     
     public String getTileUrl(int x, int y, int zoom) {
-        //System.out.println("getting tile at zoom: " + zoom);
-        //System.out.println("map width at zoom = " + getMapWidthInTilesAtZoom(zoom));
         String ypart = "&" + yparam + "="+ y;
-        //System.out.println("ypart = " + ypart);
         
         if(!yt2b) {
             int tilemax = getMapWidthInTilesAtZoom(zoom);
             //int y = tilePoint.getY();
             ypart = "&" + yparam + "="+ (tilemax/2-y-1);
         }
-        //System.out.println("new ypart = " + ypart);
         String url = baseURL + 
                 "&" + xparam + "=" + x + 
                 ypart +

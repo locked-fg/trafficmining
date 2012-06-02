@@ -304,8 +304,7 @@ public abstract class AbstractTileFactory extends TileFactory {
                         img = cache.get(uri);
                     }
                     if(img == null) {
-                        System.out.println("error loading: " + uri);
-                        LOG.log(Level.INFO, "Failed to load: " + uri);
+                        LOG.log(Level.WARNING, "Failed to load: " + uri);
                         trys--;
                     } else {
                         final BufferedImage i = img;
@@ -319,10 +318,9 @@ public abstract class AbstractTileFactory extends TileFactory {
                 } catch (OutOfMemoryError memErr) {
                     cache.needMoreMemory();
                 } catch (Throwable e) {
-                    LOG.log(Level.SEVERE,
+                    LOG.log(Level.WARNING,
                             "Failed to load a tile at url: " + tile.getURL() + ", retrying", e);
                     //temp
-                    System.err.println("Failed to load a tile at url: " + tile.getURL());
                     LOG.warning(e.getMessage());
                     ///temp
                     Object oldError = tile.getError();

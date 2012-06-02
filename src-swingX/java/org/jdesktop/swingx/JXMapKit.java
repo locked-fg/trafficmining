@@ -15,6 +15,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.Icon;
@@ -86,8 +88,7 @@ public class JXMapKit extends JXPanel {
         this.zoomInButton.setIcon(plusIcon);
         this.zoomInButton.setText("");
         } catch (Throwable thr) {
-            System.out.println("error: " + thr.getMessage());
-            thr.printStackTrace();
+            Logger.getLogger(JXMapKit.class.getName()).log(Level.WARNING, "error: ", thr);
         }
         
         setTileFactory(new CylindricalProjectionTileFactory());
@@ -368,9 +369,9 @@ public class JXMapKit extends JXPanel {
     private javax.swing.JSlider zoomSlider;
     // End of variables declaration//GEN-END:variables
     
-    private static void p(String str) {
-        System.out.println(str);
-    }
+//    private static void p(String str) {
+//        System.out.println(str);
+//    }
     
     /**
      * Indicates if the mini-map is currently visible
