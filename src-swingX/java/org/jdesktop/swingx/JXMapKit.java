@@ -64,7 +64,7 @@ public class JXMapKit extends JXPanel {
     
     public enum DefaultProviders { SwingLabsBlueMarble, OpenStreetMaps, Custom };
     
-    private DefaultProviders defaultProvider = DefaultProviders.SwingLabsBlueMarble;
+    private DefaultProviders defaultProvider = DefaultProviders.OpenStreetMaps;
     
     private boolean addressLocationShown = true;
     
@@ -91,7 +91,8 @@ public class JXMapKit extends JXPanel {
             Logger.getLogger(JXMapKit.class.getName()).log(Level.WARNING, "error: ", thr);
         }
         
-        setTileFactory(new CylindricalProjectionTileFactory());
+        setDefaultProvider(DefaultProviders.OpenStreetMaps);
+//        setTileFactory(new CylindricalProjectionTileFactory());
         
         mainMap.setCenterPosition(new GeoPosition(0,0));
         miniMap.setCenterPosition(new GeoPosition(0,0));
