@@ -69,7 +69,7 @@ public class SingleLinkClusteringWithPreprocessing implements
             result = null;
         } else {
             createPriorityQueue();
-            System.out.print(priorityqueue.size() + ",");
+            log.fine(priorityqueue.size() + ",");
 
             log.fine("Start Clustering...");
             while (seedlist.size() > 1) {
@@ -129,8 +129,7 @@ public class SingleLinkClusteringWithPreprocessing implements
                 result = newCluster;
             }
         }
-        log.fine("Finished Clustering...");
-        System.out.println(priorityqueue.size());
+        log.fine("Finished Clustering... "+priorityqueue.size());
     }
 
     @Override

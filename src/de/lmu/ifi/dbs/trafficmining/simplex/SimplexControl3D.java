@@ -115,7 +115,7 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
             MappedPoint mp = map3Dto2D(p3);
             points.put(p3, mp);
             pointsBack.put(mp, p3);
-            System.out.println(mp.getLocation());
+            log.fine(mp.getLocation().toString());
         }
         pointPanel.setPoints(points.values());
     }
