@@ -1,12 +1,11 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms.skyline;
 
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class OSMSubSkyline<N extends OSMNode<?>>    {
+public class OSMSubSkyline<N extends Node<?>> {
 
     private final N endNode;
     private final float mintodest;

@@ -3,14 +3,14 @@ package de.lmu.ifi.dbs.trafficmining.algorithms.demo;
 import de.lmu.ifi.dbs.trafficmining.Statistics;
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.result.Simplex1Result;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class DemoAlgorithm1D extends Algorithm<OSMNode, Graph, Path> {
+public class DemoAlgorithm1D extends Algorithm<Node, Graph, Path> {
 
     private List<String> attribs = new ArrayList();
     final static List<String> attribsOptions = Collections.unmodifiableList(
@@ -42,13 +42,13 @@ public class DemoAlgorithm1D extends Algorithm<OSMNode, Graph, Path> {
     @Override
     public Simplex1Result getResult() {
         Simplex1Result s1result = new Simplex1Result();
-        List<OSMNode> nodes = getNodes();
+        List<Node> nodes = getNodes();
         Path p1 = new Path(nodes.get(0), nodes.get(nodes.size() - 1));
         s1result.addResult(p1, 150d);
 
-        OSMNode start = nodes.get(0);
-        OSMNode end = nodes.get(nodes.size() - 1);
-        OSMNode intermediate = new OSMNode(-1);
+        Node start = nodes.get(0);
+        Node end = nodes.get(nodes.size() - 1);
+        Node intermediate = new Node(-1);
         double lat = (start.getLat() + end.getLat()) / 2;
         double lon = (start.getLon() + end.getLon()) / 2;
         lat += (start.getLat() - end.getLat()) * 0.3;

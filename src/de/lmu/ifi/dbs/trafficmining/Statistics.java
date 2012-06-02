@@ -1,6 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import java.util.*;
@@ -24,9 +24,9 @@ public class Statistics {
     /** Statistics about a certain path */
     private HashMap<Path, Map<PATH_ATTRIBUTES, String>> pathMap = new HashMap<>();
     /** List of visited nodes */
-    private List<OSMNode> visitedNodes = new ArrayList<>();
+    private List<Node> visitedNodes = new ArrayList<>();
 
-    public List<OSMNode> getVisitedNodes() {
+    public List<Node> getVisitedNodes() {
         return visitedNodes;
     }
 
@@ -35,11 +35,11 @@ public class Statistics {
      * @param nodes
      * @see #MAX_VISITED_NODES
      */
-    public void setVisitedNodes(Collection<? extends OSMNode> nodes) {
+    public void setVisitedNodes(Collection<? extends Node> nodes) {
         this.visitedNodes = new ArrayList<>();
         if (nodes.size() > MAX_VISITED_NODES) {
             log.log(Level.INFO, "{0} visited nodes were requested to be stored. Storing only the first {1}", new Object[]{nodes.size(), MAX_VISITED_NODES});
-            for (Iterator<? extends OSMNode> it = nodes.iterator(); this.visitedNodes.size() < MAX_VISITED_NODES;) {
+            for (Iterator<? extends Node> it = nodes.iterator(); this.visitedNodes.size() < MAX_VISITED_NODES;) {
                 this.visitedNodes.add(it.next());
             }
         } else {

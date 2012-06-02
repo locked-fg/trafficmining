@@ -1,9 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
 import de.lmu.ifi.dbs.trafficmining.algorithms.skyline.*;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.result.*;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
@@ -17,8 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 // TODO build Embedding class containing the embedding and refpoints
-public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
-        extends Algorithm<N, OSMGraph<N, L>, Path> {
+public class OSMSkyline<N extends Node<L>, L extends Link<N>>
+        extends Algorithm<N, Graph<N, L>, Path> {
 
     private static final String STAT_RUNTIME = "Runtime";
     private static final String STAT_NUM_REFPOINTS = "# of reference points";
@@ -406,7 +406,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
             return resultInternal;
         }
 
-        for (OSMLink<N> aktLink : dest.getInLinks()) {
+        for (Link<N> aktLink : dest.getInLinks()) {
             OSMComplexPath aktPath = new OSMComplexPath(dest, aktLink, linkToCost(aktLink, weights));
             OSMSubSkyline sub = nodeTab.get(aktPath.getLast());
             if (sub == null) {
@@ -514,7 +514,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
                 continue;
             }
             p.setProcessed();
-            for (OSMLink aLink : links) {
+            for (Link aLink : links) {
                 if (!p.contains(aLink)) {
                     out.add(new OSMComplexPath(p, aLink, linkToCost(aLink, weights)));
                 }
@@ -580,7 +580,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
         weights[p] = 1;
         UpdatablePriorityQueue<PriorityPath> q = new UpdatablePriorityQueue<>(true);
 
-        for (OSMLink<N> aktLink : startRefNode.getInLinks()) {
+        for (Link<N> aktLink : startRefNode.getInLinks()) {
             OSMComplexPath aktPath = new OSMComplexPath(startRefNode, aktLink, linkToCost(aktLink, null));
             q.insertIfBetter(new PriorityPath(aktPath.prefVal(weights), aktPath));
         }
@@ -600,7 +600,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
             if (Float.isNaN(nodeWrapper.getRefDist(p, startRefNode))) {
                 // Wert speichern
                 nodeWrapper.setRefDist(p, startRefNode, (float) aktPrioPath.getPriority());
-                for (OSMLink<N> aktLink : lastNode.getInLinks()) {
+                for (Link<N> aktLink : lastNode.getInLinks()) {
                     OSMComplexPath nPath = new OSMComplexPath(path, aktLink, linkToCost(aktLink, null));
                     q.insertIfBetter(new PriorityPath(nPath.prefVal(weights), nPath));
                 }
@@ -612,7 +612,7 @@ public class OSMSkyline<N extends OSMNode<L>, L extends OSMLink<N>>
      * @param l Link
      * @return array of weights
      */
-    private float[] linkToCost(OSMLink<N> l, float[] weights) {
+    private float[] linkToCost(Link<N> l, float[] weights) {
         float x = (float) l.getLength() / 1000;
         float v = l.getSpeed();
         float t = x / v; // v = x/t

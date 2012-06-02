@@ -1,7 +1,7 @@
 package de.lmu.ifi.dbs.trafficmining.painter;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
 import java.awt.Color;
@@ -26,18 +26,18 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
     private final int arrowSize = 5;
     private final double pi4 = Math.PI / 4;
     private final Color color = Color.blue;
-    private List<Path<?, ? extends OSMNode, ? extends OSMLink>> paths;
+    private List<Path<?, ? extends Node, ? extends Link>> paths;
 
     public void clear() {
         paths = Collections.EMPTY_LIST;
     }
 
-    public void setPath(Path<?, ? extends OSMNode, ? extends OSMLink> path) {
+    public void setPath(Path<?, ? extends Node, ? extends Link> path) {
         this.paths = new ArrayList<>(1);
         this.paths.add(path);
     }
 
-    public void setPath(List<Path<?, ? extends OSMNode, ? extends OSMLink>> pathList) {
+    public void setPath(List<Path<?, ? extends Node, ? extends Link>> pathList) {
         this.paths = pathList;
     }
 
@@ -52,14 +52,14 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
         g.setColor(color);
         TileFactory tf = map.getTileFactory();
 
-        for (Path<?, ? extends OSMNode, ? extends OSMLink> path : paths) {
+        for (Path<?, ? extends Node, ? extends Link> path : paths) {
             paintPath(path, tf, zoom, vp, g);
         }
     }
 
-    protected void paintPath(Path<?, ? extends OSMNode, ? extends OSMLink> path, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
+    protected void paintPath(Path<?, ? extends Node, ? extends Link> path, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
         Path last;
-        List<OSMNode> nodeList = new ArrayList<>();
+        List<Node> nodeList = new ArrayList<>();
         do {
             nodeList.clear();
             if (inViewPort(path, tf, zoom, vp)) {
@@ -67,7 +67,7 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
                 paintMainNode(path.getLast(), tf, zoom, vp, g);
 
                 // paint link nodes
-                OSMLink link = path.getLink();
+                Link link = path.getLink();
                 if (link != null) {
                     nodeList.addAll(link.getNodes());
                     if (nodeList.isEmpty()) {
@@ -85,10 +85,10 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
             last = path;
             path = path.getParent();
         } while (path != null);
-        paintMainNode((OSMNode) last.getFirst(), tf, zoom, vp, g);
+        paintMainNode((Node) last.getFirst(), tf, zoom, vp, g);
     }
 
-    private void paintLink(List<OSMNode> nodes, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
+    private void paintLink(List<Node> nodes, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
         Point2D src, dst;
         int x1, y1;
         int x2, y2;
@@ -146,7 +146,7 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
      * @param vp
      * @param g
      */
-    private void paintMainNode(OSMNode node, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
+    private void paintMainNode(Node node, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
         Point2D srcPoint = tf.geoToPixel(node.getGeoPosition(), zoom);
         int x = (int) (srcPoint.getX() - vp.getX());
         int y = (int) (srcPoint.getY() - vp.getY());
@@ -162,7 +162,7 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
      * @param vp
      * @return true if both are in the viewport, false otherwise
      */
-    private boolean inViewPort(Path<?, ? extends OSMNode, ? extends OSMLink> path, TileFactory tf, int zoom, Rectangle2D vp) {
+    private boolean inViewPort(Path<?, ? extends Node, ? extends Link> path, TileFactory tf, int zoom, Rectangle2D vp) {
         Point2D srcPoint = tf.geoToPixel(path.getFirst().getGeoPosition(), zoom);
         if (vp.contains(srcPoint)) {
             return true;
@@ -174,8 +174,8 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
         return false;
     }
 
-    private List<OSMNode> listFromPath(Path<?, ? extends OSMNode, ? extends OSMLink> path) {
-        List<OSMNode> nodeList = new ArrayList<>(2);
+    private List<Node> listFromPath(Path<?, ? extends Node, ? extends Link> path) {
+        List<Node> nodeList = new ArrayList<>(2);
         nodeList.add(path.getFirst());
         nodeList.add(path.getLast());
         return nodeList;

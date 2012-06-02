@@ -1,8 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.result.Result;
 import de.lmu.ifi.dbs.trafficmining.result.Simplex1Result;
@@ -22,8 +22,8 @@ import java.util.logging.Logger;
  * @param <N>
  * @param <L>
  */
-public class AStar<N extends OSMNode<L>, L extends OSMLink<N>>
-        extends Algorithm<N, OSMGraph<N, L>, Path> {
+public class AStar<N extends Node<L>, L extends Link<N>>
+        extends Algorithm<N, Graph<N, L>, Path> {
 
     private static final String STAT_RUNTIME = "Runtime";
     private static final String STAT_NUM_VISITED_NODES = "# of visited nodes";
@@ -72,7 +72,7 @@ public class AStar<N extends OSMNode<L>, L extends OSMLink<N>>
         UpdatablePriorityQueue<PriorityPath> q = new UpdatablePriorityQueue<>(true);
 
         // initialize queue
-        for (OSMLink<N> aktLink : node1.getOutLinks()) {
+        for (Link<N> aktLink : node1.getOutLinks()) {
             WeightedPath<N, L> aktPath = new WeightedPath(node1, aktLink, linkCost(aktLink));
             if (updateVisited(aktPath.getLast(), aktPath)) {
                 q.insertIfBetter(new PriorityPath(aktPath.getCost(), aktPath));
@@ -90,7 +90,7 @@ public class AStar<N extends OSMNode<L>, L extends OSMLink<N>>
                 bestPath = p.getPath();
             }
 
-            for (OSMLink<N> link : p.getPath().getLast().getOutLinks()) {
+            for (Link<N> link : p.getPath().getLast().getOutLinks()) {
                 // don't follow the incoming link back again
                 if (p.getPath().contains(link)) {
                     continue;
@@ -112,7 +112,7 @@ public class AStar<N extends OSMNode<L>, L extends OSMLink<N>>
         return bestPath;
     }
 
-    private double linkCost(OSMLink link) {
+    private double linkCost(Link link) {
         return link.getLength() / 1000d; //meter/1000 -> km
     }
 
@@ -190,7 +190,7 @@ public class AStar<N extends OSMNode<L>, L extends OSMLink<N>>
         }
     }
 
-    class WeightedPath<N extends OSMNode<L>, L extends OSMLink<N>>
+    class WeightedPath<N extends Node<L>, L extends Link<N>>
             extends Path<WeightedPath, N, L> {
 
         private final double cost;

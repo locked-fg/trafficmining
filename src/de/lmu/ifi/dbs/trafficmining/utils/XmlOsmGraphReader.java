@@ -1,8 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining.utils;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -24,7 +24,7 @@ public class XmlOsmGraphReader {
     private static final Logger log = Logger.getLogger(XmlOsmGraphReader.class.getName());
     private final File osmXML;
     private final List<String> tagWhitelist;
-    private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
+    private Graph<Node<Link>, Link<Node>> graph;
     private XmlOsmHandler xmlHandler;
 
     public XmlOsmGraphReader(File osmXML, List<String> tagWhitelist) {
@@ -45,7 +45,7 @@ public class XmlOsmGraphReader {
             return;
         }
 
-        graph = new OSMGraph<>();
+        graph = new Graph<>();
         graph.addNodeList(xmlHandler.getListNodes());
         graph.setLinkList(xmlHandler.getListLinks());
 
@@ -67,7 +67,7 @@ public class XmlOsmGraphReader {
         parser.parse(osmXML, xmlHandler);
     }
 
-    public OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> getGraph() {
+    public Graph<Node<Link>, Link<Node>> getGraph() {
         return graph;
     }
 }

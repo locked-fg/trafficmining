@@ -1,9 +1,9 @@
 package de.lmu.ifi.dbs.trafficmining.painter;
 
 import de.lmu.ifi.dbs.trafficmining.TrafficminingProperties;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -32,8 +32,8 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
     private HashMap<Integer, List<String>> zoomToLinkWhitelist = new HashMap<>();
     private final Color wayColor = Color.red;
     private final Color oneWayCOlor = new Color(0, 100, 0);
-    private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
-    private WeakHashMap<OSMNode, Point2D> geo2pixel = new WeakHashMap<>(1000);
+    private Graph<Node<Link>, Link<Node>> graph;
+    private WeakHashMap<Node, Point2D> geo2pixel = new WeakHashMap<>(1000);
     private int lastZoom = -1;
     private final double pi4 = Math.PI / 4;
     private final int arrowSize = 5;
@@ -60,7 +60,7 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         }
     }
 
-    public void setGraph(OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph) {
+    public void setGraph(Graph<Node<Link>, Link<Node>> graph) {
         this.graph = graph;
         this.geo2pixel.clear();
     }
@@ -86,15 +86,15 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         // dividing by 2 is done in order to protect a little area around each pixel
         boolean[][] pixels = new boolean[1 + ((int) viewportBounds.getWidth()) >> 1][1 + ((int) viewportBounds.getHeight()) >> 1];
 
-        List<OSMNode> nodes = new ArrayList<>(graph.getNodes().size() / 10);
+        List<Node> nodes = new ArrayList<>(graph.getNodes().size() / 10);
         HashSet processedLinks = new HashSet(1000);
         Point2D point;
-        for (OSMNode<OSMLink> node : graph.getNodes()) {
+        for (Node<Link> node : graph.getNodes()) {
             point = toPixel(node, tf, zoom);
             if (vp2.contains(point)) {
                 // paint links?
                 boolean painted = false;
-                for (OSMLink<OSMNode> link : node.getLinks()) {
+                for (Link<Node> link : node.getLinks()) {
                     if (processedLinks.add(link) && isPaintable(link, zoom)) {
                         painted = true;
                         g.setColor(link.isOneway() ? oneWayCOlor : wayColor);
@@ -124,7 +124,7 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
      * @param zoom
      * @return true if it should be painted, false otherwise
      */
-    private boolean isPaintable(OSMLink<OSMNode> link, Integer zoom) {
+    private boolean isPaintable(Link<Node> link, Integer zoom) {
         String highway = link.getAttr(LINK_PAINT_ATTRIBUTE);
 
         // don't paint the link if it is not even a highway
@@ -151,7 +151,7 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         return whitelist.contains(highway);
     }
 
-    private void paintLink(List<OSMNode> nodes, OSMLink<OSMNode> link, Graphics2D g, TileFactory tf, int zoom, Rectangle2D vp2) {
+    private void paintLink(List<Node> nodes, Link<Node> link, Graphics2D g, TileFactory tf, int zoom, Rectangle2D vp2) {
         int pixDist = length(link, tf, zoom);
         //System.out.println("pixDist: "+pixDist+"link: "+link+" zoom: "+zoom);
         if (pixDist <= 3) {
@@ -208,7 +208,7 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         g.drawLine(sx, sy, sx + dx, sy + dy);
     }
 
-    private Point2D toPixel(OSMNode n, TileFactory tf, int zoom) {
+    private Point2D toPixel(Node n, TileFactory tf, int zoom) {
         Point2D p = geo2pixel.get(n);
         if (p == null) {
             p = tf.geoToPixel(n.getGeoPosition(), zoom);
@@ -217,7 +217,7 @@ public class GraphPainter extends AbstractPainter<JXMapViewer> {
         return p;
     }
 
-    private int length(OSMLink<OSMNode> link, TileFactory tf, int zoom) {
+    private int length(Link<Node> link, TileFactory tf, int zoom) {
         Point2D a = toPixel(link.getSource(), tf, zoom);
         Point2D b = toPixel(link.getTarget(), tf, zoom);
         return (int) a.distance(b);

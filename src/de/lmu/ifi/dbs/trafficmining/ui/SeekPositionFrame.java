@@ -2,9 +2,9 @@ package de.lmu.ifi.dbs.trafficmining.ui;
 
 import de.lmu.ifi.dbs.trafficmining.TileServer;
 import de.lmu.ifi.dbs.trafficmining.TileServerFactory;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
@@ -18,9 +18,9 @@ import org.jdesktop.swingx.mapviewer.GeoPosition;
 public class SeekPositionFrame extends javax.swing.JFrame {
 
     static final Logger log = Logger.getLogger(SeekPositionFrame.class.getName());
-    private final OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
+    private final Graph<Node<Link>, Link<Node>> graph;
     private final GeoPosition centeredGeoPos;
-    private OSMNode node = null;
+    private Node node = null;
     private GeoPosition coord = null;
     private JXMapViewer map;
 
@@ -37,7 +37,7 @@ public class SeekPositionFrame extends javax.swing.JFrame {
     /**
      * Creates new form SeekPositionFrame
      */
-    public SeekPositionFrame(OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> g, GeoPosition center) {
+    public SeekPositionFrame(Graph<Node<Link>, Link<Node>> g, GeoPosition center) {
         initComponents();
         this.graph = g;
         this.setLocationRelativeTo(null);
@@ -76,7 +76,7 @@ public class SeekPositionFrame extends javax.swing.JFrame {
 
     }
 
-    public OSMNode getNode() {
+    public Node getNode() {
         return node;
     }
 
@@ -188,10 +188,10 @@ public class SeekPositionFrame extends javax.swing.JFrame {
         }
 
         final HashSet<LinkWrapper> hits = new HashSet<>();
-        final HashSet<OSMLink> visitedLinks = new HashSet<>();
+        final HashSet<Link> visitedLinks = new HashSet<>();
 
-        for (OSMNode<OSMLink> node : graph.getNodes()) {
-            for (OSMLink<OSMNode> link : node.getLinks()) {
+        for (Node<Link> node : graph.getNodes()) {
+            for (Link<Node> link : node.getLinks()) {
                 if (visitedLinks.add(link)) { // true : did not yet contain the link
                     // now check the properties of the link
                     String name = link.getAttr("name");
@@ -244,10 +244,10 @@ public class SeekPositionFrame extends javax.swing.JFrame {
     // End of variables declaration
     class LinkWrapper {
 
-        private final OSMNode node;
+        private final Node node;
         private final String name;
 
-        private LinkWrapper(OSMNode node, String name) {
+        private LinkWrapper(Node node, String name) {
             this.node = node;
             this.name = name;
         }

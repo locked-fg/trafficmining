@@ -1,6 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.ui;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.DefaultListModel;
@@ -29,7 +29,7 @@ public class NodeListModel extends DefaultListModel {
      */
     @Override
     public void add(int index, Object element) {
-        if (!OSMNode.class.isAssignableFrom(element.getClass())) {
+        if (!Node.class.isAssignableFrom(element.getClass())) {
             throw new IllegalArgumentException("element MUST be of type OSMNode");
         }
         super.add(index, element);
@@ -44,7 +44,7 @@ public class NodeListModel extends DefaultListModel {
      */
     @Override
     public void addElement(Object obj) {
-        if (!OSMNode.class.isAssignableFrom(obj.getClass())) {
+        if (!Node.class.isAssignableFrom(obj.getClass())) {
             throw new IllegalArgumentException("element MUST be of type OSMNode");
         }
         super.addElement(obj);
@@ -53,12 +53,12 @@ public class NodeListModel extends DefaultListModel {
     /**
      * @return list of OSMNodes added to the model
      */
-    public List<OSMNode> getNodes() {
-        List<OSMNode> result = new ArrayList<>(getSize());
+    public List<Node> getNodes() {
+        List<Node> result = new ArrayList<>(getSize());
         for (int i = 0; i < getSize(); i++) {
             Object o = get(i);
-            if (o instanceof OSMNode) {
-                result.add((OSMNode) o);
+            if (o instanceof Node) {
+                result.add((Node) o);
             }
         }
         return result;
@@ -70,7 +70,7 @@ public class NodeListModel extends DefaultListModel {
      */
     public List<Waypoint> getWaypoints() {
         List<Waypoint> result = new ArrayList<>(getSize());
-        for (OSMNode node : getNodes()) {
+        for (Node node : getNodes()) {
             result.add(new Waypoint(node.getGeoPosition()));
         }
         return result;

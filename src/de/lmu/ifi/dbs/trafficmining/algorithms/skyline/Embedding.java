@@ -1,7 +1,7 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms.skyline;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import java.io.*;
 import java.util.Arrays;
@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Embedding<N extends OSMNode> {
+public class Embedding<N extends Node> {
 
     private static final Logger log = Logger.getLogger(Embedding.class.getName());
     private Map<N, NodeWrapper<N>> embedding = new HashMap<>();
@@ -68,7 +68,7 @@ public class Embedding<N extends OSMNode> {
         log.log(Level.INFO, "serialized embedding ({0} entries) in {1}ms", new Object[]{embedding.size(), after - before});
     }
 
-    public void deserializeFrom(OSMGraph<N, ?> g, File file) throws IOException {
+    public void deserializeFrom(Graph<N, ?> g, File file) throws IOException {
         if (file == null || g == null) {
             throw new NullPointerException("file and graph must not be null.");
         }

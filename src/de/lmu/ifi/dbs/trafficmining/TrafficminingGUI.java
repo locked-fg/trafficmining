@@ -2,9 +2,9 @@ package de.lmu.ifi.dbs.trafficmining;
 
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import de.lmu.ifi.dbs.trafficmining.clustering.*;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.painter.GraphPainter;
 import de.lmu.ifi.dbs.trafficmining.painter.NodePainter;
@@ -75,7 +75,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     //
     private Result result;
     private Statistics statistics;
-    private OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
+    private Graph<Node<Link>, Link<Node>> graph;
     private LoadGraphWorker loadGraphWorker;
     private AlgorithmWorker calculator;
     private StatisticsFrame statisticsFrame;
@@ -261,9 +261,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         String statusText = String.format("Finished loading graph. %d links, %d nodes", graph.getLinkCount(), graph.getNodes().size());
         statusbarLabel.setText(statusText);
         graphPainter.setGraph(graph);
-        Collection<OSMNode<OSMLink>> nodes = graph.getNodes();
+        Collection<Node<Link>> nodes = graph.getNodes();
         Set<GeoPosition> geo_set = new HashSet<>();
-        for (OSMNode<OSMLink> oSMNode : nodes) {
+        for (Node<Link> oSMNode : nodes) {
             geo_set.add(oSMNode.getGeoPosition());
         }
         if (nodes.size() > 0) {
@@ -347,7 +347,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             public void windowClosed(WindowEvent e) {
                 SeekPositionFrame spf = (SeekPositionFrame) e.getWindow();
                 spf.removeWindowListener(this);
-                OSMNode node = spf.getNode();
+                Node node = spf.getNode();
                 if (node != null) {
                     osmNodeListModel1.addElement(node);
                     nodeWaypointList.ensureIndexIsVisible(osmNodeListModel1.size() - 1);
@@ -393,7 +393,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         if (items.isEmpty()) {
             pathPainter.clear();
         } else {
-            List<Path<?, ? extends OSMNode, ? extends OSMLink>> pathList = new ArrayList<>();
+            List<Path<?, ? extends Node, ? extends Link>> pathList = new ArrayList<>();
             for (SimplexResultEntry resultEntry : items) {
                 pathList.add(resultEntry.getPath());
                 list.add(resultEntry);
