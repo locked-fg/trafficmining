@@ -31,6 +31,8 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URL;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 import javax.swing.event.MouseInputListener;
@@ -160,7 +162,7 @@ public class JXMapViewer extends JXPanel implements DesignMode {
             URL url = this.getClass().getResource("mapviewer/resources/loading.png");
             this.setLoadingImage(ImageIO.read(url));
         } catch (Throwable ex) {
-            System.out.println("could not load 'loading.png'");
+            Logger.getLogger(JXMapViewer.class.getName()).log(Level.WARNING, "could not load 'loading.png'");
             BufferedImage img = new BufferedImage(16,16,BufferedImage.TYPE_INT_ARGB);
             Graphics2D g2 = img.createGraphics();
             g2.setColor(Color.black);
@@ -215,9 +217,9 @@ public class JXMapViewer extends JXPanel implements DesignMode {
         return designTime;
     }
     
-    private static void p(String s) {
-        System.out.println(s);
-    }
+//    private static void p(String s) {
+//        System.out.println(s);
+//    }
     
     /**
      * Draw the map tiles. This method is for implementation use only.

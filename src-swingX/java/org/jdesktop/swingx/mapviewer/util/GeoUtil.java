@@ -152,14 +152,12 @@ public final class GeoUtil {
                     "&street="+street.replace(' ','+')+
                     "&city="+city.replace(' ','+')+
                     "&state="+state.replace(' ','+'));
-            //System.out.println("using address: " + load);
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.parse(load.openConnection().getInputStream());
             XPath xpath = XPathFactory.newInstance().newXPath();
             //NodeList str = (NodeList)xpath.evaluate("//Result",doc,XPathConstants.NODESET);
             Double lat = (Double)xpath.evaluate("//Result/Latitude/text()",doc,XPathConstants.NUMBER);
             Double lon = (Double)xpath.evaluate("//Result/Longitude/text()",doc,XPathConstants.NUMBER);
-            //System.out.println("got address at: " + lat + " " + lon);
             return new GeoPosition(lat,lon);
         } catch (IOException e) {
             throw e;

@@ -9,8 +9,11 @@
 
 package org.jdesktop.swingx;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JApplet;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.mapviewer.Waypoint;
@@ -33,9 +36,8 @@ public class JXMapViewerApplet extends JApplet {
                     createGUI();
                 }
             });
-        } catch (Exception e) {
-            System.err.println("createGUI didn't successfully complete");
-            e.printStackTrace();
+        } catch (InterruptedException | InvocationTargetException e) {
+            Logger.getLogger(JXMapViewerApplet.class.getName()).log(Level.WARNING, "createGUI didn't successfully complete", e);
         }
     }
     

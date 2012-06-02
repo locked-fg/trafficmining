@@ -195,10 +195,6 @@ public class Tile extends AbstractBean {
         }
     }
     
-    private static void p(String string) {
-        System.out.println(string);
-    }
-    
 	/**
 	 * @return the error
 	 */
