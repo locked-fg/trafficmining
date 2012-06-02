@@ -1,7 +1,7 @@
 package de.lmu.ifi.dbs.trafficmining.utils;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import java.util.Iterator;
 import java.util.List;
 
@@ -35,7 +35,7 @@ public class GreatcircleDistance implements GeoDistance {
      * @return distance (possibly) regarding elevation data in m
      */
     @Override
-    public double distance(OSMNode a, OSMNode b) {
+    public double distance(Node a, Node b) {
         // 2d distance
         double d = distance(a.getLat(), a.getLon(), b.getLat(), b.getLon());
 
@@ -81,13 +81,13 @@ public class GreatcircleDistance implements GeoDistance {
      * @see OSMLink#getNodes()
      */
     @Override
-    public double length(OSMLink<? extends OSMNode> link) {
-        List<? extends OSMNode> nodes = link.getNodes();
+    public double length(Link<? extends Node> link) {
+        List<? extends Node> nodes = link.getNodes();
         double length = 0;
 
         // don't use a for loop here as link need not be a random access list.
-        Iterator<? extends OSMNode> it = nodes.iterator();
-        OSMNode b, a = it.next();
+        Iterator<? extends Node> it = nodes.iterator();
+        Node b, a = it.next();
         while (it.hasNext()) {
             b = it.next();
             length += distance(a, b);

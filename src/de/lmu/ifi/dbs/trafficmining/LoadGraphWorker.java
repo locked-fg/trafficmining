@@ -1,8 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.utils.XmlOsmGraphReader;
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
  *
  * @author graf
  */
-public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
+public class LoadGraphWorker extends SwingWorker<Graph, Void> {
 
     private static final String WHITELIST_KEY = "tags";
     private static final String WHITELIST_VALUE_SEPARATOR = ";";
@@ -59,8 +59,8 @@ public class LoadGraphWorker extends SwingWorker<OSMGraph, Void> {
     }
 
     @Override
-    protected OSMGraph doInBackground() throws IOException, ParserConfigurationException, SAXException {
-        OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph = null;
+    protected Graph doInBackground() throws IOException, ParserConfigurationException, SAXException {
+        Graph<Node<Link>, Link<Node>> graph = null;
         try {
             log.log(Level.FINE, "reading graph from {0}", osmXml.getName());
             long a = System.currentTimeMillis();

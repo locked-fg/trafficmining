@@ -5,12 +5,12 @@ import de.lmu.ifi.dbs.trafficmining.graph.Node;
 public class OSMNoApproximation<N extends Node> implements OSMApproximation<N> {
 
     @Override
-    public float estimate(Node node1, Node node2) {
+    public float estimate(N node1, N node2) {
         return 0;
     }
 
     @Override
-    public float estimateX(Node node1, Node node2, int attributeIndex) {
+    public float estimateX(N node1, N node2, int attributeIndex) {
         return 0;
     }
 }

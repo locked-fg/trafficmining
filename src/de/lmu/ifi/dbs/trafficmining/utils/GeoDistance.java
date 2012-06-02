@@ -1,7 +1,7 @@
 package de.lmu.ifi.dbs.trafficmining.utils;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 
 /**
  * Interface for various distance measures between nodes or links.
@@ -28,7 +28,7 @@ public interface GeoDistance {
      * @param link
      * @return length of the link in m
      */
-    public double length(OSMLink<? extends OSMNode> link);
+    public double length(Link<? extends Node> link);
 
     /**
      * Computes the distance between to OSMNodes
@@ -37,7 +37,7 @@ public interface GeoDistance {
      * @param b
      * @return distance in meters - possibly regarding height values
      */
-    public double distance(OSMNode a, OSMNode b);
+    public double distance(Node a, Node b);
 
     /**
      * Computes the distance between to coordinate values

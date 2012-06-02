@@ -1,8 +1,8 @@
 package de.lmu.ifi.dbs.trafficmining.ui;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMGraph;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Graph;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -19,12 +19,12 @@ import org.jdesktop.swingx.mapviewer.WaypointPainter;
  */
 public class MapToNodeList extends MouseAdapter {
 
-    private final OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph;
+    private final Graph<Node<Link>, Link<Node>> graph;
     private final NodeListModel nodeListModel;
     private final JList nodeWaypointList;
     private final WaypointPainter<JXMapViewer> startEndPainter;
 
-    public MapToNodeList(OSMGraph<OSMNode<OSMLink>, OSMLink<OSMNode>> graph,
+    public MapToNodeList(Graph<Node<Link>, Link<Node>> graph,
             JList waypointList, WaypointPainter<JXMapViewer> startEndPainter) {
         this.graph = graph;
         this.nodeWaypointList = waypointList;
@@ -36,13 +36,13 @@ public class MapToNodeList extends MouseAdapter {
     public void mouseClicked(MouseEvent e) {
         JXMapViewer map = (JXMapViewer) e.getSource();
         GeoPosition pos = map.convertPointToGeoPosition(e.getPoint());
-        OSMNode node = OSMUtils.getNearestNode(pos, graph);
+        Node node = OSMUtils.getNearestNode(pos, graph);
         if (nodeListModel.contains(node)) {
             nodeListModel.removeElement(node);
         } else {
-            List<OSMLink> links = node.getLinks();
+            List<Link> links = node.getLinks();
             String name = new String();
-            for (OSMLink oSMLink : links) {
+            for (Link oSMLink : links) {
                 String l_name = oSMLink.getAttr("name");
                 if (l_name != null && !name.contains(l_name)) {
                     name += l_name + "; ";

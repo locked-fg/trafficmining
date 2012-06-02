@@ -1,7 +1,7 @@
 package de.lmu.ifi.dbs.trafficmining.utils;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -23,12 +23,12 @@ import org.xml.sax.helpers.DefaultHandler;
 class XmlOsmHandler extends DefaultHandler {
 
     private static final Logger log = Logger.getLogger(XmlOsmGraphReader.class.getName());
-    private HashMap<Integer, OSMNode<OSMLink>> hm_nodes = new HashMap<>();
-    private List<OSMNode<OSMLink>> list_nodes = new ArrayList<>();
+    private HashMap<Integer, Node<Link>> hm_nodes = new HashMap<>();
+    private List<Node<Link>> list_nodes = new ArrayList<>();
     private LinkedList<String> list_nodeIDatWay = null;
     private LinkedList<String[]> list_wayAttribs = null;
-    private List<OSMLink<OSMNode>> list_links = new ArrayList<>();
-    private OSMNode currentNode = null;
+    private List<Link<Node>> list_links = new ArrayList<>();
+    private Node currentNode = null;
     private boolean open_node = false; // indicates that a <node> is currently processed
     private boolean open_way = false;// indicates that a <way> is currently processed
     private String way_ID = "";
@@ -58,7 +58,7 @@ class XmlOsmHandler extends DefaultHandler {
                 String id = attributes.getValue("id").intern();
                 String lat = attributes.getValue("lat");
                 String lon = attributes.getValue("lon");
-                currentNode = new OSMNode(Integer.parseInt(id));
+                currentNode = new Node(Integer.parseInt(id));
                 currentNode.setLat(Double.parseDouble(lat));
                 currentNode.setLon(Double.parseDouble(lon));
                 break;
@@ -118,10 +118,10 @@ class XmlOsmHandler extends DefaultHandler {
         }
         switch (qName) {
             case "way":
-                OSMLink<OSMNode> link;
+                Link<Node> link;
                 open_way = false;
-                OSMNode src = null;
-                OSMNode dst = null;
+                Node src = null;
+                Node dst = null;
                 String first = list_nodeIDatWay.peekFirst().intern();
                 String last = list_nodeIDatWay.peekLast().intern();
                 if (first != null) {
@@ -157,9 +157,9 @@ class XmlOsmHandler extends DefaultHandler {
                 }
                 if (highway) {
                     if (!reverse) {
-                        link = new OSMLink(src, dst, oneway);
+                        link = new Link(src, dst, oneway);
                     } else {
-                        link = new OSMLink(dst, src, oneway);
+                        link = new Link(dst, src, oneway);
                     }
                     link.setId(Integer.parseInt(way_ID));
 
@@ -172,7 +172,7 @@ class XmlOsmHandler extends DefaultHandler {
                             nodeID = list_nodeIDatWay.pollLast().intern();
                         }
                         if (nodeID != null) {
-                            OSMNode worky = hm_nodes.get(Integer.parseInt(nodeID));
+                            Node worky = hm_nodes.get(Integer.parseInt(nodeID));
                             if (worky != null) {
                                 link.addNodes(worky);
                             }
@@ -235,11 +235,11 @@ class XmlOsmHandler extends DefaultHandler {
         log.log(Level.INFO, "total number: nodes: {0}, links: {1}", new Object[]{list_nodes.size(), list_links.size()});
     }
 
-    public List<OSMNode<OSMLink>> getListNodes() {
+    public List<Node<Link>> getListNodes() {
         return list_nodes;
     }
 
-    public List<OSMLink<OSMNode>> getListLinks() {
+    public List<Link<Node>> getListLinks() {
         return list_links;
     }
 }

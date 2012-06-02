@@ -1,13 +1,13 @@
 package de.lmu.ifi.dbs.trafficmining.algorithms.skyline;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMLink;
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Link;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OSMComplexPath<N extends OSMNode<L>, L extends OSMLink<N>>  
+public class OSMComplexPath<N extends Node<L>, L extends Link<N>>  
      extends Path<OSMComplexPath, N, L> {
 
     private final float[] cost;

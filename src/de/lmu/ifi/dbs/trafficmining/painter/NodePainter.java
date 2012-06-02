@@ -1,6 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.painter;
 
-import de.lmu.ifi.dbs.trafficmining.graph.OSMNode;
+import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils;
 import java.awt.Color;
 import java.awt.Graphics2D;
@@ -18,7 +18,7 @@ public class NodePainter extends AbstractPainter<JXMapViewer> {
 
     private final Color colorFill = new Color(0, 200, 0, 180);
     private final Color colorBorder = new Color(100, 100, 100, 100);
-    private List<OSMNode> nodes;
+    private List<Node> nodes;
     private final int size = 8;
 
     public NodePainter() {
@@ -29,7 +29,7 @@ public class NodePainter extends AbstractPainter<JXMapViewer> {
         nodes = Collections.EMPTY_LIST;
     }
 
-    public void setNodes(Collection<? extends OSMNode> nodeList) {
+    public void setNodes(Collection<? extends Node> nodeList) {
         nodes = new ArrayList<>(nodeList);
     }
 
@@ -44,7 +44,7 @@ public class NodePainter extends AbstractPainter<JXMapViewer> {
         TileFactory tf = map.getTileFactory();
 
         int halfSize = size / 2;
-        for (OSMNode node : nodes) {
+        for (Node node : nodes) {
             Point2D srcPoint = tf.geoToPixel(node.getGeoPosition(), zoom);
             if (!vp.contains(srcPoint)) {
                 continue;
