@@ -138,6 +138,8 @@ public class MapWrapper extends javax.swing.JPanel {
         mapKit = new org.jdesktop.swingx.JXMapKit();
 
         setLayout(new java.awt.BorderLayout());
+
+        mapKit.setMiniMapVisible(false);
         add(mapKit, java.awt.BorderLayout.CENTER);
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
