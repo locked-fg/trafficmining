@@ -93,11 +93,7 @@ public class Node<L extends Link> {
 
     @Override
     public String toString() {
-        if (name == null) {
-            return super.toString();
-        } else {
-            return super.toString() + ", " + name;
-        }
+        return "[node id: " + id + ",lat/lon: " + lat + "," + lon + "]";
     }
 
     public List<L> getOutLinks() {
