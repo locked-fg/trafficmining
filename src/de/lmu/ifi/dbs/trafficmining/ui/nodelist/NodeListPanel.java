@@ -1,7 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.ui.nodelist;
 
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
-import de.lmu.ifi.dbs.trafficmining.ui.PopupListener;
 import de.lmu.ifi.dbs.utilities.Collections2;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
@@ -19,7 +18,6 @@ public class NodeListPanel extends javax.swing.JPanel {
 
     public NodeListPanel() {
         initComponents();
-        list.addMouseListener(new PopupListener());
 
         removeItem.setAction(new AbstractAction() {
             @Override
