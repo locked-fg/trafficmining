@@ -16,10 +16,28 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
         Iterable<N> {
 
     static final Logger log = Logger.getLogger(Path.class.getName());
+    /**
+     * The last node of this path.
+     */
     private final N endNode;
+    /**
+     * The first node of the complete path hierarchy. The start node of this
+     * path segment can ge obtained by {@link #getLocalStart()}
+     */
     private final N startNode;
+    /**
+     * Reference pointer to the parent path segment or null if this is the first
+     * segment in the path.
+     */
     private final P previousPath;
+    /**
+     * The link that represents the current path segment or null if the path was
+     * constructed just by defining nodes.
+     */
     private final L link;
+    /**
+     * The amount of path segments from the first segment to this segment.
+     */
     private final int hops;
 
     /**
@@ -39,8 +57,8 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
     /**
      * Generates a path between the given nodes.<br>
      *
-     * If the nodes are connected by multible links, it will not be clear which
-     * link should be used!
+     * If the nodes are connected by multible links, it will not be determinable
+     * which link should be used!
      *
      * @see #Path(de.lmu.ifi.dbs.trafficmining.graph.Node,
      * de.lmu.ifi.dbs.trafficmining.graph.Link) as preferred method
@@ -108,29 +126,47 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
         this.link = link;
     }
 
+    /**
+     * Determines the length in term of path segments of this path hierarchy.
+     *
+     * @return amount of path segments on this hierarchy.
+     */
     public int getLength() {
         return hops;
     }
 
     /**
-     * returns the first node of concatenated paths
+     * Returns the first node of concatenated paths. If the start of this
+     * segment needs to be obtained, use {@link #getLocalStart()}
      *
-     * @return node of the first path of this path or parents' pathes
+     * @return node
      */
     public N getFirst() {
         return startNode;
     }
 
-    public N getLast() {
-        return endNode;
-    }
-
+    /**
+     * Returns the start of this path segment (either the start node or the end
+     * node of the parent path). Use {@link #getFirst()} in order to obtain the
+     * first node of the complete path hierarchy.
+     *
+     * @return start node of this segment.
+     */
     public N getLocalStart() {
         if (previousPath == null) {
             return startNode;
         } else {
             return (N) previousPath.getLast();
         }
+    }
+
+    /**
+     * Return the end of this path segment.
+     *
+     * @return node
+     */
+    public N getLast() {
+        return endNode;
     }
 
     /**
@@ -151,8 +187,13 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
         return link;
     }
 
+    /**
+     * Constructs a list of path segments of this hierarchy.
+     *
+     * @return path segment list starting with the first path at index 0
+     */
     protected List<P> getPathSegments() {
-        List<P> p = new ArrayList<>();
+        List<P> p = new ArrayList<>(getLength());
         P tmp = (P) this;
         while (tmp != null) {
             p.add(tmp);
@@ -191,6 +232,12 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
         return contains(link.getSource()) && contains(link.getTarget());
     }
 
+    /**
+     * checks whether this node is contained in this path hierarchy
+     *
+     * @param n the node to check
+     * @return true if n is part of the path, false otherwise
+     */
     public boolean contains(Node n) {
         if (getFirst().equals(n)) {
             return true;
@@ -220,6 +267,12 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
         return sb.toString();
     }
 
+    /**
+     * provides an iterator over all the nodes of this path, starting from the
+     * start node
+     *
+     * @return node iterator
+     */
     @Override
     public Iterator<N> iterator() {
         return getParentNodes().iterator();
