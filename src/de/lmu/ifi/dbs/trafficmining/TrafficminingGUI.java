@@ -6,9 +6,6 @@ import de.lmu.ifi.dbs.trafficmining.graph.Graph;
 import de.lmu.ifi.dbs.trafficmining.graph.Link;
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.trafficmining.painter.GraphPainter;
-import de.lmu.ifi.dbs.trafficmining.painter.NodePainter;
-import de.lmu.ifi.dbs.trafficmining.painter.PathPainter;
 import de.lmu.ifi.dbs.trafficmining.result.*;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl;
@@ -17,10 +14,9 @@ import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboBoxElement;
 import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboboxLoader;
 import de.lmu.ifi.dbs.trafficmining.ui.BeansConfigDialog;
 import de.lmu.ifi.dbs.trafficmining.ui.EnableTileserverAction;
-import de.lmu.ifi.dbs.trafficmining.ui.MapToNodeList;
 import de.lmu.ifi.dbs.trafficmining.ui.PbfImportFrame;
-import de.lmu.ifi.dbs.trafficmining.ui.SeekPositionFrame;
 import de.lmu.ifi.dbs.trafficmining.ui.StatisticsFrame;
+import de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeList2MapConnector;
 import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import java.awt.CardLayout;
@@ -43,29 +39,14 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableRowSorter;
 import javax.swing.tree.TreePath;
-import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.jdesktop.swingx.mapviewer.Waypoint;
-import org.jdesktop.swingx.mapviewer.WaypointPainter;
-import org.jdesktop.swingx.painter.CompoundPainter;
-import org.jdesktop.swingx.painter.Painter;
 
 public class TrafficminingGUI extends javax.swing.JFrame {
 
     private static final Logger log = Logger.getLogger(TrafficminingGUI.class.getName());
     private final TrafficminingProperties properties;
-    /**
-     * Mouselistener that is used to set the waypoints for the algorithm.
-     *
-     * The field is just needed to remove the listener after the waypoints have
-     * been set.
-     */
-    private MouseListener waypointSetter;
-    //
-    private final GraphPainter graphPainter = new GraphPainter();
-    private final PathPainter pathPainter = new PathPainter();
-    private final NodePainter visitedNodesPainter = new NodePainter();
-    private final WaypointPainter<JXMapViewer> startEndPainter = new WaypointPainter<>();
+    private final NodeList2MapConnector node2mapConnector;
     //
     private final LoadGraphAction loadAction = new LoadGraphAction();
     private final Map<Integer, SimplexResultEntry> results = new HashMap<>();
@@ -85,16 +66,16 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         log.info("start");
         initComponents();
 
+        this.properties = new TrafficminingProperties();
+        this.node2mapConnector = new NodeList2MapConnector(nodeListPanel, mapWrapper);
         setLocationRelativeTo(null);
 
-        properties = new TrafficminingProperties();
         initAlgorithmComboBox();
         initResultBindings();
         initClusterComponents();
 
         restoreLastMapPosition();
-        refreshPainters();
-        loadRecentGraph();
+        maybeLoadRecentGraph();
 
         resultTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             @Override
@@ -137,11 +118,12 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         clusterTree.setCellRenderer(new ClusterTreeCellRenderer());
     }
 
-    private void loadRecentGraph() {
+    private void maybeLoadRecentGraph() {
         String dir = properties.getProperty(TrafficminingProperties.lru_graph_dir);
         String file = properties.getProperty(TrafficminingProperties.lru_graph_file);
         boolean autoLoadGraph = properties.getBoolean(TrafficminingProperties.autoload_graph, false);
         autoloadMenuItem.setSelected(autoLoadGraph);
+
         if (autoLoadGraph && dir != null && file != null) {
             try {
                 File osmXml = new File(new File(dir), file);
@@ -241,7 +223,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    private void saveAndShutdown() {
+    private void saveProperties() {
         GeoPosition center = mapWrapper.getCenterPosition();
 
         properties.setProperty(TrafficminingProperties.map_last_zoom, mapWrapper.getZoom());
@@ -257,7 +239,13 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         busyLabel.setBusy(false);
         String statusText = String.format("Finished loading graph. %d links, %d nodes", graph.getLinkCount(), graph.getNodes().size());
         statusbarLabel.setText(statusText);
-        graphPainter.setGraph(graph);
+        node2mapConnector.setGraph(graph);
+
+        mapWrapper.paintGraph(null);
+        if (paintGraphMenuItem.isSelected()) {
+            mapWrapper.paintGraph(graph);
+        }
+
         Collection<Node<Link>> nodes = graph.getNodes();
         Set<GeoPosition> geo_set = new HashSet<>();
         for (Node<Link> oSMNode : nodes) {
@@ -268,9 +256,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             mapWrapper.calculateZoomFrom(geo_set);
         }
         mapWrapper.repaint();
-        editNodeButton.setEnabled(true);
 
-        clearNodeListModel();
         resetSimplexResultsClustersHighlightedPaths();
     }
 
@@ -288,7 +274,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         clusterTree.setModel(null);
 
         // reset highlighted paths
-        pathPainter.clear();
+        mapWrapper.paintPaths(Collections.EMPTY_LIST);
         mapWrapper.repaint();
     }
 
@@ -331,40 +317,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    private void openSeekWindow() {
-        if (graph == null) {
-            return;
-        }
-
-        GeoPosition aPosition = mapWrapper.getCenterPosition();
-        final SeekPositionFrame spf = new SeekPositionFrame(this.graph, aPosition);
-        spf.setVisible(true);
-        WindowAdapter wa = new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                SeekPositionFrame spf = (SeekPositionFrame) e.getWindow();
-                spf.removeWindowListener(this);
-                Node node = spf.getNode();
-                if (node != null) {
-                    osmNodeListModel1.addElement(node);
-                    nodeWaypointList.ensureIndexIsVisible(osmNodeListModel1.size() - 1);
-                    paintWaypoints(osmNodeListModel1.getWaypoints());
-
-                }
-            }
-        };
-        spf.addWindowListener(wa);
-    }
-
-    private void refreshPainters() {
-        List<Painter> list = new ArrayList<>();
+    private void showHideGraph() {
+        mapWrapper.paintGraph(null);
         if (paintGraphMenuItem.isSelected()) {
-            list.add(graphPainter);
+            mapWrapper.paintGraph(graph);
         }
-        list.add(visitedNodesPainter);
-        list.add(pathPainter);
-        list.add(startEndPainter);
-        mapWrapper.setOverlayPainter(new CompoundPainter(list.toArray(new Painter[]{})));
     }
 
     private void highlightResult() {
@@ -387,17 +344,15 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         SimplexControl simplexControl = resultToSimplexControl.get(resultClass);
         assert simplexControl != null;
         List<PointSource> list = new ArrayList<>();
-        if (items.isEmpty()) {
-            pathPainter.clear();
-        } else {
-            List<Path<?, ? extends Node, ? extends Link>> pathList = new ArrayList<>();
-            for (SimplexResultEntry resultEntry : items) {
-                pathList.add(resultEntry.getPath());
-                list.add(resultEntry);
-                log.log(Level.INFO, "highlighted: {0}", resultEntry.getPath().toString());
-            }
-            pathPainter.setPath(pathList);
+
+        List<Path<?, ? extends Node, ? extends Link>> pathList = new ArrayList<>();
+        for (SimplexResultEntry resultEntry : items) {
+            pathList.add(resultEntry.getPath());
+            list.add(resultEntry);
+            log.log(Level.INFO, "highlighted: {0}", resultEntry.getPath().toString());
         }
+        mapWrapper.paintPaths(pathList);
+
         simplexControl.setHighlight(list);
         mapWrapper.repaint();
     }
@@ -407,8 +362,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         simplexControl1D.setPoints(Collections.EMPTY_LIST);
         simplexControl2D.setPoints(Collections.EMPTY_LIST);
         simplexControl3D.setPoints(Collections.EMPTY_LIST);
-        pathPainter.setPath(Collections.EMPTY_LIST);
-        visitedNodesPainter.setNodes(Collections.EMPTY_LIST);
+        mapWrapper.paintPaths(Collections.EMPTY_LIST);
+        mapWrapper.paintNodes(Collections.EMPTY_LIST);
         repaint();
 
         if (graph == null) {
@@ -416,15 +371,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             return;
         }
 
-        if (osmNodeListModel1.isEmpty()) {
+        if (nodeListPanel.getNodes().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Route including start and endpoint must be set.");
             return;
         }
-
-        if (editNodeButton.isSelected()) {
-            editNodeButton.doClick();
-        }
-        editNodeButton.setEnabled(false);
 
         // cancel possibly running algorithm
         if (calculator != null && !calculator.isDone()) {
@@ -445,8 +395,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             log.log(Level.SEVERE, null, ex);
             busyLabel.setBusy(false);
-        } finally {
-            editNodeButton.setEnabled(true);
         }
     }
 
@@ -512,9 +460,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void showHideVisitedNodes() {
-        visitedNodesPainter.clear();
+        mapWrapper.paintNodes(Collections.EMPTY_LIST);
         if (statistics != null && visitedNodesItem.isSelected()) {
-            visitedNodesPainter.setNodes(statistics.getVisitedNodes());
+            mapWrapper.paintNodes(statistics.getVisitedNodes());
         }
         mapWrapper.repaint();
     }
@@ -563,7 +511,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
 
         currentAlgorithm.setGraph(graph);
-        currentAlgorithm.setNodes(osmNodeListModel1.getNodes());
+        currentAlgorithm.setNodes(nodeListPanel.getNodes());
     }
 
     private void loadGraphFromFile(File sourceFile) {
@@ -691,44 +639,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    /**
-     * Removes all nodes from the list of waypoints
-     */
-    private void clearNodeListModel() {
-        osmNodeListModel1.removeAllElements();
-        paintWaypoints(Collections.EMPTY_LIST);
-    }
-
-    /**
-     * Removes all selected nodes from the list of waypoints
-     */
-    private void deleteSelectedNodes() {
-        int[] selectedIx = nodeWaypointList.getSelectedIndices();
-        for (int i = selectedIx.length - 1; i >= 0; i--) {
-            int position = selectedIx[i];
-            osmNodeListModel1.remove(position);
-        }
-        paintWaypoints(osmNodeListModel1.getWaypoints());
-    }
-
-    private void toggleEditNodes() {
-        if (editNodeButton.isSelected()) {
-            waypointSetter = new MapToNodeList(graph, nodeWaypointList, startEndPainter);
-            adressSearchButton.setEnabled(true);
-            mapWrapper.addMouseListener(waypointSetter);
-        } else {
-            clearButton.setEnabled(false);
-            adressSearchButton.setEnabled(false);
-            mapWrapper.removeMouseListener(waypointSetter);
-            waypointSetter = null;
-        }
-    }
-
-    private void paintWaypoints(List<Waypoint> wp) {
-        startEndPainter.setWaypoints(new HashSet<>(wp));
-        refreshPainters();
-    }
-
     private void openPBFWindow() {
         PbfImportFrame frame = new PbfImportFrame();
         frame.setLocationRelativeTo(null);
@@ -752,7 +662,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         algorithmBoxModel = new javax.swing.DefaultComboBoxModel();
         resultTableModel = new de.lmu.ifi.dbs.trafficmining.ui.ReadOnlyTableModel();
-        osmNodeListModel1 = new de.lmu.ifi.dbs.trafficmining.ui.NodeListModel();
         javax.swing.JSplitPane horizontalSplit = new javax.swing.JSplitPane();
         verticalSplitPane = new javax.swing.JSplitPane();
         leftPanel = new javax.swing.JPanel();
@@ -763,11 +672,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         algorithmComboBox = new javax.swing.JComboBox();
         configureButton = new javax.swing.JButton();
         waypointPanel = new javax.swing.JPanel();
-        jScrollPane_nodes = new javax.swing.JScrollPane();
-        nodeWaypointList = new javax.swing.JList();
-        editNodeButton = new javax.swing.JToggleButton();
-        clearButton = new javax.swing.JButton();
-        adressSearchButton = new javax.swing.JButton();
+        nodeListPanel = new de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeListPanel();
         restultTabPanel = new javax.swing.JTabbedPane();
         javax.swing.JScrollPane resultListTab = new javax.swing.JScrollPane();
         resultTable = new javax.swing.JTable();
@@ -882,67 +787,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         leftPanel.add(algorithmPanel, gridBagConstraints);
 
         waypointPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Waypoints"));
-        waypointPanel.setLayout(new java.awt.GridBagLayout());
-
-        jScrollPane_nodes.setAutoscrolls(true);
-
-        nodeWaypointList.setModel(osmNodeListModel1);
-        nodeWaypointList.setVisibleRowCount(5);
-        nodeWaypointList.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent evt) {
-                nodeWaypointListKeyReleased(evt);
-            }
-        });
-        jScrollPane_nodes.setViewportView(nodeWaypointList);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 4;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.BASELINE;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 1.0;
-        waypointPanel.add(jScrollPane_nodes, gridBagConstraints);
-
-        editNodeButton.setText("Edit");
-        editNodeButton.setEnabled(false);
-        editNodeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                editNodeButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        waypointPanel.add(editNodeButton, gridBagConstraints);
-
-        clearButton.setText("Clear");
-        clearButton.setEnabled(false);
-        clearButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 2;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        waypointPanel.add(clearButton, gridBagConstraints);
-
-        adressSearchButton.setText("Search by Address");
-        adressSearchButton.setEnabled(false);
-        adressSearchButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                adressSearchButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        waypointPanel.add(adressSearchButton, gridBagConstraints);
+        waypointPanel.setLayout(new java.awt.BorderLayout());
+        waypointPanel.add(nodeListPanel, java.awt.BorderLayout.CENTER);
 
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -1125,7 +971,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
-        saveAndShutdown();
+        saveProperties();
         System.exit(0);
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
@@ -1137,7 +983,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }//GEN-LAST:event_searchButtonActionPerformed
 
     private void paintGraphMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintGraphMenuItemActionPerformed
-        refreshPainters();
+        showHideGraph();
     }//GEN-LAST:event_paintGraphMenuItemActionPerformed
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
@@ -1175,24 +1021,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         });
     }//GEN-LAST:event_configureButtonActionPerformed
 
-    private void editNodeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_editNodeButtonActionPerformed
-        toggleEditNodes();
-    }//GEN-LAST:event_editNodeButtonActionPerformed
-
-    private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
-        clearNodeListModel();
-    }//GEN-LAST:event_clearButtonActionPerformed
-
-    private void adressSearchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_adressSearchButtonActionPerformed
-        openSeekWindow();
-    }//GEN-LAST:event_adressSearchButtonActionPerformed
-
-    private void nodeWaypointListKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_nodeWaypointListKeyReleased
-        if (evt.getKeyCode() == KeyEvent.VK_DELETE) {
-            deleteSelectedNodes();
-        }
-    }//GEN-LAST:event_nodeWaypointListKeyReleased
-
 private void importPbfMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importPbfMenuItemActionPerformed
     openPBFWindow();
 }//GEN-LAST:event_importPbfMenuItemActionPerformed
@@ -1205,30 +1033,24 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
 }//GEN-LAST:event_aboutMenuItemActionPerformed
 
     private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-        saveAndShutdown();
+        saveProperties();
     }//GEN-LAST:event_formWindowClosing
 
     private void fileMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_fileMenuActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_fileMenuActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton adressSearchButton;
     private javax.swing.DefaultComboBoxModel algorithmBoxModel;
     private javax.swing.JComboBox algorithmComboBox;
     private javax.swing.JCheckBoxMenuItem autoloadMenuItem;
     private org.jdesktop.swingx.JXBusyLabel busyLabel;
     private javax.swing.JButton cancelButton;
-    private javax.swing.JButton clearButton;
     private javax.swing.JTree clusterTree;
     private javax.swing.JButton configureButton;
-    private javax.swing.JToggleButton editNodeButton;
     private javax.swing.JMenuItem importPbfMenuItem;
-    private javax.swing.JScrollPane jScrollPane_nodes;
     private javax.swing.JPanel leftPanel;
     private de.lmu.ifi.dbs.trafficmining.ui.MapWrapper mapWrapper;
-    private javax.swing.JList nodeWaypointList;
-    private de.lmu.ifi.dbs.trafficmining.ui.NodeListModel osmNodeListModel1;
+    private de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeListPanel nodeListPanel;
     private javax.swing.JCheckBoxMenuItem paintGraphMenuItem;
     private javax.swing.JScrollPane relustClusterTreeTab;
     private javax.swing.JTabbedPane restultTabPanel;
@@ -1260,8 +1082,14 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
             @Override
             public void run() {
                 try {
-                    TrafficminingGUI d = new TrafficminingGUI();
+                    final TrafficminingGUI d = new TrafficminingGUI();
                     d.setVisible(true);
+                    Runtime.getRuntime().addShutdownHook(new Thread() {
+                        @Override
+                        public void run() {
+                            d.saveProperties();
+                        }
+                    });
                 } catch (Throwable ex) {
                     Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
                     System.exit(1);
