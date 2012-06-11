@@ -42,11 +42,14 @@ public class LoadGraphWorker extends SwingWorker<Graph, Void> {
      * TrafficminingProperties.TAG_WHITELIST_FILE
      */
     public LoadGraphWorker(File osmFile, boolean useTagWhitelist) {
+        if (osmFile == null){
+            throw new NullPointerException("osmFile must not be null");
+        }
         if (!osmFile.exists() || !osmFile.canRead()) {
-            throw new IllegalArgumentException(osmFile.getName() + " doesn't exist or is not readable!");
+            throw new IllegalArgumentException("the file " + osmFile.getName() + " doesn't exist or is not readable.");
         }
         if (!osmFile.getName().toLowerCase().endsWith(".osm")) {
-            throw new IllegalArgumentException("file must be an osm file (*.osm)");
+            log.warning("the file which is tried to be loaded does not end in '.osm' - this might indicate an error: " + osmFile.getName());
         }
         osmXml = osmFile;
 
@@ -90,10 +93,10 @@ public class LoadGraphWorker extends SwingWorker<Graph, Void> {
         List<String> whitelist = new ArrayList<>();
         File whitelistFile = new File(TrafficminingProperties.TAG_WHITELIST_FILE);
 
-        try {
+        try (BufferedReader br = new BufferedReader(new FileReader(whitelistFile))) {
             log.log(Level.FINE, "Using whitelist file for tags: {0}", whitelistFile.getAbsolutePath());
             Properties prop = new Properties();
-            prop.load(new BufferedReader(new FileReader(whitelistFile)));
+            prop.load(br);
 
             String tagList = prop.getProperty(WHITELIST_KEY);
             if (tagList != null) {
@@ -103,10 +106,10 @@ public class LoadGraphWorker extends SwingWorker<Graph, Void> {
                     whitelist.add(s.toLowerCase().intern());
                 }
             }
+            return whitelist;
         } catch (IOException e) {
-            log.warning("An error occured due parsing the whitelist file, using no tag filtering");
+            log.log(Level.WARNING, "An error occured due parsing the whitelist file, using no tag filtering: ", e);
             return null;
         }
-        return whitelist;
     }
 }
