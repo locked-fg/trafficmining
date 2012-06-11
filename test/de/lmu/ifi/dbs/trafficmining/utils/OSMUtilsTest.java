@@ -3,18 +3,13 @@ package de.lmu.ifi.dbs.trafficmining.utils;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
 import de.lmu.ifi.dbs.trafficmining.graph.Link;
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
-import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import java.awt.geom.Rectangle2D;
-import java.util.List;
-import java.util.Map;
-import org.jdesktop.swingx.JXMapViewer;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *

@@ -10,7 +10,6 @@
 package org.jdesktop.swingx.mapviewer;
 
 import java.awt.Graphics2D;
-
 import org.jdesktop.swingx.JXMapViewer;
 
 /**

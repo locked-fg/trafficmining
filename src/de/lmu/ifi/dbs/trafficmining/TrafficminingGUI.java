@@ -40,7 +40,6 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.table.TableRowSorter;
 import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
-import org.jdesktop.swingx.mapviewer.Waypoint;
 
 public class TrafficminingGUI extends javax.swing.JFrame {
 

@@ -1,11 +1,16 @@
 package de.lmu.ifi.dbs.trafficmining.simplex;
 
 import de.lmu.ifi.dbs.utilities.Math2;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.*;
-import java.util.List;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.logging.Logger;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.Painter;
@@ -28,7 +33,7 @@ public class PointPanel extends JXPanel {
         double[] getCoordinates();
     }
     // --
-    private final Logger log = Logger.getLogger(PointPanel.class.getName());
+    private static final Logger log = Logger.getLogger(PointPanel.class.getName());
     private HashSet<PointSource> points = new HashSet<>();
     private HashSet<PointSource> highlight = new HashSet<>();
     private int pointSize = 6; // pixel

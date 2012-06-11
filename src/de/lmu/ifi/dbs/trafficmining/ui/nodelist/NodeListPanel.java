@@ -6,17 +6,10 @@ import de.lmu.ifi.dbs.utilities.Collections2;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.DefaultListModel;
-import javax.swing.KeyStroke;
-import javax.swing.ListModel;
 import javax.swing.event.ListDataListener;
 
 public class NodeListPanel extends javax.swing.JPanel {
