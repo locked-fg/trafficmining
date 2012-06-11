@@ -176,7 +176,7 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
 
     private List<Node> listFromPath(Path<?, ? extends Node, ? extends Link> path) {
         List<Node> nodeList = new ArrayList<>(2);
-        nodeList.add(path.getFirst());
+        nodeList.add(path.getLocalStart());
         nodeList.add(path.getLast());
         return nodeList;
     }

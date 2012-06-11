@@ -112,12 +112,25 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
         return hops;
     }
 
+    /**
+     * returns the first node of concatenated paths
+     *
+     * @return node of the first path of this path or parents' pathes
+     */
     public N getFirst() {
         return startNode;
     }
 
     public N getLast() {
         return endNode;
+    }
+
+    public N getLocalStart() {
+        if (previousPath == null) {
+            return startNode;
+        } else {
+            return (N) previousPath.getLast();
+        }
     }
 
     /**
