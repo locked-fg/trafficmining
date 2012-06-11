@@ -9,8 +9,6 @@
 
 package org.jdesktop.swingx.mapviewer.util;
 
-import org.jdesktop.swingx.mapviewer.*;
-
 /**
  * A utility class of methods that help when dealing
  * with standard Mercator projections.

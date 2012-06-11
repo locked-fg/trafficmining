@@ -1,7 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.ui.nodelist;
 
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
-import java.awt.Color;
 import java.awt.Component;
 import javax.swing.JLabel;
 import javax.swing.JList;

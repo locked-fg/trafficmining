@@ -4,10 +4,15 @@ import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import de.lmu.ifi.dbs.utilities.Math2;
 import de.lmu.ifi.dbs.utilities.Vectors;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.util.List;
 import java.util.*;
 import java.util.logging.Logger;
 import org.jdesktop.swingx.JXPanel;
@@ -15,7 +20,7 @@ import org.jdesktop.swingx.painter.Painter;
 
 public class SimplexControl3D extends JXPanel implements SimplexControl {
 
-    private final Logger log = Logger.getLogger(SimplexControl3D.class.getName());
+    private static final Logger log = Logger.getLogger(SimplexControl3D.class.getName());
 //    private final Distance distance = new EuclideanSquared();
     private Dimension formerDimension = null; // indicates resize of the panel
 //    private Color coDomainBackground = new Color(220, 220, 220); // bg of the rounded triangle

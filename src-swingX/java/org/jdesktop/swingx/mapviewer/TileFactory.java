@@ -11,7 +11,6 @@ package org.jdesktop.swingx.mapviewer;
 
 import java.awt.Dimension;
 import java.awt.geom.Point2D;
-
 import org.jdesktop.swingx.mapviewer.util.GeoUtil;
 
 /**
