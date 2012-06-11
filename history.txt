@@ -1,6 +1,9 @@
 History of changes:
 
 HEAD:
+* slimmed down the main UI class
+* Fixed a path painting bug
+* Fixed issue #20
 * incorporated the SwingX-WS files directly in trafficmining and removed the 
   annoying System.out output
 * Merged Graph and OSMGraph, Node and OsmNode, Link and OSMLink
