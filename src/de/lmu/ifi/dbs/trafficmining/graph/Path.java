@@ -169,7 +169,7 @@ public class Path<P extends Path, N extends Node, L extends Link> implements
      * Keep the case in mind where two nodes are connected by more than one
      * link!
      *
-     * @return List of getLast() nodes
+     * @return List of getLast() nodes starting with the startNode at position 0
      */
     public List<N> getParentNodes() {
         List<N> nodes = new ArrayList<>(hops);
