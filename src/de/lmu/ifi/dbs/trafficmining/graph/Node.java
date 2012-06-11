@@ -13,6 +13,7 @@ public class Node<L extends Link> {
     private double lat;
     private double lon;
     private double height = Double.NaN;
+    @Deprecated
     private String name = null;
     private HashMap<String, String> attr = null;
     private List<L> links = new ArrayList<>(1);
@@ -21,6 +22,7 @@ public class Node<L extends Link> {
         this.id = id;
     }
 
+    @Deprecated
     public void setName(String name) {
         this.name = name;
     }
