@@ -28,7 +28,6 @@ public class NNDistance implements GeoDistance {
             length += distance(a, b);
             a = b;
         }
-
         return length;
     }
 
@@ -39,9 +38,13 @@ public class NNDistance implements GeoDistance {
 
     @Override
     public double distance(double latitudeA, double longitudeA, double latitudeB, double longitudeB) {
+        if (latitudeA <0 )latitudeA+=180;
+        if (latitudeB <0 )latitudeB+=180;
+        if (latitudeA >=180 )latitudeA-=180;
+        if (latitudeB >=180 )latitudeB-=180;
+        
         double y = latitudeA - latitudeB;
         double x = longitudeA - longitudeB;
         return x * x + y * y;
-
     }
 }
