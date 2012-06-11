@@ -525,21 +525,23 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             loadGraphWorker.cancel(true);
         }
 
-        loadGraphWorker = new LoadGraphWorker(sourceFile, useTagWhitelist) {
-            @Override
-            protected void done() {
-                if (!isCancelled() && !Thread.interrupted()) {
-                    try {
-                        graph = get();
-                        graphLoaded();
-                    } catch (InterruptedException | ExecutionException ex) {
-                        Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
+        if (sourceFile.exists() && sourceFile.canRead()) {
+            loadGraphWorker = new LoadGraphWorker(sourceFile, useTagWhitelist) {
+                @Override
+                protected void done() {
+                    if (!isCancelled() && !Thread.interrupted()) {
+                        try {
+                            graph = get();
+                            graphLoaded();
+                        } catch (InterruptedException | ExecutionException ex) {
+                            Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                     }
                 }
-            }
-        };
-        busyLabel.setBusy(true);
-        loadGraphWorker.execute();
+            };
+            busyLabel.setBusy(true);
+            loadGraphWorker.execute();
+        }
     }
 
     /**
