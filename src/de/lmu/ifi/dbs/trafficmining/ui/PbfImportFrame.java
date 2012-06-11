@@ -1,7 +1,5 @@
 package de.lmu.ifi.dbs.trafficmining.ui;
 
-import de.lmu.ifi.dbs.trafficmining.TileServer;
-import de.lmu.ifi.dbs.trafficmining.TileServerFactory;
 import de.lmu.ifi.dbs.trafficmining.painter.MapBoundsPainter;
 import de.lmu.ifi.dbs.trafficmining.painter.MapSelectionPainter;
 import de.lmu.ifi.dbs.trafficmining.utils.MapBounds;

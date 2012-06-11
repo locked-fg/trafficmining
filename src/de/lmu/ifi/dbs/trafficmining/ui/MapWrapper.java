@@ -1,7 +1,5 @@
 package de.lmu.ifi.dbs.trafficmining.ui;
 
-import de.lmu.ifi.dbs.trafficmining.TileServer;
-import de.lmu.ifi.dbs.trafficmining.TileServerFactory;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
 import de.lmu.ifi.dbs.trafficmining.graph.Link;
 import de.lmu.ifi.dbs.trafficmining.graph.Node;

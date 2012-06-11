@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.trafficmining;
+package de.lmu.ifi.dbs.trafficmining.ui;
 
 import de.lmu.ifi.dbs.utilities.PropertyContainer;
 import java.io.IOException;

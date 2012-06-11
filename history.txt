@@ -1,7 +1,7 @@
 History of changes:
 
 HEAD:
-* slimmed down the main UI class
+* slimmed down the main UI class (node list)
 * Fixed a path painting bug
 * Fixed issue #20
 * incorporated the SwingX-WS files directly in trafficmining and removed the 

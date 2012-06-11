@@ -4,7 +4,6 @@
  */
 package de.lmu.ifi.dbs.trafficmining.ui;
 
-import de.lmu.ifi.dbs.trafficmining.TileServerFactory;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
