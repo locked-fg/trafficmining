@@ -1,0 +1,22 @@
+History of changes:
+
+HEAD:
+* incorporated the SwingX-WS files directly in trafficmining and removed the 
+  annoying System.out output
+* Merged Graph and OSMGraph, Node and OsmNode, Link and OSMLink
+
+2.1.1:
+* Issue 19 fixed
+
+2.1.0:
+* Added A* Search Algorithm
+
+2.0.1:
+* OpenCycleMap integrated as MapProvider
+* replaced SwingX-WS with a newer release
+
+2011: v2  MARiO: Multi Attribute Routing in Open Street Map
+* Symposium on Spatial and Temporal Databases (SSTD)
+
+2010: v1  PAROS: Pareto Optimal Route Selection,
+* International Conference on Management of Data (SIGMOD)
