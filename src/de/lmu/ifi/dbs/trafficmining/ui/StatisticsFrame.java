@@ -1,7 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.ui;
 
 import de.lmu.ifi.dbs.trafficmining.Statistics;
-import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
@@ -42,9 +41,9 @@ public class StatisticsFrame extends javax.swing.JFrame {
         }
     }
 
-    public void addPathData(Map<PATH_ATTRIBUTES, String> data, int resultId) {
+    public void addPathData(Map<String, String> data, int resultId) {
         // re initalize the model
-        ArrayList<PATH_ATTRIBUTES> keys = new ArrayList<>(data.keySet());
+        ArrayList<String> keys = new ArrayList<>(data.keySet());
         Collections.sort(keys);
 
         // build first column
@@ -52,8 +51,8 @@ public class StatisticsFrame extends javax.swing.JFrame {
             pathModel.addColumn("Path:");
             pathModel.setNumRows(data.size());
             for (int i = 0; i < keys.size(); i++) {
-                PATH_ATTRIBUTES key = keys.get(i);
-                pathModel.setValueAt(key.name(), i, 0);
+                String key = keys.get(i);
+                pathModel.setValueAt(key, i, 0);
 
             }
         }

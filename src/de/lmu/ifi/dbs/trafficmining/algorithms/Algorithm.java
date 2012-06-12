@@ -24,8 +24,8 @@ import java.util.Locale;
 public abstract class Algorithm<N extends Node, G extends Graph, P extends Path>
         implements Runnable {
 
-    private static final String STAT_PATHS = "# of paths";
-    private static final String STAT_SUM_NODES = "# of nodes in paths";
+    private static final String STAT_PATHS = "Paths";
+    private static final String STAT_SUM_NODES = "Nodes in paths";
     // -
     /** List of nodes that the algorithm should traverse */
     private List<N> nodes;

@@ -1,5 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining.utils;
 
+import de.lmu.ifi.dbs.trafficmining.Statistics;
 import de.lmu.ifi.dbs.trafficmining.graph.*;
 import java.awt.Dimension;
 import java.awt.Rectangle;
@@ -14,18 +15,6 @@ public class OSMUtils {
 
     private static final Logger log = Logger.getLogger(OSMUtils.class.getName());
 
-    // TODO provide a nice toString or s.th.
-    public static enum PATH_ATTRIBUTES {
-
-        /**
-         * nodes with degreee > 2
-         */
-        NODES_DEG_GT2,
-        /**
-         * Traffic signals highway=traffic_signals
-         */
-        TRAFFIC_SIGNALS
-    }
 
     public static Node getNearestNode(GeoPosition pos, Graph g) {
         Node nearest = null;
@@ -162,7 +151,7 @@ public class OSMUtils {
                 viewportBounds.getY(), viewportBounds.getWidth(), viewportBounds.getHeight());
     }
 
-    public static Map<PATH_ATTRIBUTES, String> getPathInfos(List<Node<Link>> nodes) {
+    public static Map<String, String> getPathInfos(List<Node<Link>> nodes) {
         // int crossings = 0; // http://wiki.openstreetmap.org/wiki/Key:crossing
         int nodecount = 0; // nodes with degree > 2
         int trafficsignals = 0; // traffic signals
@@ -176,9 +165,9 @@ public class OSMUtils {
             start = nodes.get(i);
         }
 
-        HashMap<PATH_ATTRIBUTES, String> map = new HashMap<>();
-        map.put(PATH_ATTRIBUTES.NODES_DEG_GT2, Integer.toString(nodecount));
-        map.put(PATH_ATTRIBUTES.TRAFFIC_SIGNALS, Integer.toString(trafficsignals));
+        HashMap<String, String> map = new HashMap<>();
+        map.put(Statistics.STAT_PATH_NODES_DEG_GT2, Integer.toString(nodecount));
+        map.put(Statistics.STAT_PATH_TRAFFIC_SIGNALS, Integer.toString(trafficsignals));
         return map;
     }
 
@@ -226,8 +215,9 @@ public class OSMUtils {
 
     /**
      * http://wiki.openstreetmap.org/wiki/MaxSpeed_Overlay_Kosmos_Rules
-     * http://wiki.openstreetmap.org/wiki/DE:MaxSpeed_Karte @FIXME move this
-     * method into a utility class
+     * http://wiki.openstreetmap.org/wiki/DE:MaxSpeed_Karte
+     *
+     * @FIXME move this method into a utility class
      *
      * @param l
      */
