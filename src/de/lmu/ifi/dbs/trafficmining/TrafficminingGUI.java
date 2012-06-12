@@ -18,7 +18,6 @@ import de.lmu.ifi.dbs.trafficmining.ui.EnableTileserverAction;
 import de.lmu.ifi.dbs.trafficmining.ui.PbfImportFrame;
 import de.lmu.ifi.dbs.trafficmining.ui.StatisticsFrame;
 import de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeList2MapConnector;
-import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import java.awt.CardLayout;
 import java.awt.event.*;
@@ -300,7 +299,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 Integer resultId = (Integer) resultTable.getValueAt(rowId, 0);
                 SimplexResultEntry entry = results.get(resultId);
                 if (entry != null) {
-                    Map<PATH_ATTRIBUTES, String> mapIntern = statistics.getPath(entry.getPath());
+                    Map<String, String> mapIntern = statistics.getPath(entry.getPath());
                     statisticsFrame.addPathData(mapIntern, resultId);
                 }
             }

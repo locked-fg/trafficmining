@@ -2,7 +2,6 @@ package de.lmu.ifi.dbs.trafficmining;
 
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
-import de.lmu.ifi.dbs.trafficmining.utils.OSMUtils.PATH_ATTRIBUTES;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,13 +16,25 @@ import java.util.logging.Logger;
 public class Statistics {
 
     private static final Logger log = Logger.getLogger(Statistics.class.getName());
-    /** do not keep more than that many nodes */
+    /** tag for path specific stats: amount of traffic lights */
+    public static final String STAT_PATH_TRAFFIC_SIGNALS = "Trafficlights";
+    /** tag for path specific stats: amount of nodes with a degree > 2 */
+    public static final String STAT_PATH_NODES_DEG_GT2 = "Crossing nodes (degree > 2)";
+    /**
+     * do not keep more than that many nodes
+     */
     public static final int MAX_VISITED_NODES = 500000;
-    /** General statistics about teh algorithm like runtime etc. */
+    /**
+     * General statistics about teh algorithm like runtime etc.
+     */
     private HashMap<String, String> map = new HashMap<>();
-    /** Statistics about a certain path */
-    private HashMap<Path, Map<PATH_ATTRIBUTES, String>> pathMap = new HashMap<>();
-    /** List of visited nodes */
+    /**
+     * Statistics about a certain path
+     */
+    private HashMap<Path, Map<String, String>> pathMap = new HashMap<>();
+    /**
+     * List of visited nodes
+     */
     private List<Node> visitedNodes = new ArrayList<>();
 
     public List<Node> getVisitedNodes() {
@@ -31,7 +42,9 @@ public class Statistics {
     }
 
     /**
-     * saves the list of visited nodes. The list is limited to a maximum of {@link #MAX_VISITED_NODES}
+     * saves the list of visited nodes. The list is limited to a maximum of
+     * {@link #MAX_VISITED_NODES}
+     *
      * @param nodes
      * @see #MAX_VISITED_NODES
      */
@@ -49,6 +62,7 @@ public class Statistics {
 
     /**
      * Add general statistical information about the search (not per path)
+     *
      * @param key
      * @param value
      */
@@ -60,11 +74,11 @@ public class Statistics {
         return map.get(key);
     }
 
-    public void putPath(Path key, Map<PATH_ATTRIBUTES, String> pathInfos) {
+    public void putPath(Path key, Map<String, String> pathInfos) {
         pathMap.put(key, pathInfos);
     }
 
-    public Map<PATH_ATTRIBUTES, String> getPath(Path p) {
+    public Map<String, String> getPath(Path p) {
         if (!pathMap.containsKey(p)) {
             return Collections.emptyMap();
         }
