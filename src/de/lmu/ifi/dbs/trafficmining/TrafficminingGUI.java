@@ -86,7 +86,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         TileServerFactory.get();
         initTileServerMenu();
 
-        // FIXME configure pluginDir
+        // configure algorithmpanel
         algorithmPanel.setPluginDir(properties.getFile(TrafficminingProperties.plugin_dir));
         algorithmPanel.addButtonObserver(new AlgorithmPanelObserver());
     }
