@@ -1,4 +1,4 @@
-package de.lmu.ifi.dbs.trafficmining.ui;
+package de.lmu.ifi.dbs.trafficmining.ui.algorithm;
 
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import java.io.File;

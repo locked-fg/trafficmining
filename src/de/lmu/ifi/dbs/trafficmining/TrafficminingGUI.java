@@ -1,6 +1,5 @@
 package de.lmu.ifi.dbs.trafficmining;
 
-import de.lmu.ifi.dbs.trafficmining.ui.TileServerFactory;
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
 import de.lmu.ifi.dbs.trafficmining.clustering.*;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
@@ -11,12 +10,11 @@ import de.lmu.ifi.dbs.trafficmining.result.*;
 import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl;
 import de.lmu.ifi.dbs.trafficmining.ui.AboutDialog;
-import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboBoxElement;
-import de.lmu.ifi.dbs.trafficmining.ui.AlgorithmComboboxLoader;
-import de.lmu.ifi.dbs.trafficmining.ui.BeansConfigDialog;
 import de.lmu.ifi.dbs.trafficmining.ui.EnableTileserverAction;
 import de.lmu.ifi.dbs.trafficmining.ui.PbfImportFrame;
 import de.lmu.ifi.dbs.trafficmining.ui.StatisticsFrame;
+import de.lmu.ifi.dbs.trafficmining.ui.TileServerFactory;
+import de.lmu.ifi.dbs.trafficmining.ui.algorithm.AlgorithmPanel;
 import de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeList2MapConnector;
 import de.lmu.ifi.dbs.utilities.Arrays2;
 import java.awt.CardLayout;
@@ -60,16 +58,17 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private AlgorithmWorker calculator;
     private StatisticsFrame statisticsFrame;
     private Algorithm currentAlgorithm;
+    private JFrame parentFrame;
 
     public TrafficminingGUI() throws IOException {
         log.info("start");
+        parentFrame = this;
         initComponents();
 
         this.properties = new TrafficminingProperties();
         this.node2mapConnector = new NodeList2MapConnector(nodeListPanel, mapWrapper);
         setLocationRelativeTo(null);
 
-        initAlgorithmComboBox();
         initResultBindings();
         initClusterComponents();
 
@@ -86,6 +85,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         TileServerFactory.get();
         initTileServerMenu();
+
+        // FIXME configure pluginDir
+        algorithmPanel.setPluginDir(properties.getFile(TrafficminingProperties.plugin_dir));
+        algorithmPanel.addButtonObserver(new AlgorithmPanelObserver());
     }
 
     private void initTileServerMenu() {
@@ -197,31 +200,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    private void configureAlgorithm() {
-        BeansConfigDialog bcd = null;
-        try {
-            ensureInitAlgorithm();
-
-            if (currentAlgorithm != null) {
-                bcd = new BeansConfigDialog(this, true);
-                bcd.setBean(currentAlgorithm);
-                bcd.setVisible(true);
-            }
-        } catch (Exception ex) {
-            if (bcd != null) {
-                bcd.dispose();
-            }
-            // tell the user that s.th went wrong
-            log.log(Level.SEVERE, null, ex);
-            JOptionPane.showMessageDialog(this,
-                    "The selected algorithm could not be instanciated.\n"
-                    + "This can be caused by a faulty plugin:\n"
-                    + Arrays2.join(ex.getStackTrace(), "\n") + "\n"
-                    + "Maybe the log file is more informative about what went wrong.",
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
     private void saveProperties() {
         GeoPosition center = mapWrapper.getCenterPosition();
 
@@ -235,7 +213,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      * called as soon as the graph is loaded
      */
     private void graphLoaded() {
-        busyLabel.setBusy(false);
+        algorithmPanel.setBusy(false);
         String statusText = String.format("Finished loading graph. %d links, %d nodes", graph.getLinkCount(), graph.getNodes().size());
         statusbarLabel.setText(statusText);
         node2mapConnector.setGraph(graph);
@@ -306,16 +284,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
-    private void initAlgorithmComboBox() {
-        File pluginDir = properties.getFile(TrafficminingProperties.plugin_dir);
-        new AlgorithmComboboxLoader(algorithmBoxModel, pluginDir).load();
-        if (algorithmBoxModel.getSize() > 0) {
-            configureButton.setEnabled(true);
-            searchButton.setEnabled(true);
-            algorithmComboBox.setSelectedIndex(0);
-        }
-    }
-
     private void showHideGraph() {
         mapWrapper.paintGraph(null);
         if (paintGraphMenuItem.isSelected()) {
@@ -382,19 +350,14 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             calculator = null;
         }
 
-        busyLabel.setBusy(false);
-        try {
-            ensureInitAlgorithm();
-            calculator = new AlgorithmWorker(currentAlgorithm);
-            calculator.addPropertyChangeListener(new AlgorithmWorkerListener(this));
-            cancelButton.setEnabled(true);
-            busyLabel.setBusy(true);
-            calculator.execute();
-        } catch (InstantiationException | IllegalAccessException ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
-            log.log(Level.SEVERE, null, ex);
-            busyLabel.setBusy(false);
-        }
+        algorithmPanel.setBusy(false);
+
+        currentAlgorithm.setGraph(graph);
+        currentAlgorithm.setNodes(nodeListPanel.getNodes());
+        calculator = new AlgorithmWorker(currentAlgorithm);
+        calculator.addPropertyChangeListener(new AlgorithmWorkerListener(this));
+        algorithmPanel.setBusy(true);
+        calculator.execute();
     }
 
     private void processResult(AlgorithmResult algorithmResult) {
@@ -479,40 +442,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         return maxima;
     }
 
-    /**
-     * Ensures that currentAlgorithm is set and initialized. The method also
-     * sets the current graph and the node list.
-     *
-     * For any configuration beyond this basic setting, call
-     * #configureAlgorithm()
-     *
-     * @throws InstantiationException if the algorithm could not be instanciated
-     * @throws IllegalAccessException if the algorithm could not be instanciated
-     */
-    private void ensureInitAlgorithm() throws InstantiationException,
-            IllegalAccessException {
-        final Object selectedItem = algorithmComboBox.getSelectedItem();
-
-        if (selectedItem == null || !AlgorithmComboBoxElement.class.isAssignableFrom(selectedItem.getClass())) {
-            log.log(Level.WARNING, "item not a combobox element: {0}", selectedItem);
-            return;
-        }
-        final AlgorithmComboBoxElement boxElement = (AlgorithmComboBoxElement) selectedItem;
-        final Class<Algorithm> clazz = boxElement.getAlgorithm();
-
-        // new algorithm or same as previous?
-        if (currentAlgorithm == null || !currentAlgorithm.getClass().equals(clazz)) {
-            currentAlgorithm = null;
-            // Propose a GC explicitly because a previous algorithm MIGHT
-            // hold a significant amount of ressources.
-            System.gc();
-            currentAlgorithm = clazz.newInstance();
-        }
-
-        currentAlgorithm.setGraph(graph);
-        currentAlgorithm.setNodes(nodeListPanel.getNodes());
-    }
-
     private void loadGraphFromFile(File sourceFile) {
         log.fine("starting load graph worker");
         boolean useTagWhitelist = false;
@@ -538,7 +467,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                     }
                 }
             };
-            busyLabel.setBusy(true);
+            algorithmPanel.setBusy(true);
             loadGraphWorker.execute();
         }
     }
@@ -570,7 +499,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             chooser.setFileFilter(new FileFilter() {
                 @Override
                 public boolean accept(File f) {
-
                     return f.isDirectory() || f.getName().toLowerCase().endsWith(".osm");
                 }
 
@@ -624,8 +552,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             AlgorithmWorker worker = (AlgorithmWorker) evt.getSource();
             if (evt.getPropertyName().equals("state") && SwingWorker.StateValue.DONE.equals(evt.getNewValue())) {
                 calculator = null;
-                busyLabel.setBusy(false);
-                cancelButton.setEnabled(false);
+                algorithmPanel.setBusy(false);
                 try {
                     if (!worker.isCancelled()) {
                         processResult(worker.get());
@@ -653,7 +580,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 }
             }
         });
-
     }
 
     @SuppressWarnings("unchecked")
@@ -666,12 +592,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         javax.swing.JSplitPane horizontalSplit = new javax.swing.JSplitPane();
         verticalSplitPane = new javax.swing.JSplitPane();
         leftPanel = new javax.swing.JPanel();
-        javax.swing.JPanel algorithmPanel = new javax.swing.JPanel();
-        searchButton = new javax.swing.JButton();
-        cancelButton = new javax.swing.JButton();
-        busyLabel = new org.jdesktop.swingx.JXBusyLabel();
-        algorithmComboBox = new javax.swing.JComboBox();
-        configureButton = new javax.swing.JButton();
         waypointPanel = new javax.swing.JPanel();
         nodeListPanel = new de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeListPanel();
         restultTabPanel = new javax.swing.JTabbedPane();
@@ -680,6 +600,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         relustClusterTreeTab = new javax.swing.JScrollPane();
         clusterTree = new javax.swing.JTree();
         javax.swing.JButton showStatisticsButton = new javax.swing.JButton();
+        algorithmPanel = new de.lmu.ifi.dbs.trafficmining.ui.algorithm.AlgorithmPanel();
         simplexContainer = new javax.swing.JPanel();
         simplexControl1D = new de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl1D();
         simplexControl2D = new de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl2D();
@@ -721,71 +642,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         verticalSplitPane.setPreferredSize(new java.awt.Dimension(200, 600));
 
         leftPanel.setLayout(new java.awt.GridBagLayout());
-
-        algorithmPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Algorithm"));
-        algorithmPanel.setLayout(new java.awt.GridBagLayout());
-
-        searchButton.setText("Execute");
-        searchButton.setEnabled(false);
-        searchButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                searchButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(1, 0, 1, 2);
-        algorithmPanel.add(searchButton, gridBagConstraints);
-
-        cancelButton.setText("Cancel");
-        cancelButton.setEnabled(false);
-        cancelButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                cancelButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 1;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.insets = new java.awt.Insets(1, 2, 1, 2);
-        algorithmPanel.add(cancelButton, gridBagConstraints);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 3;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.EAST;
-        gridBagConstraints.insets = new java.awt.Insets(1, 2, 1, 0);
-        algorithmPanel.add(busyLabel, gridBagConstraints);
-
-        algorithmComboBox.setModel(algorithmBoxModel);
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 0;
-        gridBagConstraints.gridwidth = 3;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.insets = new java.awt.Insets(1, 0, 1, 0);
-        algorithmPanel.add(algorithmComboBox, gridBagConstraints);
-
-        configureButton.setText("...");
-        configureButton.setToolTipText("Configure algorithm");
-        configureButton.setEnabled(false);
-        configureButton.setMargin(new java.awt.Insets(2, 2, 2, 2));
-        configureButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                configureButtonActionPerformed(evt);
-            }
-        });
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.insets = new java.awt.Insets(1, 2, 1, 0);
-        algorithmPanel.add(configureButton, gridBagConstraints);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 1;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
-        gridBagConstraints.weightx = 1.0;
-        leftPanel.add(algorithmPanel, gridBagConstraints);
 
         waypointPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Waypoints"));
         waypointPanel.setLayout(new java.awt.BorderLayout());
@@ -841,6 +697,13 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(0, 4, 0, 4);
         leftPanel.add(showStatisticsButton, gridBagConstraints);
+
+        algorithmPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Algorithm"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 1;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
+        leftPanel.add(algorithmPanel, gridBagConstraints);
 
         verticalSplitPane.setTopComponent(leftPanel);
 
@@ -976,22 +839,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         System.exit(0);
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
-    /**
-     * user selected something in the algorithm list
-     */
-    private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-        startAndRunAlgorithm();
-    }//GEN-LAST:event_searchButtonActionPerformed
-
     private void paintGraphMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_paintGraphMenuItemActionPerformed
         showHideGraph();
     }//GEN-LAST:event_paintGraphMenuItemActionPerformed
-
-    private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
-        if (calculator != null) {
-            calculator.cancel(true);
-        }
-    }//GEN-LAST:event_cancelButtonActionPerformed
 
     private void autoloadMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoloadMenuItemActionPerformed
         properties.setProperty(TrafficminingProperties.autoload_graph, autoloadMenuItem.isSelected());
@@ -1011,16 +861,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
     }//GEN-LAST:event_aboutMenuActionPerformed
-
-    private void configureButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_configureButtonActionPerformed
-        // don't block the EDT
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                configureAlgorithm();
-            }
-        });
-    }//GEN-LAST:event_configureButtonActionPerformed
 
 private void importPbfMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importPbfMenuItemActionPerformed
     openPBFWindow();
@@ -1042,12 +882,9 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     }//GEN-LAST:event_fileMenuActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.DefaultComboBoxModel algorithmBoxModel;
-    private javax.swing.JComboBox algorithmComboBox;
+    private de.lmu.ifi.dbs.trafficmining.ui.algorithm.AlgorithmPanel algorithmPanel;
     private javax.swing.JCheckBoxMenuItem autoloadMenuItem;
-    private org.jdesktop.swingx.JXBusyLabel busyLabel;
-    private javax.swing.JButton cancelButton;
     private javax.swing.JTree clusterTree;
-    private javax.swing.JButton configureButton;
     private javax.swing.JMenuItem importPbfMenuItem;
     private javax.swing.JPanel leftPanel;
     private de.lmu.ifi.dbs.trafficmining.ui.MapWrapper mapWrapper;
@@ -1058,7 +895,6 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     private javax.swing.JTable resultTable;
     private javax.swing.table.DefaultTableModel resultTableModel;
     private javax.swing.JPanel rightPanel;
-    private javax.swing.JButton searchButton;
     private javax.swing.JPanel simplexContainer;
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl1D simplexControl1D;
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl2D simplexControl2D;
@@ -1097,5 +933,27 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
                 }
             }
         });
+    }
+
+    private class AlgorithmPanelObserver implements Observer {
+
+        @Override
+        public void update(Observable o, Object command) {
+            try {
+                if (command.equals(AlgorithmPanel.EVT_CONFIG)) {
+                    currentAlgorithm = algorithmPanel.ensureInitAlgorithm(currentAlgorithm);
+                    algorithmPanel.configureAlgorithm(currentAlgorithm, parentFrame);
+                }
+                if (command.equals(AlgorithmPanel.EVT_EXECUTE)) {
+                    currentAlgorithm = algorithmPanel.ensureInitAlgorithm(currentAlgorithm);
+                    startAndRunAlgorithm();
+                }
+                if (command.equals(AlgorithmPanel.EVT_CANCEL)) {
+                    calculator.cancel(true);
+                }
+            } catch (InstantiationException | IllegalAccessException ex) {
+                Logger.getLogger(TrafficminingGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 }
