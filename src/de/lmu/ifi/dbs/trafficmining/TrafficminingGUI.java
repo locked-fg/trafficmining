@@ -587,7 +587,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        algorithmBoxModel = new javax.swing.DefaultComboBoxModel();
         resultTableModel = new de.lmu.ifi.dbs.trafficmining.ui.ReadOnlyTableModel();
         javax.swing.JSplitPane horizontalSplit = new javax.swing.JSplitPane();
         verticalSplitPane = new javax.swing.JSplitPane();
@@ -881,7 +880,6 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
         // TODO add your handling code here:
     }//GEN-LAST:event_fileMenuActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.DefaultComboBoxModel algorithmBoxModel;
     private de.lmu.ifi.dbs.trafficmining.ui.algorithm.AlgorithmPanel algorithmPanel;
     private javax.swing.JCheckBoxMenuItem autoloadMenuItem;
     private javax.swing.JTree clusterTree;
