@@ -2,8 +2,6 @@
 
 <Form version="1.7" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
-    <Component class="javax.swing.DefaultComboBoxModel" name="algorithmBoxModel">
-    </Component>
     <Component class="javax.swing.table.DefaultTableModel" name="resultTableModel">
       <AuxValues>
         <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new de.lmu.ifi.dbs.trafficmining.ui.ReadOnlyTableModel()"/>
