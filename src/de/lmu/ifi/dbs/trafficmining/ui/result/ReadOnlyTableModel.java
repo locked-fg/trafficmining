@@ -1,9 +1,10 @@
-package de.lmu.ifi.dbs.trafficmining.ui;
+package de.lmu.ifi.dbs.trafficmining.ui.result;
 
 import javax.swing.table.DefaultTableModel;
 
 /**
  * TableModel that does not allow editing of cells
+ *
  * @author Franz
  */
 public class ReadOnlyTableModel extends DefaultTableModel {
@@ -12,4 +13,5 @@ public class ReadOnlyTableModel extends DefaultTableModel {
     public boolean isCellEditable(int row, int column) {
         return false;
     }
+
 }

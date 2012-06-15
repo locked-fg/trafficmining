@@ -1,7 +1,6 @@
 package de.lmu.ifi.dbs.trafficmining;
 
 import de.lmu.ifi.dbs.trafficmining.algorithms.Algorithm;
-import de.lmu.ifi.dbs.trafficmining.clustering.*;
 import de.lmu.ifi.dbs.trafficmining.graph.Graph;
 import de.lmu.ifi.dbs.trafficmining.graph.Link;
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
@@ -32,11 +31,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.TableRowSorter;
-import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.mapviewer.GeoPosition;
 
 public class TrafficminingGUI extends javax.swing.JFrame {
@@ -70,12 +65,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         setLocationRelativeTo(null);
 
         initResultBindings();
-        initClusterComponents();
 
         restoreLastMapPosition();
         maybeLoadRecentGraph();
 
-        resultTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+        resultPanel.addListSelectionListener(new ListSelectionListener() {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 reloadStatisticsData();
@@ -102,22 +96,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             menuItem.addActionListener(new EnableTileserverAction(key, mapWrapper));
             group.add(menuItem);
         }
-    }
-
-    private void initClusterComponents() {
-        // FIXME : check clustering
-        clusterTree.setModel(new ClusterTreeModel());
-        clusterTree.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent evt) {
-                TreePath path = evt.getNewLeadSelectionPath();
-                if (path != null) {
-                    highlightClusteredRoutes(path.getLastPathComponent());
-                }
-            }
-        });
-        ToolTipManager.sharedInstance().registerComponent(clusterTree);
-        clusterTree.setCellRenderer(new ClusterTreeCellRenderer());
     }
 
     private void maybeLoadRecentGraph() {
@@ -153,40 +131,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         // register Actionlisterner on SimplexControls' paintpanel to link from the
         // paint panel to the resultList
-        simplexControl1D.addMouseListener(new SimplexHighlighter(resultTable));
-        simplexControl2D.addMouseListener(new SimplexHighlighter(resultTable));
-        simplexControl3D.addMouseListener(new SimplexHighlighter(resultTable));
-    }
-
-    private void startClustering() {
-        if (result.getResults().size() > 1) {
-            SingleLinkClusteringWithPreprocessing skyclus = new SingleLinkClusteringWithPreprocessing();
-            skyclus.setInput(result);
-            skyclus.start();
-            Cluster cluster = skyclus.getResult();
-            if (cluster != null) {
-                clusterTree.setModel(new ClusterTreeModel(cluster));
-                clusterTree.updateUI();
-            }
-        }
-    }
-
-    private void highlightClusteredRoutes(Object o) {
-        log.fine("Highlight whole cluster...");
-        List<Route> list = null;
-
-        if (o instanceof Route) {
-            list = new ArrayList<>();
-            list.add((Route) o);
-        }
-        if (o instanceof Cluster) {
-            list = ((Cluster) o).getRoutes();
-        }
-
-        resultTable.clearSelection();
-        for (Route r : list) {
-            resultTable.addRowSelectionInterval(r.getId() - 1, r.getId() - 1);
-        }
+//        simplexControl1D.addMouseListener(new SimplexHighlighter(resultTable));
+//        simplexControl2D.addMouseListener(new SimplexHighlighter(resultTable));
+//        simplexControl3D.addMouseListener(new SimplexHighlighter(resultTable));
     }
 
     private void restoreLastMapPosition() {
@@ -197,6 +144,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 mapWrapper.setCenterPosition(new GeoPosition(lat, lon));
             }
         } catch (NumberFormatException nfe) {
+            log.log(Level.INFO, "map location cannot be restored", nfe);
         }
     }
 
@@ -244,11 +192,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         simplexControl3D.setPoints(Collections.EMPTY_LIST);
 
         // reset results
-        resultTableModel.setRowCount(0);
         results.clear();
-
-        // reset clusters
-        clusterTree.setModel(null);
+        resultPanel.setResult(result);
 
         // reset highlighted paths
         mapWrapper.paintPaths(Collections.EMPTY_LIST);
@@ -272,9 +217,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         statisticsFrame.clear();
         statisticsFrame.setData(statistics);
 
-        if (resultTable.getSelectedRowCount() > 0) {
-            for (int rowId : resultTable.getSelectedRows()) {
-                Integer resultId = (Integer) resultTable.getValueAt(rowId, 0);
+        if (resultPanel.getSelectedRowCount() > 0) {
+            for (int rowId : resultPanel.getSelectedRows()) {
+                Integer resultId = (Integer) resultPanel.getValueAt(rowId);
                 SimplexResultEntry entry = results.get(resultId);
                 if (entry != null) {
                     Map<String, String> mapIntern = statistics.getPath(entry.getPath());
@@ -292,15 +237,15 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void highlightResult() {
-        int[] rowIDs = resultTable.getSelectedRows();
-        if (rowIDs.length == 0 || results.isEmpty() || resultTable.getRowCount() == 0) {
+        int[] rowIDs = resultPanel.getSelectedRows();
+        if (rowIDs.length == 0 || results.isEmpty() || resultPanel.getRowCount() == 0) {
             return;
         }
 
         List<SimplexResultEntry> items = new ArrayList<>();
         for (int rowID : rowIDs) {
-            rowID = resultTable.convertRowIndexToModel(rowID);
-            Integer id = (Integer) resultTableModel.getValueAt(rowID, 0);
+            rowID = resultPanel.convertRowIndexToModel(rowID);
+            Integer id = (Integer) resultPanel.getValueAt(rowID);
             if (results.containsKey(id)) {
                 items.add(results.get(id));
             }
@@ -325,7 +270,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void startAndRunAlgorithm() {
-        resultTableModel.setRowCount(0);
+        resultPanel.setResult(null);
         simplexControl1D.setPoints(Collections.EMPTY_LIST);
         simplexControl2D.setPoints(Collections.EMPTY_LIST);
         simplexControl3D.setPoints(Collections.EMPTY_LIST);
@@ -345,7 +290,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         // cancel possibly running algorithm
         if (calculator != null && !calculator.isDone()) {
-            resultTableModel.setRowCount(0);
+            resultPanel.setResult(null);
             calculator.cancel(true);
             calculator = null;
         }
@@ -373,20 +318,10 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         resetSimplexResultsClustersHighlightedPaths();
 
+
+        // FIXME
+        resultPanel.setResult(result);
         Map<Path, double[]> resultsMap = result.getResults();
-        // Set column names
-        Vector colNames = new Vector(result.getUnits());
-        colNames.add(0, "route");
-        resultTableModel.setColumnIdentifiers(colNames);
-
-        {// set columns sortable
-            TableRowSorter sorter = new TableRowSorter(resultTableModel);
-            resultTable.setRowSorter(sorter);
-            for (int i = 0; i < resultTableModel.getColumnCount(); i++) {
-                sorter.setComparator(i, new ResultTableColumnSorter());
-            }
-        }
-
         double[] ranges = findMaxPerColumn(resultsMap.values());
         List<PointSource> pointSourceList = new ArrayList<>();
         int i = 1;
@@ -396,11 +331,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             Arrays2.div(relative, ranges);
             Arrays2.replaceNaN(relative, 0); // ranges MAY contain zeros
 
-
             int resultDimensionality = result.getAttributes().size();
             SimplexResultEntry resEntry = new SimplexResultEntry(result, entry.getKey(), relative, absolute, i++, resultDimensionality);
             results.put(resEntry.getId(), resEntry);
-            resultTableModel.addRow(resEntry.getVector());
             pointSourceList.add(resEntry);
         }
 
@@ -408,17 +341,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         simplexControl.setAttributNames(result.getAttributes());
         simplexControl.setPoints(pointSourceList);
 
-        if (resultsMap.size() > 0) {
-            resultTable.getSelectionModel().clearSelection();
-            resultTable.getSelectionModel().setSelectionInterval(0, 0);
-        }
         if (statisticsFrame != null && statisticsFrame.isVisible()) {
             showStatisticsFrame();
         }
         showHideVisitedNodes();
-
-        // CLUSTER ALL RESULTS!
-        startClustering();
+        highlightResult();
     }
 
     private void showHideVisitedNodes() {
@@ -587,19 +514,14 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        resultTableModel = new de.lmu.ifi.dbs.trafficmining.ui.ReadOnlyTableModel();
         javax.swing.JSplitPane horizontalSplit = new javax.swing.JSplitPane();
         verticalSplitPane = new javax.swing.JSplitPane();
         leftPanel = new javax.swing.JPanel();
         waypointPanel = new javax.swing.JPanel();
         nodeListPanel = new de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeListPanel();
-        restultTabPanel = new javax.swing.JTabbedPane();
-        javax.swing.JScrollPane resultListTab = new javax.swing.JScrollPane();
-        resultTable = new javax.swing.JTable();
-        relustClusterTreeTab = new javax.swing.JScrollPane();
-        clusterTree = new javax.swing.JTree();
         javax.swing.JButton showStatisticsButton = new javax.swing.JButton();
         algorithmPanel = new de.lmu.ifi.dbs.trafficmining.ui.algorithm.AlgorithmPanel();
+        resultPanel = new de.lmu.ifi.dbs.trafficmining.ui.result.ResultPanel();
         simplexContainer = new javax.swing.JPanel();
         simplexControl1D = new de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl1D();
         simplexControl2D = new de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl2D();
@@ -654,35 +576,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         gridBagConstraints.weighty = 0.25;
         leftPanel.add(waypointPanel, gridBagConstraints);
 
-        restultTabPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Result routes"));
-
-        resultListTab.setPreferredSize(new java.awt.Dimension(150, 150));
-
-        resultTable.setAutoCreateRowSorter(true);
-        resultTable.setModel(resultTableModel);
-        resultTable.setPreferredSize(null);
-        resultTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        resultListTab.setViewportView(resultTable);
-
-        restultTabPanel.addTab("List", resultListTab);
-
-        relustClusterTreeTab.setPreferredSize(new java.awt.Dimension(150, 150));
-
-        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("root");
-        clusterTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
-        clusterTree.setPreferredSize(null);
-        relustClusterTreeTab.setViewportView(clusterTree);
-
-        restultTabPanel.addTab("Clustered", relustClusterTreeTab);
-
-        gridBagConstraints = new java.awt.GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints.weightx = 1.0;
-        gridBagConstraints.weighty = 0.4;
-        leftPanel.add(restultTabPanel, gridBagConstraints);
-
         showStatisticsButton.setText("show Statistics");
         showStatisticsButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -703,6 +596,14 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         leftPanel.add(algorithmPanel, gridBagConstraints);
+
+        resultPanel.setBorder(javax.swing.BorderFactory.createTitledBorder("Result Routes"));
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.weighty = 0.75;
+        leftPanel.add(resultPanel, gridBagConstraints);
 
         verticalSplitPane.setTopComponent(leftPanel);
 
@@ -882,16 +783,12 @@ private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private de.lmu.ifi.dbs.trafficmining.ui.algorithm.AlgorithmPanel algorithmPanel;
     private javax.swing.JCheckBoxMenuItem autoloadMenuItem;
-    private javax.swing.JTree clusterTree;
     private javax.swing.JMenuItem importPbfMenuItem;
     private javax.swing.JPanel leftPanel;
     private de.lmu.ifi.dbs.trafficmining.ui.MapWrapper mapWrapper;
     private de.lmu.ifi.dbs.trafficmining.ui.nodelist.NodeListPanel nodeListPanel;
     private javax.swing.JCheckBoxMenuItem paintGraphMenuItem;
-    private javax.swing.JScrollPane relustClusterTreeTab;
-    private javax.swing.JTabbedPane restultTabPanel;
-    private javax.swing.JTable resultTable;
-    private javax.swing.table.DefaultTableModel resultTableModel;
+    private de.lmu.ifi.dbs.trafficmining.ui.result.ResultPanel resultPanel;
     private javax.swing.JPanel rightPanel;
     private javax.swing.JPanel simplexContainer;
     private de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl1D simplexControl1D;

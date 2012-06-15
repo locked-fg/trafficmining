@@ -1,5 +1,5 @@
 
-package de.lmu.ifi.dbs.trafficmining.result;
+package de.lmu.ifi.dbs.trafficmining.ui.result;
 
 import java.util.Comparator;
 
