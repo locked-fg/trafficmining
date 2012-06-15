@@ -1,6 +1,8 @@
 
-package de.lmu.ifi.dbs.trafficmining.clustering;
+package de.lmu.ifi.dbs.trafficmining.ui.result;
 
+import de.lmu.ifi.dbs.trafficmining.clustering.Cluster;
+import de.lmu.ifi.dbs.trafficmining.clustering.Route;
 import java.awt.Component;
 import java.text.DecimalFormat;
 import java.util.List;

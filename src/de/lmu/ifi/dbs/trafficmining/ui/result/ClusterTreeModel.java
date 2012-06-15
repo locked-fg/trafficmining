@@ -1,6 +1,8 @@
 
-package de.lmu.ifi.dbs.trafficmining.clustering;
+package de.lmu.ifi.dbs.trafficmining.ui.result;
 
+import de.lmu.ifi.dbs.trafficmining.clustering.Cluster;
+import de.lmu.ifi.dbs.trafficmining.clustering.Route;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
