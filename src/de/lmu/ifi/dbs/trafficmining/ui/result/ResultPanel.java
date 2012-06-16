@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Vector;
 import java.util.logging.Logger;
 import javax.swing.ToolTipManager;
 import javax.swing.event.ListSelectionListener;
@@ -69,10 +68,9 @@ public class ResultPanel extends javax.swing.JPanel {
     }
 
     private void highlightClusteredRoutes(Object o) {
-        List<Route> list = null;
+        List<Route> list = new ArrayList<>();
 
         if (o instanceof Route) {
-            list = new ArrayList<>();
             list.add((Route) o);
         } else if (o instanceof Cluster) {
             list = ((Cluster) o).getRoutes();
@@ -91,9 +89,9 @@ public class ResultPanel extends javax.swing.JPanel {
         }
 
         { // column names
-            Vector colNames = new Vector(result.getUnits());
-            colNames.add(0, "route");
-            resultTableModel.setColumnIdentifiers(colNames);
+            List<String> cols = new ArrayList<>(result.getUnits());
+            cols.add(0, "route");
+            resultTableModel.setColumnIdentifiers(cols.toArray());
         }
 
         {// set columns sortable
@@ -115,8 +113,8 @@ public class ResultPanel extends javax.swing.JPanel {
         }
     }
 
-    private Vector makeTableDataVector(Result result, double[] cost, int id) {
-        Vector vec = new Vector();
+    private Object[] makeTableDataVector(Result result, double[] cost, int id) {
+        List vec = new ArrayList();
         vec.add(id);
         List<String> units = result.getUnits();
         for (int i = 0; i < cost.length; i++) {
@@ -126,7 +124,7 @@ public class ResultPanel extends javax.swing.JPanel {
             }
             vec.add(String.format(Locale.US, "%.4f %s", cost[i], unit));
         }
-        return vec;
+        return vec.toArray();
     }
 
     /**
