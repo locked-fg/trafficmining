@@ -4,9 +4,9 @@ import de.lmu.ifi.dbs.trafficmining.result.Result;
 
 /**
  * Class that wraps the compound result of the AlgorithmWorker.
- * 
+ *
  * @author graf
- * @see AlgorithmWorker#get() 
+ * @see AlgorithmWorker#get()
  */
 public class AlgorithmResult {
 
@@ -18,11 +18,20 @@ public class AlgorithmResult {
         this.stats = stats;
     }
 
+    public AlgorithmResult() {
+        result = null;
+        stats = null;
+    }
+
     public Result getResult() {
         return result;
     }
 
     public Statistics getStatistics() {
         return stats;
+    }
+
+    boolean isEmpty() {
+        return result == null;
     }
 }

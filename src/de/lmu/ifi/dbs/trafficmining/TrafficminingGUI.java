@@ -46,8 +46,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private Map<Class, String> resultToLayoutName; // cardlayout
     private Map<Class, SimplexControl> resultToSimplexControl;
     //
-    private Result result;
-    private Statistics statistics;
+    private AlgorithmResult algorithmResult = new AlgorithmResult();
     private Graph<Node<Link>, Link<Node>> graph;
     private LoadGraphWorker loadGraphWorker;
     private AlgorithmWorker calculator;
@@ -193,7 +192,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         // reset results
         results.clear();
-        resultPanel.setResult(result);
+        if (algorithmResult != null && !algorithmResult.isEmpty()) {
+            resultPanel.setResult(algorithmResult.getResult());
+        }
 
         // reset highlighted paths
         mapWrapper.paintPaths(Collections.EMPTY_LIST);
@@ -210,18 +211,18 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void reloadStatisticsData() {
-        if (result.getResults().isEmpty()) {
+        if (algorithmResult == null || algorithmResult.isEmpty()) {
             return;
         }
         if (statisticsFrame == null) {
             return;
         }
         statisticsFrame.clear();
-        statisticsFrame.setData(statistics);
+        statisticsFrame.setData(algorithmResult.getStatistics());
 
         int i = 1;
         for (Path path : resultPanel.getSelectedPaths()) {
-            statisticsFrame.addPathData(statistics.getPath(path), i++);
+            statisticsFrame.addPathData(algorithmResult.getStatistics().getPath(path), i++);
         }
     }
 
@@ -233,34 +234,26 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void highlightResult() {
-        List<Path> selectedPaths = resultPanel.getSelectedPaths();
-        if (selectedPaths.isEmpty()) {
+        if (results.isEmpty()) {
             return;
         }
 
-        List<SimplexResultEntry> items = new ArrayList<>();
-        for (Path path : selectedPaths) {
+        List<Path> paths = resultPanel.getSelectedPaths();
+
+        // update map
+        mapWrapper.paintPaths(new ArrayList(paths));
+
+
+        // Update simplex
+        List<PointSource> list = new ArrayList<>();
+        for (Path path : paths) {
             if (results.containsKey(path)) {
-                items.add(results.get(path));
+                list.add(results.get(path));
             }
         }
-
-        // okay, this call IS ugly
-        Class resultClass = results.values().iterator().next().getResult().getClass();
+        Class resultClass = algorithmResult.getResult().getClass();
         SimplexControl simplexControl = resultToSimplexControl.get(resultClass);
-        assert simplexControl != null;
-        List<PointSource> list = new ArrayList<>();
-
-        List<Path<?, ? extends Node, ? extends Link>> pathList = new ArrayList<>();
-        for (SimplexResultEntry resultEntry : items) {
-            pathList.add(resultEntry.getPath());
-            list.add(resultEntry);
-            log.log(Level.INFO, "highlighted: {0}", resultEntry.getPath().toString());
-        }
-        mapWrapper.paintPaths(pathList);
-
         simplexControl.setHighlight(list);
-        mapWrapper.repaint();
     }
 
     private void startAndRunAlgorithm() {
@@ -300,20 +293,20 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void processResult(AlgorithmResult algorithmResult) {
-        result = algorithmResult.getResult();
-        statistics = algorithmResult.getStatistics();
-        if (result == null) {
+        this.algorithmResult = algorithmResult;
+        if (algorithmResult == null || algorithmResult.isEmpty()) {
             return;
         }
 
         // Set the correct card
         CardLayout layout = (CardLayout) simplexContainer.getLayout();
-        layout.show(simplexContainer, resultToLayoutName.get(result.getClass()));
+        Class clazz = algorithmResult.getResult().getClass();
+        layout.show(simplexContainer, resultToLayoutName.get(clazz));
 
         resetSimplexResultsClustersHighlightedPaths();
 
-
         // FIXME
+        Result result = algorithmResult.getResult();
         resultPanel.setResult(result);
         Map<Path, double[]> resultsMap = result.getResults();
         double[] ranges = findMaxPerColumn(resultsMap.values());
@@ -344,6 +337,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
     private void showHideVisitedNodes() {
         mapWrapper.paintNodes(Collections.EMPTY_LIST);
+        if (algorithmResult == null || algorithmResult.isEmpty()) {
+            return;
+        }
+
+        Statistics statistics = algorithmResult.getStatistics();
         if (statistics != null && visitedNodesItem.isSelected()) {
             mapWrapper.paintNodes(statistics.getVisitedNodes());
         }
@@ -394,8 +392,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     /**
-     * Opens the filechooser for the load graph action. Upon File selection, a
-     * new SwingWorker ist started to load the files.
+     * Opens the filechooser for the load graph action. Upon File selection, a new SwingWorker ist started to load the
+     * files.
      *
      * Also updates the painter as soon as the graph is loaded
      *
@@ -451,8 +449,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     /**
-     * Listener that keeps an eye on an AlgorithmWorker and propagates the
-     * result of the computation
+     * Listener that keeps an eye on an AlgorithmWorker and propagates the result of the computation
      */
     class AlgorithmWorkerListener implements PropertyChangeListener {
 
@@ -476,7 +473,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
                 algorithmPanel.setBusy(false);
                 try {
                     if (!worker.isCancelled()) {
-                        processResult(worker.get());
+                        AlgorithmResult result = worker.get();
+                        if (result == null) {
+                            result = new AlgorithmResult();
+                        }
+                        processResult(result);
                     }
                 } catch (InterruptedException | ExecutionException t) {
                     log.log(Level.SEVERE, "Algorithm terminated by uncaught exception:", t);
