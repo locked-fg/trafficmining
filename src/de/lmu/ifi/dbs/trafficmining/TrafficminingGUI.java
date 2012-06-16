@@ -76,7 +76,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             }
         });
 
-        TileServerFactory.get();
         initTileServerMenu();
 
         // configure algorithmpanel
@@ -84,7 +83,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         algorithmPanel.addButtonObserver(new AlgorithmPanelObserver());
     }
 
-    private void initTileServerMenu() {
+    private void initTileServerMenu() throws IOException {
+        TileServerFactory.get();
+
         ButtonGroup group = new ButtonGroup();
         List<String> names = new ArrayList<>(mapWrapper.getTileServers());
         Collections.sort(names);
@@ -211,10 +212,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void reloadStatisticsData() {
-        if (algorithmResult == null || algorithmResult.isEmpty()) {
-            return;
-        }
-        if (statisticsFrame == null) {
+        if (algorithmResult == null || statisticsFrame == null) {
             return;
         }
         statisticsFrame.clear();
@@ -234,10 +232,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void highlightResult() {
-        if (results.isEmpty()) {
-            return;
-        }
-
+        assert results != null : "results must not be null";
         List<Path> paths = resultPanel.getSelectedPaths();
 
         // update map
@@ -341,8 +336,8 @@ public class TrafficminingGUI extends javax.swing.JFrame {
             return;
         }
 
-        Statistics statistics = algorithmResult.getStatistics();
-        if (statistics != null && visitedNodesItem.isSelected()) {
+        if (visitedNodesItem.isSelected()) {
+            Statistics statistics = algorithmResult.getStatistics();
             mapWrapper.paintNodes(statistics.getVisitedNodes());
         }
         mapWrapper.repaint();
@@ -762,7 +757,6 @@ private void importPbfMenuItemActionPerformed(java.awt.event.ActionEvent evt) {/
 }//GEN-LAST:event_importPbfMenuItemActionPerformed
 
 private void aboutMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_aboutMenuItemActionPerformed
-
     AboutDialog ad = new AboutDialog(this, true);
     ad.setLocationRelativeTo(null);
     ad.setVisible(true);
