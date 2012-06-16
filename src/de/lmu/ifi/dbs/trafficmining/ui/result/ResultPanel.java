@@ -6,6 +6,7 @@ import de.lmu.ifi.dbs.trafficmining.clustering.SingleLinkClusteringWithPreproces
 import de.lmu.ifi.dbs.trafficmining.graph.Path;
 import de.lmu.ifi.dbs.trafficmining.result.Result;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class ResultPanel extends javax.swing.JPanel {
     static final Logger log = Logger.getLogger(ResultPanel.class.getName());
     private Result result;
     private ReadOnlyTableModel resultTableModel = new ReadOnlyTableModel();
+    private Map<Integer, Path> tableMap = new HashMap<>();
 
     public ResultPanel() {
         initComponents();
@@ -101,10 +103,14 @@ public class ResultPanel extends javax.swing.JPanel {
                 sorter.setComparator(i, new ResultTableColumnSorter());
             }
         }
-        int i = 1;
+
+        Integer i = 1;
         Map<Path, double[]> resultsMap = result.getResults();
         for (Map.Entry<Path, double[]> entry : resultsMap.entrySet()) {
-            resultTableModel.addRow(makeTableDataVector(result, entry.getValue(), i++));
+            Object[] row = makeTableDataVector(result, entry.getValue(), i);
+            resultTableModel.addRow(row);
+            tableMap.put(i, entry.getKey());
+            i++;
         }
 
         if (resultTableModel.getRowCount() > 0) {
@@ -160,33 +166,17 @@ public class ResultPanel extends javax.swing.JPanel {
     private javax.swing.JTable resultTable;
     // End of variables declaration//GEN-END:variables
 
-    @Deprecated
-    public int[] getSelectedRows() {
-        return resultTable.getSelectedRows();
-    }
-
-    @Deprecated
-    public int getRowCount() {
-        return resultTable.getRowCount();
-    }
-
-    @Deprecated
-    public int convertRowIndexToModel(int rowID) {
-        return resultTable.convertRowIndexToModel(rowID);
-    }
-
-    @Deprecated
     public void addListSelectionListener(ListSelectionListener listSelectionListener) {
         resultTable.getSelectionModel().addListSelectionListener(listSelectionListener);
     }
 
-    @Deprecated
-    public Integer getValueAt(int i) {
-        return (Integer) resultTableModel.getValueAt(i, 0);
-    }
-
-    @Deprecated
-    public int getSelectedRowCount() {
-        return resultTable.getSelectedRowCount();
+    public List<Path> getSelectedPaths() {
+        List<Path> l = new ArrayList<>();
+        int[] rowIndices = resultTable.getSelectedRows();
+        for (int i : rowIndices) {
+            Object id = resultTableModel.getValueAt(i, 0);
+            l.add(tableMap.get(id));
+        }
+        return l;
     }
 }
