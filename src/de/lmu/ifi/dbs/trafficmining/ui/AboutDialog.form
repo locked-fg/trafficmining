@@ -94,7 +94,7 @@
               <Border info="null"/>
             </Property>
             <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
-            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;    &lt;b&gt;Software created by&lt;/b&gt;:&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0&quot;&gt;&#xa;      Franz Graf&lt;br&gt;&#xa;      Ludwig-Maximilians-Universit&#xe4;t M&#xfc;nchen&lt;br&gt;&#xa;      Institut f&#xfc;r Informatik&lt;br&gt;&#xa;      Lehrstuhl f&#xfc;r Datenbanksysteme&lt;br&gt;&#xa;      &#xd6;ttingenstra&#xdf;e 67, M&#xfc;nchen&lt;br&gt;&#xa;      Germany&lt;br&gt;&#xa;      &lt;br&gt;&#xa;      Project Website: http://code.google.com/p/trafficmining&lt;br&gt;&#xa;     &lt;br&gt;&#xa;      &lt;b&gt;Special thanks to&lt;/b&gt;:&lt;br&gt;&#xa;      Robert Greil&lt;br&gt;&#xa;      Fang Zeng&lt;br&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;"/>
+            <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;    &lt;b&gt;Software created by&lt;/b&gt;:&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;    &lt;p style=&quot;margin-top: 0&quot;&gt;&#xa;      Franz Graf&lt;br&gt;&#xa;      http://www.Locked.de&lt;br&gt;&#xa;      Project Website: http://code.google.com/p/trafficmining&lt;br&gt;&#xa;     &lt;br&gt;&#xa;      &lt;b&gt;Special thanks to&lt;/b&gt;:&lt;br&gt;&#xa;      Matthias Schubert&lt;br&gt;&#xa;      Robert Greil&lt;br&gt;&#xa;      Fang Zeng&lt;br&gt;&#xa;    &lt;/p&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;"/>
             <Property name="opaque" type="boolean" value="false"/>
           </Properties>
           <AuxValues>
