@@ -26,18 +26,18 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
     private final int arrowSize = 5;
     private final double pi4 = Math.PI / 4;
     private final Color color = Color.blue;
-    private List<Path<?, ? extends Node, ? extends Link>> paths;
+    private List<Path<?, Node, Link>> paths;
 
     public void clear() {
         paths = Collections.EMPTY_LIST;
     }
 
-    public void setPath(Path<?, ? extends Node, ? extends Link> path) {
+    public void setPath(Path<?, Node, Link> path) {
         this.paths = new ArrayList<>(1);
         this.paths.add(path);
     }
 
-    public void setPath(List<Path<?, ? extends Node, ? extends Link>> pathList) {
+    public void setPath(List<Path<?, Node, Link>> pathList) {
         this.paths = pathList;
     }
 
@@ -52,12 +52,12 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
         g.setColor(color);
         TileFactory tf = map.getTileFactory();
 
-        for (Path<?, ? extends Node, ? extends Link> path : paths) {
+        for (Path<?, Node, Link> path : paths) {
             paintPath(path, tf, zoom, vp, g);
         }
     }
 
-    protected void paintPath(Path<?, ? extends Node, ? extends Link> path, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
+    protected void paintPath(Path<?, Node, Link> path, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {
         Path last;
         List<Node> nodeList = new ArrayList<>();
         do {
@@ -85,7 +85,7 @@ public class PathPainter extends AbstractPainter<JXMapViewer> {
             last = path;
             path = path.getParent();
         } while (path != null);
-        paintMainNode((Node) last.getFirst(), tf, zoom, vp, g);
+        paintMainNode(last.getFirst(), tf, zoom, vp, g);
     }
 
     private void paintLink(List<Node> nodes, TileFactory tf, int zoom, Rectangle2D vp, Graphics2D g) {

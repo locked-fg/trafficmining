@@ -203,9 +203,10 @@ public class MapWrapper extends javax.swing.JPanel {
         updatePainters();
     }
 
-    public void paintPaths(List<Path<?, ? extends Node, ? extends Link>> list) {
+    public void paintPaths(List<Path<?, Node, Link>> list) {
         pathPainter.setPath(list);
         updatePainters();
+        repaint();
     }
 
     public void paintNodes(List<Node> l) {
