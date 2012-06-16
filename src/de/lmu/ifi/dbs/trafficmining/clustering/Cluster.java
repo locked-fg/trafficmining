@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class Cluster implements ExtendedClusterObject {
 
-    private ArrayList<ExtendedClusterObject> items = new ArrayList<>();
+    private List<ExtendedClusterObject> items = new ArrayList<>();
     private int id;
 
     public Cluster(int id) {
@@ -76,43 +76,9 @@ public class Cluster implements ExtendedClusterObject {
         return list;
     }
 
-//    public List<Path> getPaths() {
-//        List<Route> list = getRoutes();
-//        List<Path> ret = new ArrayList<Path>();
-//        for (Route r : list) {
-//            ret.add(r.getComplexPath());
-//        }
-//        return ret;
-//    }
-
     @Override
     public String toString() {
         return "Cluster " + id;
-    }
-
-//    public String printTree() {
-//        return printTree(0);
-//    }
-
-    private String printTree(int level) {
-        String prefix = "";
-        String separator = "|--";
-        String tail = "";
-
-        for (int i = 0; i < level; i++) {
-            prefix = prefix + separator;
-        }
-
-        for (ExtendedClusterObject o : items) {
-            if (o instanceof Route) {
-                tail = tail + prefix + "|--" + ((Route) o).toString() + "\n";
-            }
-            if (o instanceof Cluster) {
-                tail = tail + ((Cluster) o).printTree(level + 1);
-            }
-        }
-
-        return prefix + toString() + "\n" + tail;
     }
 
     public boolean contains(Route route) {
@@ -125,9 +91,8 @@ public class Cluster implements ExtendedClusterObject {
     }
 
     public boolean contains(int id) {
-        if (!(items.isEmpty())) {
-            List<Route> list = getRoutes();
-            for (Route r : list) {
+        if (!items.isEmpty()) {
+            for (Route r : getRoutes()) {
                 if (r.getId() == id) {
                     return true;
                 }
@@ -167,7 +132,7 @@ public class Cluster implements ExtendedClusterObject {
     @Override
     public List<Double> getMaxCosts() {
         List<Double> maxCosts = new ArrayList<>();
-        List<Double> tmp = null;
+        List<Double> tmp;
         for (int i = 0; i < getUnits().size(); i++) {
             maxCosts.add(Double.MIN_VALUE);
         }
