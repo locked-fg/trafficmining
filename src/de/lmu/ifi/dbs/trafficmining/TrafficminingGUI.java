@@ -41,7 +41,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     private final NodeList2MapConnector node2mapConnector;
     //
     private final LoadGraphAction loadAction = new LoadGraphAction();
-    private final Map<Integer, SimplexResultEntry> results = new HashMap<>();
+    private final Map<Path, SimplexResultEntry> results = new HashMap<>();
     // -
     private Map<Class, String> resultToLayoutName; // cardlayout
     private Map<Class, SimplexControl> resultToSimplexControl;
@@ -210,22 +210,18 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void reloadStatisticsData() {
-        if (results.size() <= 0 || statisticsFrame == null || !statisticsFrame.isVisible()) {
+        if (result.getResults().isEmpty()) {
             return;
         }
-
+        if (statisticsFrame == null) {
+            return;
+        }
         statisticsFrame.clear();
         statisticsFrame.setData(statistics);
 
-        if (resultPanel.getSelectedRowCount() > 0) {
-            for (int rowId : resultPanel.getSelectedRows()) {
-                Integer resultId = (Integer) resultPanel.getValueAt(rowId);
-                SimplexResultEntry entry = results.get(resultId);
-                if (entry != null) {
-                    Map<String, String> mapIntern = statistics.getPath(entry.getPath());
-                    statisticsFrame.addPathData(mapIntern, resultId);
-                }
-            }
+        int i = 1;
+        for (Path path : resultPanel.getSelectedPaths()) {
+            statisticsFrame.addPathData(statistics.getPath(path), i++);
         }
     }
 
@@ -237,17 +233,15 @@ public class TrafficminingGUI extends javax.swing.JFrame {
     }
 
     private void highlightResult() {
-        int[] rowIDs = resultPanel.getSelectedRows();
-        if (rowIDs.length == 0 || results.isEmpty() || resultPanel.getRowCount() == 0) {
+        List<Path> selectedPaths = resultPanel.getSelectedPaths();
+        if (selectedPaths.isEmpty()) {
             return;
         }
 
         List<SimplexResultEntry> items = new ArrayList<>();
-        for (int rowID : rowIDs) {
-            rowID = resultPanel.convertRowIndexToModel(rowID);
-            Integer id = (Integer) resultPanel.getValueAt(rowID);
-            if (results.containsKey(id)) {
-                items.add(results.get(id));
+        for (Path path : selectedPaths) {
+            if (results.containsKey(path)) {
+                items.add(results.get(path));
             }
         }
 
@@ -333,7 +327,7 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
             int resultDimensionality = result.getAttributes().size();
             SimplexResultEntry resEntry = new SimplexResultEntry(result, entry.getKey(), relative, absolute, i++, resultDimensionality);
-            results.put(resEntry.getId(), resEntry);
+            results.put(entry.getKey(), resEntry);
             pointSourceList.add(resEntry);
         }
 
