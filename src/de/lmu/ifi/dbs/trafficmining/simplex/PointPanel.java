@@ -50,14 +50,15 @@ public class PointPanel extends JXPanel {
         Graphics2D g = (Graphics2D) g1;
 
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        int pHalf = pointSize/2;
         for (PointSource p : points) {
             if (!highlight.contains(p)) {
                 // translate points in unit space to absolut values
                 Point point = pointSourceToPaintCoordinates(p);
                 // move the point coordintate to 0,0 and back after painting
-                g.translate(point.x, point.y);
+                g.translate(point.x, point.y-pHalf);
                 painter.paint(g, p, -1, -1);
-                g.translate(-point.x, -point.y);
+                g.translate(-point.x, -point.y+pHalf);
             }
         }
         // paint highlighted points on top so that they are ALWAYS visible
@@ -65,9 +66,9 @@ public class PointPanel extends JXPanel {
             // translate points in unit space to absolut values
             Point point = pointSourceToPaintCoordinates(p);
             // move the point coordintate to 0,0 and back after painting
-            g.translate(point.x, point.y);
+            g.translate(point.x, point.y-pHalf);
             painter.paint(g, p, -1, -1);
-            g.translate(-point.x, -point.y);
+            g.translate(-point.x, -point.y+pHalf);
         }
     }
 

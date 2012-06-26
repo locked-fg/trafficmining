@@ -18,16 +18,15 @@ import java.util.logging.Logger;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.painter.Painter;
 
-public class SimplexControl3D extends JXPanel implements SimplexControl {
+public class SimplexControl3D<T extends PointSource> extends JXPanel implements SimplexControl<T> {
 
     private static final Logger log = Logger.getLogger(SimplexControl3D.class.getName());
-//    private final Distance distance = new EuclideanSquared();
     private Dimension formerDimension = null; // indicates resize of the panel
-//    private Color coDomainBackground = new Color(220, 220, 220); // bg of the rounded triangle
+    //    private Color coDomainBackground = new Color(220, 220, 220); // bg of the rounded triangle
     // -
-    private HashMap<PointSource, MappedPoint> points = new HashMap<>();
-    private HashMap<MappedPoint, PointSource> pointsBack = new HashMap<>();
-    private HashMap<PointSource, MappedPoint> highlight = new HashMap<>();
+    private HashMap<T, MappedPoint> points = new HashMap<>();
+    private HashMap<MappedPoint, T> pointsBack = new HashMap<>();
+    private HashMap<T, MappedPoint> highlight = new HashMap<>();
     // -
     // A,B on y = 0 is uncool because zero weights of C cause negative coordinates
     // final double a_x = 0;
@@ -48,7 +47,9 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
     // ----
     double scaleX = 1, scaleY = 1, transX = 0, transY = 0;
 
-    /** Creates new form SimplexControl3D */
+    /**
+     * Creates new form SimplexControl3D
+     */
     public SimplexControl3D() {
         initComponents();
         pointPanel.setBackgroundPainter(new Simplex3DBackgroundpainter());
@@ -73,18 +74,15 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
     }
 
     @Override
-    public PointSource getSourceFor(PointSource eventSource) {
-        if (eventSource instanceof MappedPoint) {
-            return pointsBack.get((MappedPoint) eventSource);
-        }
-        return null;
+    public T getSourceFor(T eventSource) {
+        return pointsBack.get(eventSource);
     }
 
     @Override
-    public List<PointSource> getSourceFor(List<PointSource> eventSource) {
-        List<PointSource> out = new ArrayList<>();
-        for (PointSource in : eventSource) {
-            PointSource outP = getSourceFor(in);
+    public List<T> getSourceFor(List<T> eventSource) {
+        List<T> out = new ArrayList<>();
+        for (T in : eventSource) {
+            T outP = getSourceFor(in);
             if (outP != null) {
                 out.add(outP);
             }
@@ -98,7 +96,7 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
     }
 
     @Override
-    public void setPoints(Collection<PointSource> list) {
+    public void setPoints(Collection<T> list) {
         // reset gui
         pointPanel.setPoints(Collections.EMPTY_LIST);
         // reset model
@@ -107,7 +105,7 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
         highlight.clear();
 
         // add all points
-        for (PointSource p3 : list) {
+        for (T p3 : list) {
             points.put(p3, null);
         }
         mapPoints();
@@ -115,8 +113,8 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
 
     private void mapPoints() {
         // map
-        Set<PointSource> list = points.keySet();
-        for (PointSource p3 : list) {
+        Set<T> list = points.keySet();
+        for (T p3 : list) {
             MappedPoint mp = map3Dto2D(p3);
             points.put(p3, mp);
             pointsBack.put(mp, p3);
@@ -136,17 +134,23 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
 
     /**
      * Sets a highlighted point if it is contained in the panel
+     *
      * @param high
      */
     @Override
-    public void setHighlight(Collection<PointSource> high) {
+    public void setHighlight(Collection<T> high) {
         highlight.clear();
-        for (PointSource in : high) {
-            if (in instanceof MappedPoint) {
-                highlight.put(in, (MappedPoint) in);
-            } else {
-                highlight.put(in, points.get(in));
+        for (T in : high) {
+            MappedPoint p = points.get(in);
+            if (p == null) { // this is wired :-/
+                p = (MappedPoint) in;
             }
+            highlight.put(in, p);
+//            if (in instanceof MappedPoint) { // causes an comile error
+//                highlight.put(in, (MappedPoint) in);
+//            } else {
+//                highlight.put(in, points.get(in));
+//            }
         }
         pointPanel.setHighlight(highlight.values());
     }
@@ -223,7 +227,7 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
 //        }
 //        return out;
 //    }
-    public Collection<PointSource> getHighlighted() {
+    public Collection<T> getHighlighted() {
         return highlight.keySet();
     }
 
@@ -234,10 +238,9 @@ public class SimplexControl3D extends JXPanel implements SimplexControl {
 //    public void setCoDomainBackground(Color coDomainBackground) {
 //        this.coDomainBackground = coDomainBackground;
 //    }
-    /** This method is called from within the constructor to
-     * initialize the form.
-     * WARNING: Do NOT modify this code. The content of this method is
-     * always regenerated by the Form Editor.
+    /**
+     * This method is called from within the constructor to initialize the form. WARNING: Do NOT modify this code. The
+     * content of this method is always regenerated by the Form Editor.
      */
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
