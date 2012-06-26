@@ -48,6 +48,8 @@ public class XmlOsmGraphReader {
         graph = new Graph<>();
         graph.addNodeList(xmlHandler.getListNodes());
         graph.setLinkList(xmlHandler.getListLinks());
+        log.log(Level.INFO, "total number: nodes: {0}, links: {1}",
+                new Object[]{xmlHandler.getListNodes().size(), xmlHandler.getListLinks().size()});
 
         graph.beautifyGraph();
     }
@@ -65,6 +67,7 @@ public class XmlOsmGraphReader {
 
         SAXParser parser = factory.newSAXParser();
         parser.parse(osmXML, xmlHandler);
+
     }
 
     public Graph<Node<Link>, Link<Node>> getGraph() {

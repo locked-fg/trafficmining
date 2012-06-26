@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import sun.org.mozilla.javascript.internal.ast.BreakStatement;
 
 /**
  * XML Handler class that generates OSMNodes and OSMLinks from plain .osm files.
@@ -22,17 +23,12 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 class XmlOsmHandler extends DefaultHandler {
 
-    private static final Logger log = Logger.getLogger(XmlOsmGraphReader.class.getName());
+    private static final Logger log = Logger.getLogger(XmlOsmHandler.class.getName());
     private HashMap<Integer, Node<Link>> nodesMap = new HashMap<>();
     private List<Node<Link>> nodes = new ArrayList<>();
-    private LinkedList<Integer> intermediateNodeIds = null;
-    private List<String[]> wayAttributes = null;
     private List<Link<Node>> links = new ArrayList<>();
-    private Node currentNode = null;
-    private Integer wayId = null;
     private List<String> tagWhitelist = null;
-    private boolean open_node = false; // indicates that a <node> is currently processed
-    private boolean open_way = false;// indicates that a <way> is currently processed
+    private DefaultHandler handler = null;
 
     public XmlOsmHandler() {
     }
@@ -48,56 +44,26 @@ class XmlOsmHandler extends DefaultHandler {
     }
 
     @Override
-    public void startDocument() {
-    }
-
-    @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes)
             throws SAXException {
         if (Thread.interrupted()) {
             return;
         }
+        if (handler != null) {
+            handler.startElement(uri, localName, qName, attributes);
+        }
+
         switch (qName) {
             case "node":
-                open_node = true;
-                String id = attributes.getValue("id").intern();
-                String lat = attributes.getValue("lat");
-                String lon = attributes.getValue("lon");
-                currentNode = new Node(Integer.parseInt(id));
-                currentNode.setLat(Double.parseDouble(lat));
-                currentNode.setLon(Double.parseDouble(lon));
+                handler = new NodeHandler(attributes);
                 break;
+
             case "way":
-                open_way = true;
-                wayId = Integer.parseInt(attributes.getValue("id"));
-                intermediateNodeIds = new LinkedList<>();
-                wayAttributes = new LinkedList<>();
+                handler = new WayHandler(attributes);
                 break;
-            case "nd":
-                Integer nodeID = Integer.parseInt(attributes.getValue("ref").intern());
-                intermediateNodeIds.add(nodeID);
-                break;
-            case "tag":
-                String k = attributes.getValue("k").intern();
-                if (allowTag(k)) {
-                    String v = clean(attributes.getValue("v").intern());
-                    if (open_way) {
-                        wayAttributes.add(new String[]{k, v});
-                    } else if (open_node) {
-                        if (k.equalsIgnoreCase("height")) {
-                            double height = 0;
-                            try {
-                                height = Double.parseDouble(v);
-                            } catch (NumberFormatException nfe) {
-                                log.warning("WARNING! height is parsed to Double.NaN");
-                                height = Double.NaN;
-                            }
-                            currentNode.setHeight(height);
-                        } else {
-                            currentNode.setAttr(k, v);
-                        }
-                    }
-                }
+
+            default:
+                log.log(Level.FINE, "ignoring element: {0}", qName);
                 break;
         }
     }
@@ -128,127 +94,15 @@ class XmlOsmHandler extends DefaultHandler {
     }
 
     @Override
-    public void endElement(String uri, String localName, String qName) {
+    public void endElement(String uri, String localName, String qName) throws SAXException {
         if (Thread.interrupted()) {
             return;
         }
-        switch (qName) {
-            case "way":
-                Link<Node> link;
-                open_way = false;
-                Node src = null;
-                Node dst = null;
-                Integer first = intermediateNodeIds.peekFirst();
-                Integer last = intermediateNodeIds.peekLast();
-                if (first != null) {
-                    src = nodesMap.get(first);
-                }
-                if (last != null) {
-                    dst = nodesMap.get(last);
-                }
-                boolean highway = false;
-                boolean oneway = false;
-                boolean reverse = false;
-                if (src != null && dst != null) {
-                    // is it a one way street?
-                    for (String[] pair : wayAttributes) {
-                        if (pair[0].equals("oneway")) {
-                            switch (pair[1]) {
-                                case "yes":
-                                case "true":
-                                case "1":
-                                    oneway = true;
-                                    break;
-                                case "-1":
-                                    // oneway:-1
-                                    oneway = true;
-                                    reverse = true;
-                                    break;
-                            }
-                        }
-                        if (pair[0].equals("highway")) {
-                            highway = true;
-                        }
-                    }
-                }
-                if (highway) {
-                    if (!reverse) {
-                        link = new Link(src, dst, oneway);
-                    } else {
-                        link = new Link(dst, src, oneway);
-                    }
-                    link.setId(wayId);
-
-                    // add intermediate nodes to the link incl. start/end node
-                    while (!intermediateNodeIds.isEmpty()) {
-                        Integer nodeId;
-                        if (!reverse) {
-                            nodeId = intermediateNodeIds.pollFirst();
-                        } else {
-                            nodeId = intermediateNodeIds.pollLast();
-                        }
-                        if (nodeId != null) {
-                            Node worky = nodesMap.get(nodeId);
-                            if (worky != null) {
-                                link.addNodes(worky);
-                            }
-                        }
-                    }
-
-                    // add attributes
-                    for (String[] pair : wayAttributes) {
-                        switch (pair[0]) {
-                            case "ascend":
-                                link.setAscend(Double.parseDouble(pair[1]));
-                                break;
-                            case "descend":
-                                link.setDescend(Double.parseDouble(pair[1]));
-                                break;
-                            case "incline":
-                                // Steigung/Gefälle
-                                // remove all non digits (like "%")
-                                pair[1] = pair[1].replaceAll("[^\\d]", "");
-                                link.setAttr(pair[0], pair[1]);
-                                break;
-                            default:
-                                link.setAttr(pair[0], pair[1]);
-                                break;
-                        }
-                    }
-                    if (link.getAscend() == 0 && link.getDescend() == 0 && link.getSource().getHeight() != link.getTarget().getHeight()) {
-                        double height = link.getTarget().getHeight() - link.getSource().getHeight();
-                        if (!Double.isNaN(height)) {
-                            if (height < 0) {
-                                link.setDescend(-height);
-                            } else {
-                                link.setAscend(height);
-                            }
-                        }
-                    }
-                    links.add(link);
-                    if (!links.isEmpty() && links.size() % 10000 == 0) {
-                        log.log(Level.FINE, "links: {0}", links.size());
-                    }
-                }
-                wayId = null;
-                intermediateNodeIds = null;
-                wayAttributes = null;
-                break;
-            case "node":
-                open_node = false;
-                nodes.add(currentNode);
-                nodesMap.put(currentNode.getName(), currentNode);
-                currentNode = null;
-                if (!nodes.isEmpty() && nodes.size() % 100000 == 0) {
-                    log.log(Level.FINE, "nodes: {0}", nodes.size());
-                }
-                break;
+        if (handler != null) {
+            handler.endElement(uri, localName, qName);
+        } else {
+            log.log(Level.FINE, "ignoring closing element {0}", qName);
         }
-    }
-
-    @Override
-    public void endDocument() {
-        log.log(Level.INFO, "total number: nodes: {0}, links: {1}", new Object[]{nodes.size(), links.size()});
     }
 
     public List<Node<Link>> getListNodes() {
@@ -260,8 +114,187 @@ class XmlOsmHandler extends DefaultHandler {
     }
 
     class NodeHandler extends DefaultHandler {
+
+        private final Node currentNode;
+
+        private NodeHandler(Attributes attributes) {
+            String id = attributes.getValue("id").intern();
+            String lat = attributes.getValue("lat");
+            String lon = attributes.getValue("lon");
+            currentNode = new Node(Integer.parseInt(id));
+            currentNode.setLat(Double.parseDouble(lat));
+            currentNode.setLon(Double.parseDouble(lon));
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            switch (qName) {
+                case "tag":
+                    String k = attributes.getValue("k").intern();
+                    if (allowTag(k)) {
+                        String v = clean(attributes.getValue("v").intern());
+                        if (k.equalsIgnoreCase("height")) {
+                            double height = 0;
+                            try {
+                                height = Double.parseDouble(v);
+                            } catch (NumberFormatException nfe) {
+                                log.warning("WARNING! height is parsed to Double.NaN ");
+                                height = Double.NaN;
+                            }
+                            currentNode.setHeight(height);
+                        } else {
+                            currentNode.setAttr(k, v);
+                        }
+                    }
+                    break;
+
+                default:
+                    throw new IllegalStateException(qName);
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            nodes.add(currentNode);
+            nodesMap.put(currentNode.getName(), currentNode);
+            if (!nodes.isEmpty() && nodes.size() % 100000 == 0) {
+                log.log(Level.FINE, "nodes: {0}", nodes.size());
+            }
+            handler = null;
+        }
     }
-    
+
     class WayHandler extends DefaultHandler {
+
+        private final int wayId;
+        private final LinkedList<Integer> intermediateNodeIds = new LinkedList<>();
+        private final LinkedList<String[]> wayAttributes = new LinkedList<>();
+
+        private WayHandler(Attributes attributes) {
+            wayId = Integer.parseInt(attributes.getValue("id"));
+        }
+
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+            switch (qName) {
+                case "nd":
+                    Integer nodeID = Integer.parseInt(attributes.getValue("ref"));
+                    intermediateNodeIds.add(nodeID);
+                    break;
+                case "tag":
+                    String k = attributes.getValue("k").intern();
+                    if (allowTag(k)) {
+                        String v = clean(attributes.getValue("v").intern());
+                        wayAttributes.add(new String[]{k, v});
+                    }
+                    break;
+                default:
+                    throw new IllegalStateException(qName);
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) throws SAXException {
+            switch (qName) {
+                case "way":
+                    Link<Node> link;
+                    Node src = null;
+                    Node dst = null;
+                    Integer first = intermediateNodeIds.peekFirst();
+                    Integer last = intermediateNodeIds.peekLast();
+                    if (first != null) {
+                        src = nodesMap.get(first);
+                    }
+                    if (last != null) {
+                        dst = nodesMap.get(last);
+                    }
+                    boolean highway = false;
+                    boolean oneway = false;
+                    boolean reverse = false;
+                    if (src != null && dst != null) {
+                        // is it a one way street?
+                        for (String[] pair : wayAttributes) {
+                            if (pair[0].equals("oneway")) {
+                                switch (pair[1]) {
+                                    case "yes":
+                                    case "true":
+                                    case "1":
+                                        oneway = true;
+                                        break;
+                                    case "-1":
+                                        // oneway:-1
+                                        oneway = true;
+                                        reverse = true;
+                                        break;
+                                }
+                            }
+                            if (pair[0].equals("highway")) {
+                                highway = true;
+                            }
+                        }
+                    }
+                    if (highway) {
+                        if (!reverse) {
+                            link = new Link(src, dst, oneway);
+                        } else {
+                            link = new Link(dst, src, oneway);
+                        }
+                        link.setId(wayId);
+
+                        // add intermediate nodes to the link incl. start/end node
+                        while (!intermediateNodeIds.isEmpty()) {
+                            Integer nodeId;
+                            if (!reverse) {
+                                nodeId = intermediateNodeIds.pollFirst();
+                            } else {
+                                nodeId = intermediateNodeIds.pollLast();
+                            }
+                            if (nodeId != null) {
+                                Node worky = nodesMap.get(nodeId);
+                                if (worky != null) {
+                                    link.addNodes(worky);
+                                }
+                            }
+                        }
+
+                        // add attributes
+                        for (String[] pair : wayAttributes) {
+                            switch (pair[0]) {
+                                case "ascend":
+                                    link.setAscend(Double.parseDouble(pair[1]));
+                                    break;
+                                case "descend":
+                                    link.setDescend(Double.parseDouble(pair[1]));
+                                    break;
+                                case "incline":
+                                    // Steigung/Gefälle
+                                    // remove all non digits (like "%")
+                                    pair[1] = pair[1].replaceAll("[^\\d]", "");
+                                    link.setAttr(pair[0], pair[1]);
+                                    break;
+                                default:
+                                    link.setAttr(pair[0], pair[1]);
+                                    break;
+                            }
+                        }
+                        if (link.getAscend() == 0 && link.getDescend() == 0 && link.getSource().getHeight() != link.getTarget().getHeight()) {
+                            double height = link.getTarget().getHeight() - link.getSource().getHeight();
+                            if (!Double.isNaN(height)) {
+                                if (height < 0) {
+                                    link.setDescend(-height);
+                                } else {
+                                    link.setAscend(height);
+                                }
+                            }
+                        }
+                        links.add(link);
+                        if (!links.isEmpty() && links.size() % 10000 == 0) {
+                            log.log(Level.FINE, "links: {0}", links.size());
+                        }
+                    }
+                    handler = null;
+                    break;
+            }
+        }
     }
 }
