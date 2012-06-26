@@ -62,7 +62,7 @@ class XmlOsmHandler extends DefaultHandler {
                 break;
 
             default:
-                log.log(Level.FINE, "ignoring element: {0}", qName);
+//                log.log(Level.FINE, "ignoring element: {0}", qName);
                 break;
         }
     }
@@ -100,7 +100,7 @@ class XmlOsmHandler extends DefaultHandler {
         if (handler != null) {
             handler.endElement(uri, localName, qName);
         } else {
-            log.log(Level.FINE, "ignoring closing element {0}", qName);
+//            log.log(Level.FINE, "ignoring closing element {0}", qName);
         }
     }
 
@@ -231,6 +231,7 @@ class XmlOsmHandler extends DefaultHandler {
             if (onewayValue == null) {
                 return;
             }
+            onewayValue = onewayValue.toLowerCase();
             switch (onewayValue) {
                 case "yes":
                 case "true":
@@ -241,8 +242,12 @@ class XmlOsmHandler extends DefaultHandler {
                     oneway = true;
                     reverse = true;
                     break;
+                case "no":
+                case "false":
+                case "0":
+                    break;
                 default:
-                    log.warning("ignoring oneway value " + onewayValue);
+                    log.log(Level.WARNING, "ignoring oneway value {0}", onewayValue);
                     break;
             }
         }
