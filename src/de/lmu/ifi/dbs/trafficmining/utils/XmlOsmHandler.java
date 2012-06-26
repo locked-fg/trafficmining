@@ -11,7 +11,6 @@ import java.util.logging.Logger;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import sun.org.mozilla.javascript.internal.ast.BreakStatement;
 
 /**
  * XML Handler class that generates OSMNodes and OSMLinks from plain .osm files.
@@ -130,18 +129,11 @@ class XmlOsmHandler extends DefaultHandler {
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
             switch (qName) {
                 case "tag":
-                    String k = attributes.getValue("k").intern();
+                    String k = attributes.getValue("k");
                     if (allowTag(k)) {
-                        String v = clean(attributes.getValue("v").intern());
+                        String v = clean(attributes.getValue("v"));
                         if (k.equalsIgnoreCase("height")) {
-                            double height = 0;
-                            try {
-                                height = Double.parseDouble(v);
-                            } catch (NumberFormatException nfe) {
-                                log.warning("WARNING! height is parsed to Double.NaN ");
-                                height = Double.NaN;
-                            }
-                            currentNode.setHeight(height);
+                            setHeight(v);
                         } else {
                             currentNode.setAttr(k, v);
                         }
@@ -162,13 +154,28 @@ class XmlOsmHandler extends DefaultHandler {
             }
             handler = null;
         }
+
+        private void setHeight(String v) {
+            double height;
+            try {
+                height = Double.parseDouble(v);
+            } catch (NumberFormatException nfe) {
+                log.log(Level.WARNING, "WARNING! height is parsed to Double.NaN ", nfe);
+                height = Double.NaN;
+            }
+            currentNode.setHeight(height);
+
+        }
     }
 
     class WayHandler extends DefaultHandler {
 
         private final int wayId;
         private final LinkedList<Integer> intermediateNodeIds = new LinkedList<>();
-        private final LinkedList<String[]> wayAttributes = new LinkedList<>();
+        private final HashMap<String, String> wayAttributes = new HashMap<>();
+        private boolean highway = false;
+        private boolean oneway = false;
+        private boolean reverse = false;
 
         private WayHandler(Attributes attributes) {
             wayId = Integer.parseInt(attributes.getValue("id"));
@@ -185,7 +192,7 @@ class XmlOsmHandler extends DefaultHandler {
                     String k = attributes.getValue("k").intern();
                     if (allowTag(k)) {
                         String v = clean(attributes.getValue("v").intern());
-                        wayAttributes.add(new String[]{k, v});
+                        wayAttributes.put(k, v);
                     }
                     break;
                 default:
@@ -197,96 +204,18 @@ class XmlOsmHandler extends DefaultHandler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
             switch (qName) {
                 case "way":
-                    Link<Node> link;
-                    Node src = null;
-                    Node dst = null;
-                    Integer first = intermediateNodeIds.peekFirst();
-                    Integer last = intermediateNodeIds.peekLast();
-                    if (first != null) {
-                        src = nodesMap.get(first);
-                    }
-                    if (last != null) {
-                        dst = nodesMap.get(last);
-                    }
-                    boolean highway = false;
-                    boolean oneway = false;
-                    boolean reverse = false;
-                    if (src != null && dst != null) {
-                        // is it a one way street?
-                        for (String[] pair : wayAttributes) {
-                            if (pair[0].equals("oneway")) {
-                                switch (pair[1]) {
-                                    case "yes":
-                                    case "true":
-                                    case "1":
-                                        oneway = true;
-                                        break;
-                                    case "-1":
-                                        // oneway:-1
-                                        oneway = true;
-                                        reverse = true;
-                                        break;
-                                }
-                            }
-                            if (pair[0].equals("highway")) {
-                                highway = true;
-                            }
-                        }
-                    }
-                    if (highway) {
-                        if (!reverse) {
-                            link = new Link(src, dst, oneway);
-                        } else {
-                            link = new Link(dst, src, oneway);
-                        }
-                        link.setId(wayId);
+                    Node src = nodesMap.get(intermediateNodeIds.peekFirst());
+                    Node dst = nodesMap.get(intermediateNodeIds.peekLast());
 
-                        // add intermediate nodes to the link incl. start/end node
-                        while (!intermediateNodeIds.isEmpty()) {
-                            Integer nodeId;
-                            if (!reverse) {
-                                nodeId = intermediateNodeIds.pollFirst();
-                            } else {
-                                nodeId = intermediateNodeIds.pollLast();
-                            }
-                            if (nodeId != null) {
-                                Node worky = nodesMap.get(nodeId);
-                                if (worky != null) {
-                                    link.addNodes(worky);
-                                }
-                            }
-                        }
+                    detectOneway();
+                    isHighway();
 
-                        // add attributes
-                        for (String[] pair : wayAttributes) {
-                            switch (pair[0]) {
-                                case "ascend":
-                                    link.setAscend(Double.parseDouble(pair[1]));
-                                    break;
-                                case "descend":
-                                    link.setDescend(Double.parseDouble(pair[1]));
-                                    break;
-                                case "incline":
-                                    // Steigung/Gefälle
-                                    // remove all non digits (like "%")
-                                    pair[1] = pair[1].replaceAll("[^\\d]", "");
-                                    link.setAttr(pair[0], pair[1]);
-                                    break;
-                                default:
-                                    link.setAttr(pair[0], pair[1]);
-                                    break;
-                            }
-                        }
-                        if (link.getAscend() == 0 && link.getDescend() == 0 && link.getSource().getHeight() != link.getTarget().getHeight()) {
-                            double height = link.getTarget().getHeight() - link.getSource().getHeight();
-                            if (!Double.isNaN(height)) {
-                                if (height < 0) {
-                                    link.setDescend(-height);
-                                } else {
-                                    link.setAscend(height);
-                                }
-                            }
-                        }
+                    if (src != null && dst != null && highway) {
+                        Link<Node> link = initLink(src, dst);
+                        initIntermediateNodes(link);
+                        setAttributes(link);
+                        initAscendDescend(link);
+
                         links.add(link);
                         if (!links.isEmpty() && links.size() % 10000 == 0) {
                             log.log(Level.FINE, "links: {0}", links.size());
@@ -294,6 +223,98 @@ class XmlOsmHandler extends DefaultHandler {
                     }
                     handler = null;
                     break;
+            }
+        }
+
+        private void detectOneway() {
+            String onewayValue = wayAttributes.get("oneway");
+            if (onewayValue == null) {
+                return;
+            }
+            switch (onewayValue) {
+                case "yes":
+                case "true":
+                case "1":
+                    oneway = true;
+                    break;
+                case "-1":
+                    oneway = true;
+                    reverse = true;
+                    break;
+                default:
+                    log.warning("ignoring oneway value " + onewayValue);
+                    break;
+            }
+        }
+
+        private void isHighway() {
+            highway = wayAttributes.containsKey("highway");
+        }
+
+        private Link<Node> initLink(Node src, Node dst) {
+            Link<Node> link;
+            if (!reverse) {
+                link = new Link(src, dst, oneway);
+            } else {
+                link = new Link(dst, src, oneway);
+            }
+            link.setId(wayId);
+            return link;
+        }
+
+        private void setAttributes(Link<Node> link) throws NumberFormatException {
+            // add attributes
+            for (String k : wayAttributes.keySet()) {
+                String v = wayAttributes.get(k);
+                switch (k) {
+                    case "ascend":
+                        link.setAscend(Double.parseDouble(v));
+                        break;
+                    case "descend":
+                        link.setDescend(Double.parseDouble(v));
+                        break;
+                    case "incline":
+                        // Steigung/Gefälle
+                        // remove all non digits (like "%")
+                        v = v.replaceAll("[^\\d]", "");
+                        link.setAttr(k, v);
+                        break;
+                    default:
+                        link.setAttr(k, v);
+                        break;
+                }
+            }
+        }
+
+        private void initAscendDescend(Link<Node> link) {
+            if (link.getAscend() == 0 && link.getDescend() == 0
+                    && link.getSource().getHeight() != link.getTarget().getHeight()) {
+                double height = link.getTarget().getHeight() - link.getSource().getHeight();
+                if (!Double.isNaN(height)) {
+                    if (height < 0) {
+                        link.setDescend(-height);
+                    } else {
+                        link.setAscend(height);
+                    }
+                }
+            }
+        }
+
+        private void initIntermediateNodes(Link<Node> link) {
+            // add intermediate nodes to the link incl. start/end node
+            while (!intermediateNodeIds.isEmpty()) {
+                Integer nodeId;
+                if (!reverse) {
+                    nodeId = intermediateNodeIds.pollFirst();
+                } else {
+                    nodeId = intermediateNodeIds.pollLast();
+                }
+                if (nodeId != null) {
+                    Node worky = nodesMap.get(nodeId);
+                    if (worky != null) {
+                        link.addNodes(worky);
+                    }
+                }
             }
         }
     }
