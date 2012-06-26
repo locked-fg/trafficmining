@@ -9,7 +9,7 @@ import org.jdesktop.swingx.JXPanel;
 /**
  * @author graf
  */
-public class SimplexControl2D extends JXPanel implements SimplexControl {
+public class SimplexControl2D<T extends PointSource> extends JXPanel implements SimplexControl<T> {
 
     /** Creates new form SimplexControl2D */
     public SimplexControl2D() {
@@ -26,12 +26,12 @@ public class SimplexControl2D extends JXPanel implements SimplexControl {
     }
 
     @Override
-    public void setPoints(Collection<PointSource> ps) {
+    public void setPoints(Collection<T> ps) {
         pointPanel.setPoints(ps);
     }
 
     @Override
-    public void setHighlight(Collection<PointSource> ps) {
+    public void setHighlight(Collection<T> ps) {
         pointPanel.setHighlight(ps);
     }
 
@@ -47,7 +47,7 @@ public class SimplexControl2D extends JXPanel implements SimplexControl {
     }
 
     @Override
-    public PointSource getSourceFor(PointSource eventSource) {
+    public T getSourceFor(T eventSource) {
         if (pointPanel.getPoints().contains(eventSource)) {
             return eventSource;
         } else {
@@ -56,10 +56,10 @@ public class SimplexControl2D extends JXPanel implements SimplexControl {
     }
 
     @Override
-    public List<PointSource> getSourceFor(List<PointSource> eventSource) {
-        List<PointSource> out = new ArrayList<>();
-        for (PointSource in : eventSource) {
-            PointSource p = getSourceFor(in);
+    public List<T> getSourceFor(List<T> eventSource) {
+        List<T> out = new ArrayList<>();
+        for (T in : eventSource) {
+            T p = getSourceFor(in);
             if (p != null) {
                 out.add(p);
             }

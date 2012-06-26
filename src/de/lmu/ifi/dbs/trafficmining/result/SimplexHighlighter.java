@@ -32,7 +32,7 @@ public class SimplexHighlighter extends MouseAdapter {
         // convert to click on the panel
         e = SwingUtilities.convertMouseEvent((Component) control, e, control.getPointPanel());
 
-        List<PointSource> pointSources2D = panel.getEpsilonPoints(e.getPoint(), panel.getPointSize() / 2);
+        List<PointSource> pointSources2D = panel.getEpsilonPoints(e.getPoint(), panel.getPointSize() / 2d);
         panel.setHighlight(pointSources2D);
         final List<PointSource> pointSources3D = control.getSourceFor(pointSources2D);
 
