@@ -131,9 +131,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         // register Actionlisterner on SimplexControls' paintpanel to link from the
         // paint panel to the resultList
-//        simplexControl1D.addMouseListener(new SimplexHighlighter(resultTable));
-//        simplexControl2D.addMouseListener(new SimplexHighlighter(resultTable));
-//        simplexControl3D.addMouseListener(new SimplexHighlighter(resultTable));
+//        simplexControl1D.addMouseListener(new SimplexHighlighter(resultPanel));
+//        simplexControl2D.addMouseListener(new SimplexHighlighter(resultPanel));
+//        simplexControl3D.addMouseListener(new SimplexHighlighter(resultPanel));
     }
 
     private void restoreLastMapPosition() {
@@ -391,8 +391,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
      * files.
      *
      * Also updates the painter as soon as the graph is loaded
-     *
-     * @TODO extract class
      */
     class LoadGraphAction implements ActionListener {
 
@@ -424,12 +422,11 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
             // If the user pressed "okay", try to load the files
             if (JFileChooser.APPROVE_OPTION == chooser.showOpenDialog(getContentPane())) {
-
-                // setting lru dir
+                // set lru dir
                 lruDir = chooser.getCurrentDirectory().getAbsolutePath();
                 properties.setProperty(TrafficminingProperties.lru_graph_dir, lruDir);
 
-                // setting lru file
+                // set lru file
                 String lruFile = chooser.getSelectedFile().getName();
                 properties.setProperty(TrafficminingProperties.lru_graph_file, lruFile);
 
