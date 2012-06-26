@@ -58,15 +58,6 @@ public class Graph<N extends Node, L extends Link>  {
 
     }
 
-//    public Node getNode(Double lat, Double lon) {
-//        Collection<N> nodes = this.getNodes();
-//        for (N aktN : nodes) {
-//            if (aktN.getLat() == lat && aktN.getLon() == lon) {
-//                return aktN;
-//            }
-//        }
-//        return null;
-//    }
     /**
      * if a node has an additional attribute and is an intermediate node split
      * the link to two new links and set the node as start or end for a new link
