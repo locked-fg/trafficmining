@@ -258,4 +258,10 @@ class XmlOsmHandler extends DefaultHandler {
     public List<Link<Node>> getListLinks() {
         return links;
     }
+
+    class NodeHandler extends DefaultHandler {
+    }
+    
+    class WayHandler extends DefaultHandler {
+    }
 }
