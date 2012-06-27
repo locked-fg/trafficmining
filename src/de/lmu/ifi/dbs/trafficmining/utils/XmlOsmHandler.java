@@ -3,6 +3,7 @@ package de.lmu.ifi.dbs.trafficmining.utils;
 import de.lmu.ifi.dbs.trafficmining.graph.Link;
 import de.lmu.ifi.dbs.trafficmining.graph.Node;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -171,7 +172,7 @@ class XmlOsmHandler extends DefaultHandler {
     class WayHandler extends DefaultHandler {
 
         private final int wayId;
-        private final LinkedList<Integer> intermediateNodeIds = new LinkedList<>();
+        private final List<Integer> intermediateNodeIds = new ArrayList<>();
         private final HashMap<String, String> wayAttributes = new HashMap<>();
         private boolean highway = false;
         private boolean oneway = false;
@@ -196,7 +197,8 @@ class XmlOsmHandler extends DefaultHandler {
                     }
                     break;
                 default:
-                    throw new IllegalStateException(qName);
+                    log.log(Level.FINE, "ignoring element {0} in way", qName);
+                    break;
             }
         }
 
@@ -204,17 +206,17 @@ class XmlOsmHandler extends DefaultHandler {
         public void endElement(String uri, String localName, String qName) throws SAXException {
             switch (qName) {
                 case "way":
-                    Node src = nodesMap.get(intermediateNodeIds.peekFirst());
-                    Node dst = nodesMap.get(intermediateNodeIds.peekLast());
+                    Node src = nodesMap.get(intermediateNodeIds.get(0));
+                    Node dst = nodesMap.get(intermediateNodeIds.get(intermediateNodeIds.size() - 1));
 
-                    detectOneway();
                     isHighway();
+                    detectOneway();
 
                     if (src != null && dst != null && highway) {
                         Link<Node> link = initLink(src, dst);
-                        initIntermediateNodes(link);
+                        setNodes(link);
                         setAttributes(link);
-                        initAscendDescend(link);
+                        setAscendDescend(link);
 
                         links.add(link);
                         if (!links.isEmpty() && links.size() % 10000 == 0) {
@@ -222,6 +224,8 @@ class XmlOsmHandler extends DefaultHandler {
                         }
                     }
                     handler = null;
+                    break;
+                default:
                     break;
             }
         }
@@ -268,7 +272,6 @@ class XmlOsmHandler extends DefaultHandler {
         }
 
         private void setAttributes(Link<Node> link) throws NumberFormatException {
-            // add attributes
             for (String k : wayAttributes.keySet()) {
                 String v = wayAttributes.get(k);
                 switch (k) {
@@ -291,7 +294,7 @@ class XmlOsmHandler extends DefaultHandler {
             }
         }
 
-        private void initAscendDescend(Link<Node> link) {
+        private void setAscendDescend(Link<Node> link) {
             if (link.getAscend() == 0 && link.getDescend() == 0
                     && link.getSource().getHeight() != link.getTarget().getHeight()) {
                 double height = link.getTarget().getHeight() - link.getSource().getHeight();
@@ -305,20 +308,20 @@ class XmlOsmHandler extends DefaultHandler {
             }
         }
 
-        private void initIntermediateNodes(Link<Node> link) {
+        private void setNodes(Link<Node> link) {
             // add intermediate nodes to the link incl. start/end node
-            while (!intermediateNodeIds.isEmpty()) {
-                Integer nodeId;
-                if (!reverse) {
-                    nodeId = intermediateNodeIds.pollFirst();
-                } else {
-                    nodeId = intermediateNodeIds.pollLast();
-                }
-                if (nodeId != null) {
-                    Node worky = nodesMap.get(nodeId);
-                    if (worky != null) {
-                        link.addNodes(worky);
-                    }
+            if (intermediateNodeIds.isEmpty()) {
+                return;
+            }
+
+            if (reverse) {
+                Collections.reverse(intermediateNodeIds);
+            }
+
+            for (Integer id : intermediateNodeIds) {
+                Node node = nodesMap.get(id);
+                if (node != null) {
+                    link.addNodes(node);
                 }
             }
         }
