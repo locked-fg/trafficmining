@@ -10,6 +10,7 @@ import de.lmu.ifi.dbs.trafficmining.simplex.PointPanel.PointSource;
 import de.lmu.ifi.dbs.trafficmining.simplex.SimplexControl;
 import de.lmu.ifi.dbs.trafficmining.ui.AboutDialog;
 import de.lmu.ifi.dbs.trafficmining.ui.EnableTileserverAction;
+import de.lmu.ifi.dbs.trafficmining.ui.MapWrapper;
 import de.lmu.ifi.dbs.trafficmining.ui.PbfImportFrame;
 import de.lmu.ifi.dbs.trafficmining.ui.StatisticsFrame;
 import de.lmu.ifi.dbs.trafficmining.ui.TileServerFactory;
@@ -83,6 +84,12 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         algorithmPanel.addButtonObserver(new AlgorithmPanelObserver());
     }
 
+    /**
+     * Initializes the Menu showing different tileservers that are provided by the MapWrapper
+     *
+     * @throws IOException
+     * @see MapWrapper
+     */
     private void initTileServerMenu() throws IOException {
         TileServerFactory.get();
 
@@ -98,6 +105,9 @@ public class TrafficminingGUI extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Loads the most recently loaded graph if the graph is found and if the according property is set
+     */
     private void maybeLoadRecentGraph() {
         String dir = properties.getProperty(TrafficminingProperties.lru_graph_dir);
         String file = properties.getProperty(TrafficminingProperties.lru_graph_file);
@@ -237,7 +247,6 @@ public class TrafficminingGUI extends javax.swing.JFrame {
 
         // update map
         mapWrapper.paintPaths(new ArrayList(paths));
-
 
         // Update simplex
         List<PointSource> list = new ArrayList<>();
