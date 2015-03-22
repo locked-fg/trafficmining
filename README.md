@@ -17,7 +17,7 @@ For you as a developer and researcher, the trafficmining project provides:
   * A pluggable architecture for developing your own route search algorithms
   * A GUI that visualizes your results without having to do some GUI coding!
   * Easy integration of Web Map Services if you wish to do so
-  * Easy access to a huge repostiory of data worldwide by using OpenStreetMap data (ever got a reject because you used "unrealistic, artificial" or "too small" data sets?)
+  * Easy access to a huge repository of data worldwide by using OpenStreetMap data (ever got a reject because you used "unrealistic, artificial" or "too small" data sets?)
   * If you don't want/need a GUI (for example just verify research results), you do not NEED the GUI. You can integrate the code into your code base rather easy. All algorithms can be started from your code as well.
 
 ## Publications using this project ##
